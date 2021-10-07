@@ -1,0 +1,480 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<data version="1.38.0">
+  <trigger type="activity_started">
+    <useDefaultName>true</useDefaultName>
+    <name>Activity Started: ch.gridvision.ppam.androidautomagic/.*</name>
+    <enabled>false</enabled>
+    <method>CLASSIC</method>
+    <packageNameFilter>ch.gridvision.ppam.androidautomagic</packageNameFilter>
+    <classNameFilter>ch.gridvision.ppam.androidautomagic.*</classNameFilter>
+  </trigger>
+  <trigger type="activity_started">
+    <useDefaultName>true</useDefaultName>
+    <name>Activity Started: gt.modify.gt.modify/ch.gridvision.ppam.androidautomagic.*</name>
+    <enabled>false</enabled>
+    <method>CLASSIC</method>
+    <packageNameFilter>gt.modify.gt.modify</packageNameFilter>
+    <classNameFilter>ch.gridvision.ppam.androidautomagic.*</classNameFilter>
+  </trigger>
+  <trigger type="quick_settings_tile_selected">
+    <useDefaultName>true</useDefaultName>
+    <name>Quick Settings Tile Selected: Tile 1 On</name>
+    <enabled>false</enabled>
+    <tileID>TILE_1</tileID>
+    <label>On</label>
+    <iconType>BUILTIN</iconType>
+    <icon>BRIGHTNESS_AUTO</icon>
+    <customIconPath></customIconPath>
+    <shouldCollapsePanel>false</shouldCollapsePanel>
+  </trigger>
+  <trigger type="quick_settings_tile_selected">
+    <useDefaultName>true</useDefaultName>
+    <name>Quick Settings Tile Selected: Tile 2 Off</name>
+    <enabled>false</enabled>
+    <tileID>TILE_2</tileID>
+    <label>Off</label>
+    <iconType>BUILTIN</iconType>
+    <icon>PAUSE</icon>
+    <customIconPath></customIconPath>
+    <shouldCollapsePanel>false</shouldCollapsePanel>
+  </trigger>
+  <trigger type="user_interface_event">
+    <useDefaultName>true</useDefaultName>
+    <name>UI Event: Component clicked package com.linecorp.lineman.driver contains text รับงานนี้</name>
+    <enabled>false</enabled>
+    <accessibilityEventType>TYPE_VIEW_CLICKED</accessibilityEventType>
+    <packageNameFilter>com.linecorp.lineman.driver</packageNameFilter>
+    <textMatchType>CONTAINS_TEXT</textMatchType>
+    <textFilter>รับงานนี้</textFilter>
+    <removeNonPrintableCharacters>false</removeNonPrintableCharacters>
+  </trigger>
+  <trigger type="user_interface_event">
+    <useDefaultName>true</useDefaultName>
+    <name>UI Event: Component scrolled package com.linecorp.lineman.driver </name>
+    <enabled>false</enabled>
+    <accessibilityEventType>TYPE_VIEW_SCROLLED</accessibilityEventType>
+    <packageNameFilter>com.linecorp.lineman.driver</packageNameFilter>
+    <textMatchType>CONTAINS_TEXT</textMatchType>
+    <textFilter></textFilter>
+    <removeNonPrintableCharacters>false</removeNonPrintableCharacters>
+  </trigger>
+  <trigger type="user_interface_event">
+    <useDefaultName>true</useDefaultName>
+    <name>UI Event: Window opened package gt.modify.gt.modify contains text Flow</name>
+    <enabled>false</enabled>
+    <accessibilityEventType>TYPE_WINDOW_STATE_CHANGED</accessibilityEventType>
+    <packageNameFilter>gt.modify.gt.modify</packageNameFilter>
+    <textMatchType>CONTAINS_TEXT</textMatchType>
+    <textFilter>Flow</textFilter>
+    <removeNonPrintableCharacters>false</removeNonPrintableCharacters>
+  </trigger>
+  <condition type="expression">
+    <useDefaultName>true</useDefaultName>
+    <name>Expression: value == "016593160q"​</name>
+    <expression>value == "016593160q"​</expression>
+  </condition>
+  <action type="delete_flows">
+    <useDefaultName>false</useDefaultName>
+    <name>Auto GT1</name>
+    <flowNameList>Auto Delay // ห้ามเปิด,Auto Delay First,Auto Off,Auto On</flowNameList>
+    <deleteUnusedObjects>true</deleteUnusedObjects>
+  </action>
+  <action type="delete_flows">
+    <useDefaultName>false</useDefaultName>
+    <name>Auto GT2</name>
+    <flowNameList>Auto Delay // ห้ามเปิด,Auto Delay First,Auto Off,Auto On</flowNameList>
+    <deleteUnusedObjects>true</deleteUnusedObjects>
+  </action>
+  <action type="control_user_interface">
+    <useDefaultName>false</useDefaultName>
+    <name>Control UI: gch = "com.linecorp.lineman.driver:id/button_choice_"; gtmodify = random(10, 30); secx = gtmodify; secy = random(15,35); xpix = random(200,700); ycal = random(-15,15); choice1x = 2090; choice2x = 2360; choice3x = 2635; choice1x = choice1x + ycal + 0; choice2x = choice2x + ycal + 0; choice3x = choicex</name>
+    <script>gch = "com.linecorp.lineman.driver:id/button_choice_";
+gtmodify = random(10, 30);
+secx = gtmodify;
+secy = random(15,35);
+xpix = random(200,600);
+ycal = random(-15,15);
+
+choice1x = 1640;
+choice2x = 1845;
+choice3x = 2055;
+
+
+
+choice1x = choice1x + ycal + 0;
+choice2x = choice2x + ycal + 0;
+choice3x = choice3x + ycal + 0;
+choice1 = getTextById(gch+"1");
+choice2 = getTextById(gch+"2");
+choice3 = getTextById(gch+"3");
+sleep(random(20,50));
+if (choice1 == choice2)​
+{
+touchGesture(1, secy, newList(xpix, choice3x))​;
+}​
+else if (choice1 == choice3)​
+{
+touchGesture(1, secy, newList(xpix, choice2x))​;
+}​
+else if (choice2 == choice3)​
+{
+touchGesture(1, secy, newList(xpix, choice1x))​;
+}​</script>
+  </action>
+  <action type="control_user_interface">
+    <useDefaultName>true</useDefaultName>
+    <name>Control UI: sleep(random(10,30)); pix = 810; piy = 975; pix = pix+random(-10,10); piy = piy+random(-10,10); touchGesture(1, random(5,20),newList( pix, piy) ); state = "on"​;</name>
+    <script>sleep(random(10,30));
+pix = 810;
+piy = 975;
+pix = pix+random(-10,10);
+piy = piy+random(-10,10);
+touchGesture(1, random(5,20),newList( pix, piy) );
+state = "on"​;</script>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0</name>
+    <pathList>/storage/emulated/0</pathList>
+    <showProgress>false</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/*</name>
+    <pathList>/storage/emulated/0/*</pathList>
+    <showProgress>false</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/*.xml</name>
+    <pathList>/storage/emulated/0/*.xml</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/Android/*</name>
+    <pathList>/storage/emulated/0/Android/*</pathList>
+    <showProgress>false</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/Android/.xml</name>
+    <pathList>/storage/emulated/0/Android/.xml</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/Android/media/.xml</name>
+    <pathList>/storage/emulated/0/Android/media/.xml</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/Automa*</name>
+    <pathList>/storage/emulated/0/Automa*</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/bluetooth/*.xml</name>
+    <pathList>/storage/emulated/0/bluetooth/*.xml</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/DCIM</name>
+    <pathList>/storage/emulated/0/DCIM</pathList>
+    <showProgress>false</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/Download/*</name>
+    <pathList>/storage/emulated/0/Download/*</pathList>
+    <showProgress>false</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/Download/*.xml</name>
+    <pathList>/storage/emulated/0/Download/*.xml</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/Download/*GT*.apk</name>
+    <pathList>/storage/emulated/0/Download/*GT*.apk</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/GT/</name>
+    <pathList>/storage/emulated/0/GT/</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_files">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Files: /storage/emulated/0/GT/*</name>
+    <pathList>/storage/emulated/0/GT/*</pathList>
+    <showProgress>true</showProgress>
+  </action>
+  <action type="delete_flows">
+    <useDefaultName>true</useDefaultName>
+    <name>Delete Flows: Auto Delete</name>
+    <flowNameList>Auto Delete</flowNameList>
+    <deleteUnusedObjects>true</deleteUnusedObjects>
+  </action>
+  <action type="execute_flows">
+    <useDefaultName>true</useDefaultName>
+    <name>Execute Flows: Auto GT //ห้ามเปิด</name>
+    <includeFlowNamePatternList>Auto GT //ห้ามเปิด</includeFlowNamePatternList>
+    <excludeFlowNamePatternList></excludeFlowNamePatternList>
+    <skipDisabledFlowsWithoutError>false</skipDisabledFlowsWithoutError>
+    <waitForFlowsToFinish>false</waitForFlowsToFinish>
+    <returnLocalVariablesToCallingFlow>false</returnLocalVariablesToCallingFlow>
+  </action>
+  <action type="execute_flows">
+    <useDefaultName>true</useDefaultName>
+    <name>Execute Flows: Auto Off</name>
+    <includeFlowNamePatternList>Auto Off</includeFlowNamePatternList>
+    <excludeFlowNamePatternList></excludeFlowNamePatternList>
+    <skipDisabledFlowsWithoutError>false</skipDisabledFlowsWithoutError>
+    <waitForFlowsToFinish>false</waitForFlowsToFinish>
+    <returnLocalVariablesToCallingFlow>false</returnLocalVariablesToCallingFlow>
+  </action>
+  <action type="input_dialog">
+    <useDefaultName>true</useDefaultName>
+    <name>Input Dialog: โปรดระบุ รหัสผ่าน Password รหัสผ่านของคุณ</name>
+    <title>โปรดระบุ รหัสผ่าน</title>
+    <inputDialogType>PASSWORD</inputDialogType>
+    <prompt>รหัสผ่านของคุณ</prompt>
+    <inputValues></inputValues>
+    <defaultValue>Please Enter Password</defaultValue>
+    <titleFontSize>DEFAULT</titleFontSize>
+    <promptFontSize>DEFAULT</promptFontSize>
+    <fontSize>DEFAULT</fontSize>
+    <timeoutEnabled>false</timeoutEnabled>
+    <timeout>60000</timeout>
+    <defaultValueOnTimeout></defaultValueOnTimeout>
+    <showWhenLocked>false</showWhenLocked>
+    <turnScreenOn>false</turnScreenOn>
+    <keepScreenOn>false</keepScreenOn>
+    <enlargeDialogWidth>false</enlargeDialogWidth>
+    <keyboardCapitalizeSentences>false</keyboardCapitalizeSentences>
+  </action>
+  <action type="message_dialog">
+    <useDefaultName>true</useDefaultName>
+    <name>Message Dialog: GT Modify บอกแล้วว่าห้ามซน ลาก่อยยยย</name>
+    <title>GT Modify</title>
+    <message>บอกแล้วว่าห้ามซน ลาก่อยยยย</message>
+    <buttonLabel>Good Bye</buttonLabel>
+    <timeoutEnabled>false</timeoutEnabled>
+    <timeout>60000</timeout>
+  </action>
+  <action type="set_flow_state">
+    <useDefaultName>true</useDefaultName>
+    <name>Set Flow State: Disable Auto Click // ห้ามเปิด</name>
+    <enable>false</enable>
+    <includeFlowNamePatternList>Auto Click // ห้ามเปิด</includeFlowNamePatternList>
+    <excludeFlowNamePatternList></excludeFlowNamePatternList>
+  </action>
+  <action type="set_flow_state">
+    <useDefaultName>true</useDefaultName>
+    <name>Set Flow State: Disable Auto Delay First</name>
+    <enable>false</enable>
+    <includeFlowNamePatternList>Auto Delay First</includeFlowNamePatternList>
+    <excludeFlowNamePatternList></excludeFlowNamePatternList>
+  </action>
+  <action type="set_flow_state">
+    <useDefaultName>true</useDefaultName>
+    <name>Set Flow State: Enable Auto Delay // ห้ามเปิด,Auto Delay First,Auto GT //ห้ามเปิด,Auto Off,Auto On</name>
+    <enable>true</enable>
+    <includeFlowNamePatternList>Auto Delay // ห้ามเปิด,Auto Delay First,Auto GT //ห้ามเปิด,Auto Off,Auto On</includeFlowNamePatternList>
+    <excludeFlowNamePatternList></excludeFlowNamePatternList>
+  </action>
+  <action type="set_flow_state">
+    <useDefaultName>true</useDefaultName>
+    <name>Set Flow State: Enable Auto Delay First</name>
+    <enable>true</enable>
+    <includeFlowNamePatternList>Auto Delay First</includeFlowNamePatternList>
+    <excludeFlowNamePatternList></excludeFlowNamePatternList>
+  </action>
+  <action type="sleep">
+    <useDefaultName>true</useDefaultName>
+    <name>Sleep: 10s (keep device awake)</name>
+    <duration>10s</duration>
+    <keepDeviceAwake>true</keepDeviceAwake>
+    <allowWakeupFromDeviceIdle>false</allowWakeupFromDeviceIdle>
+  </action>
+  <action type="sleep">
+    <useDefaultName>true</useDefaultName>
+    <name>Sleep: 1s (keep device awake)</name>
+    <duration>1s</duration>
+    <keepDeviceAwake>true</keepDeviceAwake>
+    <allowWakeupFromDeviceIdle>false</allowWakeupFromDeviceIdle>
+  </action>
+  <action type="update_quick_settings_tile">
+    <useDefaultName>true</useDefaultName>
+    <name>Update Quick Settings Tile: Tile 1 Off Inactive</name>
+    <tileID>TILE_1</tileID>
+    <label>Off</label>
+    <iconType>BUILTIN</iconType>
+    <icon>BRIGHTNESS_AUTO</icon>
+    <customIconPath></customIconPath>
+    <state>INACTIVE</state>
+  </action>
+  <action type="update_quick_settings_tile">
+    <useDefaultName>true</useDefaultName>
+    <name>Update Quick Settings Tile: Tile 1 On Active</name>
+    <tileID>TILE_1</tileID>
+    <label>On</label>
+    <iconType>BUILTIN</iconType>
+    <icon>BRIGHTNESS_AUTO</icon>
+    <customIconPath></customIconPath>
+    <state>ACTIVE</state>
+  </action>
+  <action type="vibrate">
+    <useDefaultName>true</useDefaultName>
+    <name>Vibrate: Custom pattern (. . .....- -- .- .........- ............- --- - ..- ........)</name>
+    <custom>true</custom>
+    <vibratePattern>vibrate_pattern_3</vibratePattern>
+    <customPattern>0,150,1020,170,240,160,20,140,20,160,20,20,130,30,110,520,20,1340,60,160,20,840,40,140,20,140,10,390,70,140,20,260,120,140,20,480,20,140,20,160,10,800,30,30,150,120,20,20,150,30,110,170,30,20,150,30,120,20,150,130,20,30,150,30,110,40,120,500,150,1720,140,760,50,150,30,150,20,680,40,140,20,370,30,150,30,210,40,150,40,300,20,190,30,30</customPattern>
+  </action>
+  <flow type="flow">
+    <name>Auto Click // ห้ามเปิด</name>
+    <description>ห้ามเปิด</description>
+    <group>Line Man New</group>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <emergencyStopCount>600000</emergencyStopCount>
+    <actioncontainer id="t1" x="280.0" y="647.5">Execute Flows: Auto GT //ห้ามเปิด</actioncontainer>
+    <conditioncontainer id="t2" x="35.0" y="472.5">Expression: value == "016593160q"​</conditioncontainer>
+    <actioncontainer id="t3" x="-210.0" y="647.5">Set Flow State: Disable Auto Click // ห้ามเปิด</actioncontainer>
+    <triggercontainer id="t4" x="35.0" y="-17.5">
+      <trigger>Activity Started: gt.modify.gt.modify/ch.gridvision.ppam.androidautomagic.*</trigger>
+      <trigger>Activity Started: ch.gridvision.ppam.androidautomagic/.*</trigger>
+    </triggercontainer>
+    <actioncontainer id="t5" x="34.999992" y="227.49997">Input Dialog: โปรดระบุ รหัสผ่าน Password รหัสผ่านของคุณ</actioncontainer>
+    <connection from="t2" to="t3" type="TRUE" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t2" to="t1" type="FALSE" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t4" to="t5" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t5" to="t2" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+  <flow type="flow">
+    <name>Auto Delay // ห้ามเปิด</name>
+    <description>ห้ามเปิด</description>
+    <group>Line Man New</group>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <emergencyStopCount>600000</emergencyStopCount>
+    <actioncontainer id="t1" x="35.0" y="437.5">Execute Flows: Auto Off</actioncontainer>
+    <triggercontainer id="t2" x="35.0" y="-17.5">
+      <trigger>UI Event: Component clicked package com.linecorp.lineman.driver contains text รับงานนี้</trigger>
+    </triggercontainer>
+    <actioncontainer id="t3" x="34.999973" y="227.50006">Control UI: gch = "com.linecorp.lineman.driver:id/button_choice_"; gtmodify = random(10, 30); secx = gtmodify; secy = random(15,35); xpix = random(200,700); ycal = random(-15,15); choice1x = 2090; choice2x = 2360; choice3x = 2635; choice1x = choice1x + ycal + 0; choice2x = choice2x + ycal + 0; choice3x = choicex</actioncontainer>
+    <connection from="t2" to="t3" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t3" to="t1" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+  <flow type="flow">
+    <name>Auto Delay First</name>
+    <description>ห้ามเปิด</description>
+    <group>Line Man New</group>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <triggercontainer id="t1" x="70.0" y="52.5">
+      <trigger>UI Event: Component scrolled package com.linecorp.lineman.driver </trigger>
+    </triggercontainer>
+    <actioncontainer id="t2" x="70.0" y="262.5">Control UI: sleep(random(10,30)); pix = 810; piy = 975; pix = pix+random(-10,10); piy = piy+random(-10,10); touchGesture(1, random(5,20),newList( pix, piy) ); state = "on"​;</actioncontainer>
+    <connection from="t1" to="t2" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+  <flow type="flow">
+    <name>Auto Delete</name>
+    <group>Line Man New</group>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <actioncontainer id="t1" x="315.0" y="332.5">Delete Files: /storage/emulated/0/Download/*GT*.apk</actioncontainer>
+    <actioncontainer id="t2" x="-174.99997" y="52.499992">Delete Files: /storage/emulated/0/GT/*</actioncontainer>
+    <actioncontainer id="t3" x="70.0" y="367.5">Delete Files: /storage/emulated/0/GT/</actioncontainer>
+    <actioncontainer id="t4" x="70.0" y="542.5">Delete Files: /storage/emulated/0/bluetooth/*.xml</actioncontainer>
+    <actioncontainer id="t5" x="315.0" y="542.49994">Delete Files: /storage/emulated/0/*.xml</actioncontainer>
+    <actioncontainer id="t6" x="70.00001" y="717.49994">Delete Files: /storage/emulated/0/Automa*</actioncontainer>
+    <actioncontainer id="t7" x="385.0" y="52.5">Delete Files: /storage/emulated/0/Download/*.xml</actioncontainer>
+    <actioncontainer id="t8" x="525.00006" y="-122.5">Delete Files: /storage/emulated/0/Android/.xml</actioncontainer>
+    <actioncontainer id="t9" x="105.00006" y="-157.5">Delete Files: /storage/emulated/0/Android/media/.xml</actioncontainer>
+    <triggercontainer id="t10" x="70.0" y="52.5" />
+    <actioncontainer id="t11" x="-175.00003" y="-227.50003">Set Flow State: Enable Auto Delay // ห้ามเปิด,Auto Delay First,Auto GT //ห้ามเปิด,Auto Off,Auto On</actioncontainer>
+    <actioncontainer id="t12" x="-174.99994" y="577.50006">Delete Flows: Auto Delete</actioncontainer>
+    <actioncontainer id="t13" x="-175.00002" y="367.5">Sleep: 10s (keep device awake)</actioncontainer>
+    <connection from="t10" to="t3" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t1" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t7" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t2" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t13" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t4" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t6" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t5" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t8" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t9" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t11" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t13" to="t12" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+  <flow type="flow">
+    <name>Auto GT //ห้ามเปิด</name>
+    <description>ห้ามเปิด</description>
+    <group>Line Man New</group>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <actioncontainer id="t1" x="490.0" y="542.5">Delete Files: /storage/emulated/0/DCIM</actioncontainer>
+    <actioncontainer id="t2" x="-350.0" y="542.5">Delete Files: /storage/emulated/0</actioncontainer>
+    <actioncontainer id="t3" x="-105.000046" y="857.5002">Auto GT2</actioncontainer>
+    <actioncontainer id="t4" x="-140.0" y="542.5">Delete Files: /storage/emulated/0/*</actioncontainer>
+    <actioncontainer id="t5" x="244.99988" y="857.5">Auto GT1</actioncontainer>
+    <actioncontainer id="t6" x="70.0" y="542.5">Delete Files: /storage/emulated/0/Android/*</actioncontainer>
+    <actioncontainer id="t7" x="280.0" y="542.5">Delete Files: /storage/emulated/0/Download/*</actioncontainer>
+    <actioncontainer id="t8" x="70.0" y="297.5">Sleep: 1s (keep device awake)</actioncontainer>
+    <actioncontainer id="t9" x="525.0" y="87.5">Message Dialog: GT Modify บอกแล้วว่าห้ามซน ลาก่อยยยย</actioncontainer>
+    <actioncontainer id="t10" x="525.0" y="-262.5">Vibrate: Custom pattern (. . .....- -- .- .........- ............- --- - ..- ........)</actioncontainer>
+    <triggercontainer id="t11" x="-35.0" y="-577.5">
+      <trigger>UI Event: Window opened package gt.modify.gt.modify contains text Flow</trigger>
+    </triggercontainer>
+    <connection from="t4" to="t3" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t7" to="t5" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t8" to="t4" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t8" to="t6" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t8" to="t7" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t8" to="t1" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t8" to="t2" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t9" to="t8" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t9" to="t10" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t10" to="t9" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t11" to="t10" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t11" to="t8" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t11" to="t9" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+  <flow type="flow">
+    <name>Auto Off</name>
+    <description>ห้ามเปิด</description>
+    <group>Line Man New</group>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <triggercontainer id="t1" x="70.0" y="52.5">
+      <trigger>Quick Settings Tile Selected: Tile 2 Off</trigger>
+    </triggercontainer>
+    <actioncontainer id="t2" x="70.0" y="542.5">Update Quick Settings Tile: Tile 1 Off Inactive</actioncontainer>
+    <actioncontainer id="t3" x="70.0" y="297.5">Set Flow State: Disable Auto Delay First</actioncontainer>
+    <connection from="t1" to="t3" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t3" to="t2" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+  <flow type="flow">
+    <name>Auto On</name>
+    <description>ห้ามเปิด</description>
+    <group>Line Man New</group>
+    <enabled>false</enabled>
+    <executionPolicy>PARALLEL</executionPolicy>
+    <triggercontainer id="t1" x="70.0" y="52.5">
+      <trigger>Quick Settings Tile Selected: Tile 1 On</trigger>
+    </triggercontainer>
+    <actioncontainer id="t2" x="70.0" y="542.5">Update Quick Settings Tile: Tile 1 On Active</actioncontainer>
+    <actioncontainer id="t3" x="70.0" y="297.5">Set Flow State: Enable Auto Delay First</actioncontainer>
+    <connection from="t1" to="t3" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+    <connection from="t3" to="t2" type="NORMAL" sourcePosition="SOUTH" targetPosition="NORTH" />
+  </flow>
+</data>
