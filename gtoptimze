@@ -1,4 +1,4 @@
-#!/system/bin/sh
+
 settings put system speed_mode 1
 settings put system thermal_limit_refresh_rate 0
 settings put secure speed_mode_enable 1
@@ -30,15 +30,12 @@ settings put global app_restriction_enabled true
 settings put system intelligent_sleep_mode 0
 settings put secure adaptive_sleep 0
 settings put global ram_expand_size_list 16
-echo "ตั้งค่าทั่วไปเสร็จสิ้น"
 cmd power set-mode 0
 cmd power set-adaptive-power-saver-enabled false
 cmd power set-fixed-performance-mode-enabled true
-echo "ตั้งค่าโหมดประสิทธิภาพเสร็จสิ้น"
 fstrim -v /data
 fstrim -v /system
 fstrim -v /cache
-echo "fstim success"
 rm -r -f /data/dalvik-cache/*
 mkdir /data/dalvik-cache
 rm -r -f /data/data/*/cache
@@ -50,15 +47,7 @@ rm -r -f /data/system/usagestats
 rm -r -f /data/anr
 rm -r -f /sdcard/LOST.DIR
 rm -r -f /sdcard/DCIM/.thumb*
-echo "เคลียร์ไฟล์ขยะเสร็จสิ้น"
-echo "อยู่ในระหว่างล้างแคช"
 sm fstrim
 pm trim-caches 99999999999999999m
 pm trim-caches 99999999999999999m
 pm trim-caches 99999999999999999
-echo "ล้างแคชเสร็จสิ้น"
-echo "โปรดรอการเคลียร์แอพไม่จำเป็นของ MIUI และ Googles"
-sleep 0.5
-pm uninstall -k --user 0 com.xiaomi.joyose
-sleep 0.5
-echo "GT Modify Optimizer เสร็จสิ้น"
