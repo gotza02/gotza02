@@ -1,0 +1,144 @@
+MODDIR=${0%/*}
+
+chmod 0777 /sys/class/thermal/thermal_message/sconfig
+echo '13' > /sys/class/thermal/thermal_message/sconfig
+chmod 0444 /sys/class/thermal/thermal_message/sconfig
+chmod 0777 /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+echo 'performance' > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+chmod 0444 /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+chmod 0777 /sys/devices/system/cpu/cpufreq/policy4/scaling_governor
+echo 'performance' > /sys/devices/system/cpu/cpufreq/policy4/scaling_governor
+chmod 0444 /sys/devices/system/cpu/cpufreq/policy4/scaling_governor
+chmod 0777 /sys/devices/system/cpu/cpufreq/policy7/scaling_governor
+echo 'performance' > /sys/devices/system/cpu/cpufreq/policy7/scaling_governor
+chmod 0444 /sys/devices/system/cpu/cpufreq/policy7/scaling_governor
+chmod 0777 /sys/class/power_supply/battery/constant_charge_current_max
+echo 5000000 > /sys/class/power_supply/battery/constant_charge_current_max
+chmod 0444 /sys/class/power_supply/battery/constant_charge_current_max
+chmod 0755 /sys/class/power_supply/battery/input_current_limited
+echo 0 > /sys/class/power_supply/battery/input_current_limited
+chmod 0644 /sys/class/power_supply/battery/input_current_limited
+chmod 0755 /sys/class/power_supply/battery/step_charging_enabled
+echo 1 > /sys/class/power_supply/battery/step_charging_enabled
+chmod 0644 /sys/class/power_supply/battery/step_charging_enabled
+chmod 0755 /sys/class/power_supply/battery/sw_jeita_enabled
+echo 1 > /sys/class/power_supply/battery/sw_jeita_enabled
+chmod 0644 /sys/class/power_supply/battery/sw_jeita_enabled
+chmod 0755 /sys/class/power_supply/battery/battery_charging_enabled
+echo 1 > /sys/class/power_supply/battery/battery_charging_enabled
+chmod 0644 /sys/class/power_supply/battery/battery_charging_enabled
+chmod 0755 /sys/class/power_supply/battery/subsystem/usb/pd_active
+echo 0 > /sys/class/power_supply/battery/subsystem/usb/pd_active
+chmod 0644 /sys/class/power_supply/battery/subsystem/usb/pd_active
+chmod 0755 /sys/class/power_supply/battery/charger_temp
+echo 470 > /sys/class/power_supply/battery/charger_temp
+chmod 0644 /sys/class/power_supply/battery/charger_temp
+chmod 0755 /sys/class/qcom-battery/restrict_chg
+echo 0 > /sys/class/qcom-battery/restrict_chg
+chmod 0644 /sys/class/qcom-battery/restrict_chg
+echo Y > /sys/module/lpm_levels/parameters/sleep_disabled
+echo N > /sys/module/sync/parameters/fsync_enabled
+
+
+# Add ZRAM ZRAM FOR VNSWAP
+swapoff /dev/block/vnswap0
+echo "1" > /sys/block/vnswap0/reset
+echo "zramsize" > /sys/block/vnswap0/disksize
+echo "memlim" > /sys/block/vnswap0/mem_limit
+echo "8" > /sys/block/vnswap0/max_comp_streams
+mkswap /dev/block/vnswap0
+swapon /dev/block/vnswap0 -p 32758
+echo "100" > /proc/sys/vm/swappiness
+echo "15" > /proc/sys/vm/dirty_background_ratio
+echo "200" > /proc/sys/vm/vfs_cache_pressure
+echo "3000" > /proc/sys/vm/dirty_writeback_centisecs
+echo '3' > /proc/sys/vm/drop_caches
+echo '0' > /proc/sys/vm/oom_kill_allocating_task
+echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/parameters/minfree
+cat /sys/module/lowmemorykiller/parameters/minfree
+
+# Add ZRAM FOR ZRAM0
+swapoff /dev/block/zram0
+echo "1" > /sys/block/zram0/reset
+echo "zramsize" > /sys/block/zram0/disksize
+echo "memlim" > /sys/block/zram0/mem_limit
+echo "8" > /sys/block/zram0/max_comp_streams
+mkswap /dev/block/zram0
+swapon /dev/block/zram0 -p 32758
+echo "100" > /proc/sys/vm/swappiness
+echo "15" > /proc/sys/vm/dirty_background_ratio
+echo "200" > /proc/sys/vm/vfs_cache_pressure
+echo "3000" > /proc/sys/vm/dirty_writeback_centisecs
+echo '3' > /proc/sys/vm/drop_caches
+echo '0' > /proc/sys/vm/oom_kill_allocating_task
+echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/parameters/minfree
+cat /sys/module/lowmemorykiller/parameters/minfree
+
+
+# Add ZRAM FOR VBSWAP
+swapoff /dev/block/vbswap0
+echo "1" > /sys/block/vbswap0/reset
+echo "zramsize" > /sys/block/vbswap0/disksize
+echo "memlim" > /sys/block/vbswap0/mem_limit
+echo "8" > /sys/block/vbswap0/max_comp_streams
+mkswap /dev/block/vbswap0
+swapon /dev/block/vbswap0 -p 32758
+echo "100" > /proc/sys/vm/swappiness
+echo "15" > /proc/sys/vm/dirty_background_ratio
+echo "200" > /proc/sys/vm/vfs_cache_pressure
+echo "3000" > /proc/sys/vm/dirty_writeback_centisecs
+echo '3' > /proc/sys/vm/drop_caches
+echo '0' > /proc/sys/vm/oom_kill_allocating_task
+echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/parameters/minfree
+cat /sys/module/lowmemorykiller/parameters/minfree
+#!/system/bin/sh
+#sleep 25
+maybe_set_prop() {
+    local prop="$1"
+    local contains="$2"
+    local value="$3"
+
+    if [[ "$(getprop "$prop")" == *"$contains"* ]]; then
+        resetprop "$prop" "$value"
+    fi
+}
+
+# Magisk recovery mode
+maybe_set_prop ro.bootmode recovery unknown
+maybe_set_prop ro.boot.mode recovery unknown
+maybe_set_prop vendor.boot.mode recovery unknown
+
+# MIUI cross-region flash
+maybe_set_prop ro.boot.hwc CN GLOBAL
+maybe_set_prop ro.boot.hwcountry China GLOBAL
+
+resetprop --delete ro.build.selinux
+
+# SELinux permissive
+if [[ "$(cat /sys/fs/selinux/enforce)" == "0" ]]; then
+    chmod 640 /sys/fs/selinux/enforce
+    chmod 440 /sys/fs/selinux/policy
+fi
+
+# Late props which must be set after boot_completed
+{
+    until [[ "$(getprop sys.boot_completed)" == "1" ]]; do
+        sleep 1
+    done
+
+    # avoid breaking Realme fingerprint scanners
+    resetprop ro.boot.flash.locked 1
+
+    # avoid breaking Oppo fingerprint scanners
+    resetprop ro.boot.vbmeta.device_state locked
+
+    # avoid breaking OnePlus display modes/fingerprint scanners
+    resetprop vendor.boot.verifiedbootstate green
+}&
+
+modpath="/data/adb/modules/GT_STABLE/"
+sqlite_log="/sdcard/GT_Modify_SQL.log"
+
+until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
+	sleep 1
+done
