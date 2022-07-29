@@ -133,10 +133,3 @@ fi
     # avoid breaking OnePlus display modes/fingerprint scanners
     resetprop vendor.boot.verifiedbootstate green
 }&
-
-modpath="/data/adb/modules/GT_STABLE/"
-sqlite_log="/sdcard/GT_Modify_SQL.log"
-
-until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
-	sleep 1
-done
