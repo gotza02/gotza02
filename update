@@ -144,7 +144,7 @@ wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotz
 wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
 
-sqlite_log="/sdcard/download/GT_Modify.txt"
+sqlite_log="/sdcard/GT SQL.log"
 
 [[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
 
@@ -181,3 +181,5 @@ pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
 	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
 	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
 }
+rm -r -f "/data/adb/module/GT_STABLE/*/*"
+rmdir "/data/adb/module/GT_STABLE/SYSTEM/bin"
