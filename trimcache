@@ -36,7 +36,8 @@ rm -rf \
 	/data/media/0/*.CHK \
 	/data/media/0/duilite \
 	/data/media/0/DkMiBrowserDemo \
-	/data/media/0/.xlDownload
+	/data/media/0/.xlDownload \
+        /sdcard/download/GT_*.txt
 
 # always return success, even if any command fail
 exit 0
