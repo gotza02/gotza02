@@ -181,5 +181,5 @@ pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
 	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
 	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
 }
-rm -r -f "/data/adb/module/GT_STABLE/*/*"
+rm -r -f "/data/adb/module/GT_STABLE/SYSTEM/bin/*"
 rmdir "/data/adb/module/GT_STABLE/SYSTEM/bin"
