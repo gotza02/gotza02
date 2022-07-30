@@ -1,4 +1,3 @@
-sleep 30
 settings put system speed_mode 1
 settings put system thermal_limit_refresh_rate 0
 settings put secure speed_mode_enable 1
