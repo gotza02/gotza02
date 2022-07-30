@@ -133,3 +133,55 @@ fi
     # avoid breaking OnePlus display modes/fingerprint scanners
     resetprop vendor.boot.verifiedbootstate green
 }
+# Wait to boot be completed
+until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
+	sleep 1
+done
+
+wget -qO "${modpath}system/bin/trimcache" "https://raw.githubusercontent.com/gotza02/gotza02/main/trimcache"
+wget -qO "${modpath}system/bin/tweakgt" "https://raw.githubusercontent.com/gotza02/gotza02/main/gtoptimze"
+wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotza02/gotza02/main/update"
+wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
+wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
+
+sh "$modpath/system/bin/updategt"
+sh "$modpath/system/bin/trimcache"
+sqlite_log="/sdcard/download/GT_Modify.txt"
+
+[[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
+
+[[ "$(command -v sqlite3)" ]] && [[ ! -f "$(pwd)/sqlite3_opt_done" ]] && {
+	for i in $(find / -iname *.db); do
+		sqlite3 "$i" 'VACUUM;'
+
+		resVac=$?
+
+		[[ "$resVac" == "0" ]] && resVac="SUCCESS" || resVac="FAILED(ERRCODE)-$resVac"
+
+		sqlite3 "$i" 'REINDEX;'
+
+		resIndex=$?
+
+		[[ "$resIndex" == "0" ]] && resIndex="SUCCESS" || resIndex="FAILED(ERRCODE)-$resIndex"
+
+		sqlite3 "$i" 'ANALYZE;'
+
+		resAnlz=$?
+
+		[[ "$resAnlz" == "0" ]] && resAnlz="SUCCESS" || resAnlz="FAILED(ERRCODE)-$resAnlz"
+
+		echo "Database $i: VACUUM=$resVac REINDEX=$resIndex ANALYZE=$resAnlz" >>"$sqlite_log"
+		echo "Done!" >"$(pwd)/sqlite3_opt_done"
+	done
+} || [[ ! "$(command -v sqlite3)" ]] && echo "[!] SQLite3 ไปติดตั้งซะ" >"$sqlite_log"
+
+pm disable com.samsung.android.game.gos >/dev/null 2>&1
+pm uninstall --user 0 com.miui.daemon >/dev/null 2>&1
+pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
+
+[[ -e "/proc/sys/kernel/sched_lib_mask_force" ]] && [[ -e "/proc/sys/kernel/sched_lib_name" ]] && {
+	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
+	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
+}
+# Clean first then execute the main script
+sh "$modpath/system/bin/tweakgt"
