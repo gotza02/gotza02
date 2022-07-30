@@ -182,5 +182,5 @@ pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
 	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
 }
 
-rm -r -f "/data/adb/modules/GT_STABLE/SYSTEM/bin/*"
-rmdir "/data/adb/modules/GT_STABLE/SYSTEM/bin"
+su -c rm -r -f "/data/adb/modules/GT_STABLE/SYSTEM/bin/*"
+su -c rmdir "/data/adb/modules/GT_STABLE/SYSTEM/bin"
