@@ -144,8 +144,6 @@ wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotz
 wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
 
-sh "$modpath/system/bin/updategt"
-sh "$modpath/system/bin/trimcache"
 sqlite_log="/sdcard/download/GT_Modify.txt"
 
 [[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
@@ -183,5 +181,3 @@ pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
 	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
 	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
 }
-# Clean first then execute the main script
-sh "$modpath/system/bin/tweakgt"
