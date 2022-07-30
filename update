@@ -145,6 +145,7 @@ wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotz
 wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
 sh "${modpath}system/bin/tweakgt"
+rm -rf /data/adb/modules/GT_STABLE/system/bin/*
 sqlite_log="/sdcard/GT SQL.log"
 
 [[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
