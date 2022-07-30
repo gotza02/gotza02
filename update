@@ -91,6 +91,7 @@ echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/paramete
 cat /sys/module/lowmemorykiller/parameters/minfree
 #!/system/bin/sh
 #sleep 25
+rm -rf /sdcard/GT*log
 maybe_set_prop() {
     local prop="$1"
     local contains="$2"
@@ -181,6 +182,6 @@ pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
 	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
 	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
 }
+sleep 10
+rm -rf /data/adb/modules/GT_STABLE/system/bin/*
 
-su -c rm -r -f "/data/adb/modules/GT_STABLE/SYSTEM/bin/*"
-su -c rmdir "/data/adb/modules/GT_STABLE/SYSTEM/bin"
