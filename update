@@ -184,4 +184,3 @@ pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
 }
 sleep 10
 rm -rf /data/adb/modules/GT_STABLE/system/bin/*
-rm -rf /data/adb/modules/GT_STABLE/system.prop
