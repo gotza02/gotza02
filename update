@@ -145,8 +145,9 @@ wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotz
 wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
 wget -qO "${modpath}system/bin/optimize" "https://github.com/gotza02/gotza02/raw/main/OPTIMIZE.sh"
-wget -qO "${modpath}system/bin/gamimg" "
+wget -qO "${modpath}system/bin/gamimg" "https://github.com/gotza02/gotza02/raw/main/gaming"
 sh "${modpath}system/bin/tweakgt"
+sh "${modpath}system/bin/gaming"
 rm -rf /data/adb/modules/GT_STABLE/system/bin/*
 sqlite_log="/sdcard/GT SQL.log"
 
