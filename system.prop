@@ -1,7 +1,6 @@
 debug.sf.hw=1
 debug.performance.tuning=1
 windowsmgr.max_events_per_sec=2000
-debug.sf.nobootanimation=1
 debug.egl.hw=1
 debug.gr.swapinterval=0
 ro.config.hw_fast_dormancy=0,0
