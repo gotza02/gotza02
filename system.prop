@@ -162,46 +162,46 @@ net.tethering.noprovisioning=true
 #
 # DNS Tweaks
 #
-net.rmnet0.dns1=8.8.8.8
+net.rmnet0.dns1=1.0.0.1
 net.rmnet0.dns2=1.1.1.1
 
-net.rmnet1.dns1=8.8.8.8
+net.rmnet1.dns1=1.0.0.1
 net.rmnet1.dns2=1.1.1.1
 
-net.dns1=8.8.8.8
+net.dns1=1.0.0.1
 net.dns2=1.1.1.1
 
-net.gprs.dns1=8.8.8.8
+net.gprs.dns1=1.0.0.1
 net.gprs.dns2=1.1.1.1
 
-net.wcdma.dns1=8.8.8.8
+net.wcdma.dns1=1.0.0.1
 net.wcdma.dns2=1.1.1.1
 
-net.hspa.dns1=8.8.8.8
+net.hspa.dns1=1.0.0.1
 net.hspa.dns2=1.1.1.1
 
-net.hsdpa.dns1=8.8.8.8
+net.hsdpa.dns1=1.0.0.1
 net.hsdpa.dns2=1.1.1.1
 
-net.lte.dns1=8.8.8.8
+net.lte.dns1=1.0.0.1
 net.lte.dns2=1.1.1.1
 
-net.ltea.dns1=8.8.8.8
+net.ltea.dns1=1.0.0.1
 net.ltea.dns2=1.1.1.1
 
-net.nr.dns1=8.8.8.8
+net.nr.dns1=1.0.0.1
 net.nr.dns2=1.1.1.1
 
-net.ppp0.dns1=8.8.8.8
+net.ppp0.dns1=1.0.0.1
 net.ppp0.dns2=1.1.1.1
 
-net.pdpbr1.dns1=8.8.8.8
+net.pdpbr1.dns1=1.0.0.1
 net.pdpbr1.dns2=1.1.1.1
 
-net.wlan0.dns1=8.8.8.8
+net.wlan0.dns1=1.0.0.1
 net.wlan0.dns2=1.1.1.1
 
-net.eth0.dns1=8.8.8.8
+net.eth0.dns1=1.0.0.1
 net.eth0.dns2=1.1.1.1
 
 
