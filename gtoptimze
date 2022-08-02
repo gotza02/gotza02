@@ -32,8 +32,8 @@ settings put global ram_expand_size_list 16
 cmd power set-mode 0
 cmd power set-adaptive-power-saver-enabled false
 cmd power set-fixed-performance-mode-enabled true
-fstrim -v /data
 fstrim -v /system
+fstrim -v /data
 fstrim -v /cache
 rm -r -f /data/dalvik-cache/*
 mkdir /data/dalvik-cache
