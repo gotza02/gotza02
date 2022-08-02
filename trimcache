@@ -41,6 +41,3 @@ rm -rf \
 # always return success, even if any command fail
 exit 0
 
-fstrim -v /system
-fstrim -v /data
-fstrim -v /cache
