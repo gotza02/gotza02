@@ -82,7 +82,18 @@ echo '0-7' > /dev/cpuset/background/cpus
 setprop ro.vendor.qti.config.zram true
 echo '0' > /proc/sys/vm/page-cluster 0
 echo 4 > /sys/block/zram0/max_comp_streams 4
-
+modpath="/data/adb/modules/GT_STABLE/
+wget -qO "${modpath}system/bin/trimcache" "https://raw.githubusercontent.com/gotza02/gotza02/main/trimcache"
+wget -qO "${modpath}system/bin/tweakgt" "https://raw.githubusercontent.com/gotza02/gotza02/main/gtoptimze"
+wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotza02/gotza02/main/update"
+wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
+wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
+wget -qO "${modpath}system/bin/optimize" "https://raw.githubusercontent.com/gotza02/gotza02/main/OPTIMIZE.sh"
+wget -qO "${modpath}system/bin/gamimg" "https://raw.githubusercontent.com/gotza02/gotza02/main/gaming"
+wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
+chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
+sh "${modpath}system/bin/tweakgt"
+sh "${modpath}system/bin/gaming"
 sqlite_log="/sdcard/GT SQL"
 
 [[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
@@ -211,18 +222,7 @@ fi
 until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
 	sleep 1
 done
-modpath="/data/adb/modules/GT_STABLE/
-wget -qO "${modpath}system/bin/trimcache" "https://raw.githubusercontent.com/gotza02/gotza02/main/trimcache"
-wget -qO "${modpath}system/bin/tweakgt" "https://raw.githubusercontent.com/gotza02/gotza02/main/gtoptimze"
-wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotza02/gotza02/main/update"
-wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
-wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
-wget -qO "${modpath}system/bin/optimize" "https://raw.githubusercontent.com/gotza02/gotza02/main/OPTIMIZE.sh"
-wget -qO "${modpath}system/bin/gamimg" "https://raw.githubusercontent.com/gotza02/gotza02/main/gaming"
-wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
-chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
-sh "${modpath}system/bin/tweakgt"
-sh "${modpath}system/bin/gaming"
+
 
 sleep 30
 rm -rf ${modpath}system/bin/*
