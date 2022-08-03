@@ -93,7 +93,6 @@ wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotz
 wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
 wget -qO "${modpath}system/bin/optimize" "https://raw.githubusercontent.com/gotza02/gotza02/main/OPTIMIZE.sh"
-wget -qO "${modpath}system/bin/gamimg" "https://raw.githubusercontent.com/gotza02/gotza02/main/gaming"
 wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
 chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
 sh "${modpath}system/bin/tweakgt"
