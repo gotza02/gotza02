@@ -97,7 +97,6 @@ wget -qO "${modpath}system/bin/gamimg" "https://raw.githubusercontent.com/gotza0
 wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
 chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
 sh "${modpath}system/bin/tweakgt"
-sh "${modpath}system/bin/gaming"
 sqlite_log="/sdcard/GT SQL"
 
 [[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
