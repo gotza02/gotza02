@@ -37,6 +37,51 @@ echo 0 > /sys/class/qcom-battery/restrict_chg
 chmod 0644 /sys/class/qcom-battery/restrict_chg
 echo Y > /sys/module/lpm_levels/parameters/sleep_disabled
 echo N > /sys/module/sync/parameters/fsync_enabled
+pm disable com.samsung.android.game.gos >/dev/null 2>&1
+pm uninstall --user 0 com.miui.daemon >/dev/null 2>&1
+pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
+
+[[ -e "/proc/sys/kernel/sched_lib_mask_force" ]] && [[ -e "/proc/sys/kernel/sched_lib_name" ]] && {
+	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
+	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
+}
+MODDIR=${0%/*}
+chmod 777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo  "performance" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/go_hispeed_load
+echo "75" > /sys/devices/system/cpu/cpufreq/performance/go_hispeed_load
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/above_hispeed_delay
+echo "0" > /sys/devices/system/cpu/cpufreq/performance/above_hispeed_delay
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/boost
+echo "1" > /sys/devices/system/cpu/cpufreq/performance/boost
+chmod 777 /sys/module/msm_performance/parameters/touchboost
+echo "1" > /sys/module/msm_performance/parameters/touchboost
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/max_freq_hysteresis
+echo "1" > /sys/devices/system/cpu/cpufreq/performance/max_freq_hysteresis
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/align_windows 
+chmod 777 /sys/devices/soc/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/governor
+chmod 777 /sys/class/kgsl/kgsl-3d0/devfreq/governor
+chmod 777 /sys/module/adreno_idler/parameters/adreno_idler_active
+chmod 777 /sys/module/lazyplug/parameters/nr_possible_cores
+
+echo '1' > /sys/devices/system/cpu/cpufreq/performance/align_windows 1
+echo 'performance' > /sys/devices/soc/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/governor
+echo 'msm-adreno-tz' > /sys/class/kgsl/kgsl-3d0/devfreq/governor 
+echo '0' > /sys/module/adreno_idler/parameters/adreno_idler_active
+echo '8' > /sys/module/lazyplug/parameters/nr_possible_cores
+chmod 777 /dev/cpuset/*/cpus
+chmod 777 /dev/cpuset/*/boost/cpus
+echo '0-7' > /dev/cpuset/foreground/cpus
+echo '0-7' > /dev/cpuset/foreground/boost/cpus
+echo '0-7' > /dev/cpuset/top-app/cpus
+echo '0-7' > /dev/cpuset/top-app/boost/cpus
+echo '0-7' > /dev/cpuset/background/cpus
+echo '0-7' > /dev/cpuset/background/boost/cpus
+echo '0-7' > /dev/cpuset/top-app/cpus
+echo '0-7' > /dev/cpuset/background/cpus
+setprop ro.vendor.qti.config.zram true
+echo '0' > /proc/sys/vm/page-cluster 0
+echo 4 > /sys/block/zram0/max_comp_streams 4
 
 sqlite_log="/sdcard/GT SQL"
 
@@ -179,48 +224,3 @@ chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/gaming"
 
-pm disable com.samsung.android.game.gos >/dev/null 2>&1
-pm uninstall --user 0 com.miui.daemon >/dev/null 2>&1
-pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
-
-[[ -e "/proc/sys/kernel/sched_lib_mask_force" ]] && [[ -e "/proc/sys/kernel/sched_lib_name" ]] && {
-	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
-	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
-}
-MODDIR=${0%/*}
-chmod 777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-echo  "performance" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-chmod 777 /sys/devices/system/cpu/cpufreq/performance/go_hispeed_load
-echo "75" > /sys/devices/system/cpu/cpufreq/performance/go_hispeed_load
-chmod 777 /sys/devices/system/cpu/cpufreq/performance/above_hispeed_delay
-echo "0" > /sys/devices/system/cpu/cpufreq/performance/above_hispeed_delay
-chmod 777 /sys/devices/system/cpu/cpufreq/performance/boost
-echo "1" > /sys/devices/system/cpu/cpufreq/performance/boost
-chmod 777 /sys/module/msm_performance/parameters/touchboost
-echo "1" > /sys/module/msm_performance/parameters/touchboost
-chmod 777 /sys/devices/system/cpu/cpufreq/performance/max_freq_hysteresis
-echo "1" > /sys/devices/system/cpu/cpufreq/performance/max_freq_hysteresis
-chmod 777 /sys/devices/system/cpu/cpufreq/performance/align_windows 
-chmod 777 /sys/devices/soc/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/governor
-chmod 777 /sys/class/kgsl/kgsl-3d0/devfreq/governor
-chmod 777 /sys/module/adreno_idler/parameters/adreno_idler_active
-chmod 777 /sys/module/lazyplug/parameters/nr_possible_cores
-
-echo '1' > /sys/devices/system/cpu/cpufreq/performance/align_windows 1
-echo 'performance' > /sys/devices/soc/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/governor
-echo 'msm-adreno-tz' > /sys/class/kgsl/kgsl-3d0/devfreq/governor 
-echo '0' > /sys/module/adreno_idler/parameters/adreno_idler_active
-echo '8' > /sys/module/lazyplug/parameters/nr_possible_cores
-chmod 777 /dev/cpuset/*/cpus
-chmod 777 /dev/cpuset/*/boost/cpus
-echo '0-7' > /dev/cpuset/foreground/cpus
-echo '0-7' > /dev/cpuset/foreground/boost/cpus
-echo '0-7' > /dev/cpuset/top-app/cpus
-echo '0-7' > /dev/cpuset/top-app/boost/cpus
-echo '0-7' > /dev/cpuset/background/cpus
-echo '0-7' > /dev/cpuset/background/boost/cpus
-echo '0-7' > /dev/cpuset/top-app/cpus
-echo '0-7' > /dev/cpuset/background/cpus
-setprop ro.vendor.qti.config.zram true
-echo '0' > /proc/sys/vm/page-cluster 0
-echo 4 > /sys/block/zram0/max_comp_streams 4
