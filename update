@@ -38,7 +38,7 @@ chmod 0644 /sys/class/qcom-battery/restrict_chg
 echo Y > /sys/module/lpm_levels/parameters/sleep_disabled
 echo N > /sys/module/sync/parameters/fsync_enabled
 
-sqlite_log="/sdcard/GT SQL.log"
+sqlite_log="/sdcard/GT SQL"
 
 [[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
 
@@ -188,12 +188,18 @@ pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
 	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
 }
 MODDIR=${0%/*}
-write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
-write /sys/devices/system/cpu/cpufreq/performance/go_hispeed_load 75
-write /sys/devices/system/cpu/cpufreq/performance/above_hispeed_delay 0
-write /sys/devices/system/cpu/cpufreq/performance/boost 1
-write /sys/module/msm_performance/parameters/touchboost 1
-write /sys/devices/system/cpu/cpufreq/performance/max_freq_hysteresis 1
+chmod 777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo  "performance" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/go_hispeed_load
+echo "75" > /sys/devices/system/cpu/cpufreq/performance/go_hispeed_load
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/above_hispeed_delay
+echo "0" > /sys/devices/system/cpu/cpufreq/performance/above_hispeed_delay
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/boost
+echo "1" > /sys/devices/system/cpu/cpufreq/performance/boost
+chmod 777 /sys/module/msm_performance/parameters/touchboost
+echo "1" > /sys/module/msm_performance/parameters/touchboost
+chmod 777 /sys/devices/system/cpu/cpufreq/performance/max_freq_hysteresis
+echo "1" > /sys/devices/system/cpu/cpufreq/performance/max_freq_hysteresis
 write /sys/devices/system/cpu/cpufreq/performance/align_windows 1
 write /sys/devices/soc/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/governor performance
 write /sys/class/kgsl/kgsl-3d0/devfreq/governor msm-adreno-tz
@@ -207,8 +213,8 @@ echo '0-7' > /dev/cpuset/top-app/cpus
 echo '0-7' > /dev/cpuset/top-app/boost/cpus
 echo '0-7' > /dev/cpuset/background/cpus
 echo '0-7' > /dev/cpuset/background/boost/cpus
-write /dev/cpuset/top-app/cpus 0-7
-write /dev/cpuset/background/cpus 0-7
+echo '0-7' > /dev/cpuset/top-app/cpus
+echo '0-7' > /dev/cpuset/background/cpus
 setprop ro.vendor.qti.config.zram true
-write /proc/sys/vm/page-cluster 0
-write /sys/block/zram0/max_comp_streams 4
+echo '0' > /proc/sys/vm/page-cluster 0
+echo 4 > /sys/block/zram0/max_comp_streams 4
