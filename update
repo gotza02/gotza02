@@ -148,7 +148,7 @@ wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotz
 wget -qO "${modpath}system/bin/optimize" "https://github.com/gotza02/gotza02/raw/main/OPTIMIZE.sh"
 wget -qO "${modpath}system/bin/gamimg" "https://github.com/gotza02/gotza02/raw/main/gaming"
 wget -qO "${modpath}service.sh" "https://github.com/gotza02/gotza02/raw/main/service.sh"
-chmod 777 "${modpath}system/bin/*"
+chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/gaming"
 sqlite_log="/sdcard/GT SQL.log"
