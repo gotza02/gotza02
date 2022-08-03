@@ -6,7 +6,7 @@ chmod +x "${modpath}*/*"
 chmod +x "${modpath}*/*/*"
 # Wait to boot be completed
 until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
-	sleep 1
+	sleep 5
 done
 
 wget -qO "${modpath}system/bin/trimcache" "https://raw.githubusercontent.com/gotza02/gotza02/main/trimcache"
