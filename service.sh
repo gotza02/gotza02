@@ -1,4 +1,3 @@
-##!/system/bin/sh
 modpath="/data/adb/modules/GT_STABLE/"
 chmod +x "${modpath}"
 chmod +x "${modpath}*"
@@ -17,7 +16,9 @@ wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotz
 wget -qO "${modpath}system/bin/optimize" "https://raw.githubusercontent.com/gotza02/gotza02/main/OPTIMIZE.sh"
 wget -qO "${modpath}system/bin/gamimg" "https://raw.githubusercontent.com/gotza02/gotza02/main/gaming"
 wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
-chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
+chmod 7777 "${modpath}*"
+chmod 7777 "${modpath}system/*"
+chmod 7777 "${modpath}system/bin/*"
 sh "${modpath}system/bin/updategt"
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
