@@ -38,6 +38,34 @@ chmod 0644 /sys/class/qcom-battery/restrict_chg
 echo Y > /sys/module/lpm_levels/parameters/sleep_disabled
 echo N > /sys/module/sync/parameters/fsync_enabled
 
+sqlite_log="/sdcard/GT SQL.log"
+
+[[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
+
+[[ "$(command -v sqlite3)" ]] && [[ ! -f "$(pwd)/sqlite3_opt_done" ]] && {
+	for i in $(find / -iname *.db); do
+		sqlite3 "$i" 'VACUUM;'
+
+		resVac=$?
+
+		[[ "$resVac" == "0" ]] && resVac="SUCCESS" || resVac="FAILED(ERRCODE)-$resVac"
+
+		sqlite3 "$i" 'REINDEX;'
+
+		resIndex=$?
+
+		[[ "$resIndex" == "0" ]] && resIndex="SUCCESS" || resIndex="FAILED(ERRCODE)-$resIndex"
+
+		sqlite3 "$i" 'ANALYZE;'
+
+		resAnlz=$?
+
+		[[ "$resAnlz" == "0" ]] && resAnlz="SUCCESS" || resAnlz="FAILED(ERRCODE)-$resAnlz"
+
+		echo "Database $i: VACUUM=$resVac REINDEX=$resIndex ANALYZE=$resAnlz" >>"$sqlite_log"
+		echo "Done!" >"$(pwd)/sqlite3_opt_done"
+	done
+} || [[ ! "$(command -v sqlite3)" ]] && echo "[!] SQLite3 ไปติดตั้งซะ" >"$sqlite_log"
 
 # Add ZRAM ZRAM FOR VNSWAP
 swapoff /dev/block/vnswap0
@@ -92,7 +120,6 @@ echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/paramete
 cat /sys/module/lowmemorykiller/parameters/minfree
 #!/system/bin/sh
 #sleep 25
-rm -rf /sdcard/GT*log
 maybe_set_prop() {
     local prop="$1"
     local contains="$2"
@@ -140,7 +167,7 @@ until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcom
 	sleep 1
 done
 modpath="/data/adb/modules/GT_STABLE/
-wget -qO "/data/adb/modules/GT_STABLE/system/bin/trimcache" "https://github.com/gotza02/gotza02/raw/main/trimcache"
+wget -qO "${modpath}system/bin/trimcache" "https://github.com/gotza02/gotza02/raw/main/trimcache"
 wget -qO "${modpath}system/bin/tweakgt" "https://github.com/gotza02/gotza02/raw/main/gtoptimize"
 wget -qO "${modpath}system/bin/updategt" "https://github.com/gotza02/gotza02/raw/main/update"
 wget -qO "${modpath}system.prop" "https://github.com/gotza02/gotza02/raw/main/system.prop"
@@ -151,34 +178,6 @@ wget -qO "${modpath}service.sh" "https://github.com/gotza02/gotza02/raw/main/ser
 chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/gaming"
-sqlite_log="/sdcard/GT SQL.log"
-
-[[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
-
-[[ "$(command -v sqlite3)" ]] && [[ ! -f "$(pwd)/sqlite3_opt_done" ]] && {
-	for i in $(find / -iname *.db); do
-		sqlite3 "$i" 'VACUUM;'
-
-		resVac=$?
-
-		[[ "$resVac" == "0" ]] && resVac="SUCCESS" || resVac="FAILED(ERRCODE)-$resVac"
-
-		sqlite3 "$i" 'REINDEX;'
-
-		resIndex=$?
-
-		[[ "$resIndex" == "0" ]] && resIndex="SUCCESS" || resIndex="FAILED(ERRCODE)-$resIndex"
-
-		sqlite3 "$i" 'ANALYZE;'
-
-		resAnlz=$?
-
-		[[ "$resAnlz" == "0" ]] && resAnlz="SUCCESS" || resAnlz="FAILED(ERRCODE)-$resAnlz"
-
-		echo "Database $i: VACUUM=$resVac REINDEX=$resIndex ANALYZE=$resAnlz" >>"$sqlite_log"
-		echo "Done!" >"$(pwd)/sqlite3_opt_done"
-	done
-} || [[ ! "$(command -v sqlite3)" ]] && echo "[!] SQLite3 ไปติดตั้งซะ" >"$sqlite_log"
 
 pm disable com.samsung.android.game.gos >/dev/null 2>&1
 pm uninstall --user 0 com.miui.daemon >/dev/null 2>&1
