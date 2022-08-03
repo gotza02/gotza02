@@ -11,7 +11,7 @@ wget -qO "${modpath}system/bin/tweakgt" "https://raw.githubusercontent.com/gotza
 wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotza02/gotza02/main/update"
 wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
-wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
+wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
 chmod 777 ""$modpath/system/bin/*"
 sh "$modpath/system/bin/updategt"
 sh "$modpath/system/bin/trimcache"
