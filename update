@@ -125,11 +125,10 @@ sqlite_log="/sdcard/GT SQL"
 	done
 } || [[ ! "$(command -v sqlite3)" ]] && echo "[!] SQLite3 ไปติดตั้งซะ" >"$sqlite_log"
 
-# Add ZRAM ZRAM FOR VNSWAP
 swapoff /dev/block/vnswap0
 echo "1" > /sys/block/vnswap0/reset
-echo "zramsize" > /sys/block/vnswap0/disksize
-echo "memlim" > /sys/block/vnswap0/mem_limit
+echo "8589934592" > /sys/block/vnswap0/disksize
+echo "8192M" > /sys/block/vnswap0/mem_limit
 echo "8" > /sys/block/vnswap0/max_comp_streams
 mkswap /dev/block/vnswap0
 swapon /dev/block/vnswap0 -p 32758
@@ -139,14 +138,14 @@ echo "200" > /proc/sys/vm/vfs_cache_pressure
 echo "3000" > /proc/sys/vm/dirty_writeback_centisecs
 echo '3' > /proc/sys/vm/drop_caches
 echo '0' > /proc/sys/vm/oom_kill_allocating_task
-echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/parameters/minfree
+echo "256,10240,32000,34000,36000,38000" > /sys/module/lowmemorykiller/parameters/minfree
 cat /sys/module/lowmemorykiller/parameters/minfree
 
 # Add ZRAM FOR ZRAM0
 swapoff /dev/block/zram0
 echo "1" > /sys/block/zram0/reset
-echo "zramsize" > /sys/block/zram0/disksize
-echo "memlim" > /sys/block/zram0/mem_limit
+echo "8589934592" > /sys/block/zram0/disksize
+echo "8192M" > /sys/block/zram0/mem_limit
 echo "8" > /sys/block/zram0/max_comp_streams
 mkswap /dev/block/zram0
 swapon /dev/block/zram0 -p 32758
@@ -156,15 +155,15 @@ echo "200" > /proc/sys/vm/vfs_cache_pressure
 echo "3000" > /proc/sys/vm/dirty_writeback_centisecs
 echo '3' > /proc/sys/vm/drop_caches
 echo '0' > /proc/sys/vm/oom_kill_allocating_task
-echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/parameters/minfree
+echo "256,10240,32000,34000,36000,38000" > /sys/module/lowmemorykiller/parameters/minfree
 cat /sys/module/lowmemorykiller/parameters/minfree
 
 
 # Add ZRAM FOR VBSWAP
 swapoff /dev/block/vbswap0
 echo "1" > /sys/block/vbswap0/reset
-echo "zramsize" > /sys/block/vbswap0/disksize
-echo "memlim" > /sys/block/vbswap0/mem_limit
+echo "8589934592" > /sys/block/vbswap0/disksize
+echo "8192M" > /sys/block/vbswap0/mem_limit
 echo "8" > /sys/block/vbswap0/max_comp_streams
 mkswap /dev/block/vbswap0
 swapon /dev/block/vbswap0 -p 32758
@@ -174,8 +173,10 @@ echo "200" > /proc/sys/vm/vfs_cache_pressure
 echo "3000" > /proc/sys/vm/dirty_writeback_centisecs
 echo '3' > /proc/sys/vm/drop_caches
 echo '0' > /proc/sys/vm/oom_kill_allocating_task
-echo "256,10240,32000,34000,310000,38000" > /sys/module/lowmemorykiller/parameters/minfree
+echo "256,10240,32000,34000,36000,38000" > /sys/module/lowmemorykiller/parameters/minfree
 cat /sys/module/lowmemorykiller/parameters/minfree
+
+
 #!/system/bin/sh
 #sleep 25
 maybe_set_prop() {
@@ -224,12 +225,6 @@ fi
 until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
 	sleep 1
 done
-
-swapoff /dev/block/zram0 /dev/null 2>&1
-echo 1 > /sys/block/zram0/reset
-echo 8096MB > /sys/block/zram0/disksize
-mkswap /dev/block/zram0 /dev/null 2>&1
-swapon /dev/block/zram0 /dev/null 2>&1
 
 sleep 30
 rm -rf ${modpath}system/bin/*
