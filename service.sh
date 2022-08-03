@@ -12,7 +12,7 @@ wget -qO "${modpath}system/bin/updategt" "https://raw.githubusercontent.com/gotz
 wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/system.prop"
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
 wget -qO "${modpath}service.sh" "https://github.com/gotza02/gotza02/raw/main/service.sh"
-chmod 777 ""$modpath/system/bin/*"
+chmod 777 "$modpath/system/bin/*"
 sh "$modpath/system/bin/updategt"
 sh "$modpath/system/bin/trimcache"
 sh "$modpath/system/bin/tweakgt"
