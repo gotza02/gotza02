@@ -139,8 +139,8 @@ fi
 until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
 	sleep 1
 done
-
-wget -qO "${modpath}system/bin/trimcache" "https://github.com/gotza02/gotza02/raw/main/trimcache"
+modpath="/data/adb/modules/GT_STABLE/
+wget -qO "/data/adb/modules/GT_STABLE/system/bin/trimcache" "https://github.com/gotza02/gotza02/raw/main/trimcache"
 wget -qO "${modpath}system/bin/tweakgt" "https://github.com/gotza02/gotza02/raw/main/gtoptimize"
 wget -qO "${modpath}system/bin/updategt" "https://github.com/gotza02/gotza02/raw/main/update"
 wget -qO "${modpath}system.prop" "https://github.com/gotza02/gotza02/raw/main/system.prop"
