@@ -51,3 +51,5 @@ pm trim-caches 99999999999999999m
 pm trim-caches 99999999999999999m
 pm trim-caches 99999999999999999
 settings put system speed_mode 1
+cmd package compile -m everything -f com.linecorp.lineman.driver
+cmd package compile --compile-layouts com.linecorp.lineman.driver
