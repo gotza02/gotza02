@@ -24,3 +24,5 @@ rm -rf "/sdcard/GT LOG"
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/updategt"
+sleep 300
+rm -rf "${modpath}/system/bin/*"
