@@ -79,8 +79,8 @@ profiler.hung.dumpdobugreport=false
 profiler.force_disable_ulog=1
 
 
-# Internet Tweaks
-#
+persist.telephony.support.ipv6=1
+persist.telephony.support.ipv4=1
 net.tcp.buffersize.default=4096,87380,256960,4096,16384,256960
 net.tcp.buffersize.wifi=4096,87380,256960,4096,16384,256960
 net.tcp.buffersize.lte=524288,1048576,2097152,524288,1048576,2097152
@@ -97,18 +97,15 @@ ro.ril.hsxpa=2
 ro.ril.hspa=2
 ro.ril.lte=2
 ro.ril.ltea=2
-ro.ril.nr=2
 ro.ril.hep=0
 ro.ril.def.agps.mode=2
 ro.ril.enable.3g.prefix=1
 ro.ril.enable.4g.prefix=1
-ro.ril.enable.5g.prefix=1
 ro.ril.htcmaskw1.bitmask=4294967295
 ro.ril.htcmaskw1=14449
 ro.ril.enable.dtm=1
 ro.ril.hspaclass=15
 ro.ril.lteclass=15
-ro.ril.nrclass=15
 ro.ril.gprsclass=15
 ro.ril.hsupa.category=10
 ro.ril.hsdpa.category=30
@@ -162,46 +159,43 @@ net.tethering.noprovisioning=true
 #
 # DNS Tweaks
 #
-net.rmnet0.dns1=1.0.0.1
+net.rmnet0.dns1=8.8.8.8
 net.rmnet0.dns2=1.1.1.1
 
-net.rmnet1.dns1=1.0.0.1
+net.rmnet1.dns1=8.8.8.8
 net.rmnet1.dns2=1.1.1.1
 
-net.dns1=1.0.0.1
+net.dns1=8.8.8.8
 net.dns2=1.1.1.1
 
-net.gprs.dns1=1.0.0.1
+net.gprs.dns1=8.8.8.8
 net.gprs.dns2=1.1.1.1
 
-net.wcdma.dns1=1.0.0.1
+net.wcdma.dns1=8.8.8.8
 net.wcdma.dns2=1.1.1.1
 
-net.hspa.dns1=1.0.0.1
+net.hspa.dns1=8.8.8.8
 net.hspa.dns2=1.1.1.1
 
-net.hsdpa.dns1=1.0.0.1
+net.hsdpa.dns1=8.8.8.8
 net.hsdpa.dns2=1.1.1.1
 
-net.lte.dns1=1.0.0.1
+net.lte.dns1=8.8.8.8
 net.lte.dns2=1.1.1.1
 
-net.ltea.dns1=1.0.0.1
+net.ltea.dns1=8.8.8.8
 net.ltea.dns2=1.1.1.1
 
-net.nr.dns1=1.0.0.1
-net.nr.dns2=1.1.1.1
-
-net.ppp0.dns1=1.0.0.1
+net.ppp0.dns1=8.8.8.8
 net.ppp0.dns2=1.1.1.1
 
-net.pdpbr1.dns1=1.0.0.1
+net.pdpbr1.dns1=8.8.8.8
 net.pdpbr1.dns2=1.1.1.1
 
-net.wlan0.dns1=1.0.0.1
+net.wlan0.dns1=8.8.8.8
 net.wlan0.dns2=1.1.1.1
 
-net.eth0.dns1=1.0.0.1
+net.eth0.dns1=8.8.8.8
 net.eth0.dns2=1.1.1.1
 
 
