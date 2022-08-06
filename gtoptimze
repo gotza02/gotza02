@@ -10,7 +10,7 @@ settings put global ro.config.hw_fast_dormancy 0,0
 settings put global fstrim_mandatory_interval 1
 settings put system power_mode high
 settings put global zram_enabled 1
-settings put global windowsmgr.max_events_per_sec 2000
+settings put global windowsmgr.max_events_per_sec 3000
 settings put global window_animation_scale 0
 settings put global transition_animation_scale 0
 settings put global animator_duration_scale 0
@@ -29,6 +29,7 @@ settings put global app_restriction_enabled true
 settings put system intelligent_sleep_mode 0
 settings put secure adaptive_sleep 0
 settings put global ram_expand_size_list 16
+settings put global private_dns_mode off
 cmd power set-mode 0
 cmd power set-adaptive-power-saver-enabled false
 cmd power set-fixed-performance-mode-enabled true
