@@ -191,7 +191,7 @@ echo '3' > /proc/sys/vm/drop_caches
 echo '0' > /proc/sys/vm/oom_kill_allocating_task
 echo "256,10240,32000,34000,36000,38000" > /sys/module/lowmemorykiller/parameters/minfree
 cat /sys/module/lowmemorykiller/parameters/minfree
-
+cmd package uninstall --user 0 com.xiaomi.joyose
 
 #!/system/bin/sh
 #sleep 25
@@ -241,5 +241,6 @@ fi
 until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
 	sleep 1
 done
+
 
 
