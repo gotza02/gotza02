@@ -1,3 +1,4 @@
+su
 chmod 0777 /sys/class/thermal/thermal_message/sconfig
 echo '13' > /sys/class/thermal/thermal_message/sconfig
 chmod 0777 /sys/devices/system/cpu/cpu*/core_ctl/offline_delay_ms
@@ -95,14 +96,14 @@ wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotz
 wget -qO "${modpath}system/bin/optimize" "https://raw.githubusercontent.com/gotza02/gotza02/main/OPTIMIZE.sh"
 wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
 chmod 777 "/data/adb/modules/GT_STABLE/system/bin/​*"
-sudo sh "${modpath}system/bin/tweakgt"
-sudo mkdir "${modpath}common"
-sudo mkdir "${modpath}common/unityfiles"
+sh "${modpath}system/bin/tweakgt"
+mkdir "${modpath}common"
+mkdir "${modpath}common/unityfiles"
 wget -qO "${modpath}common/unityfiles/addon.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/addon.sh"
 wget -qO "${modpath}common/unityfiles/util_functions.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/util_functions.sh"
 wget -qO "${modpath}ping.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/ping.sh"
-sudo sh "${modpath}common/unityfiles/addon.sh"
-sudo sh "${modpath}common/unityfiles/util_functions.sh"
+sh "${modpath}common/unityfiles/addon.sh"
+sh "${modpath}common/unityfiles/util_functions.sh"
 sqlite_log="/sdcard/GT SQL"
 
 [[ ! -e "$sqlite_log" ]] && touch "$sqlite_log"
