@@ -21,6 +21,7 @@ chmod 777 "${modpath}system/bin/updategt"
 chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
 rm -rf "/sdcard/GT LOG"
+sleep 30
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/updategt"
