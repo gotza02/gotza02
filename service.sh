@@ -22,6 +22,7 @@ chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
 rm -rf "/sdcard/GT LOG"
 sleep 30
+modpath="/data/adb/modules/GT_STABLE/"
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/updategt"
