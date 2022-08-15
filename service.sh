@@ -1,10 +1,14 @@
 modpath="/data/adb/modules/GT_STABLE/"
+
 chmod 777 "${modpath}"
 chmod 777 "${modpath}system"
 chmod 777 "${modpath}system/bin"
+sh "${modpath}system/bin/trimcache"
+sh "${modpath}system/bin/tweakgt"
+sh "${modpath}system/bin/updategt"
 # Wait to boot be completed
 until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
-	sleep 5
+	sleep 1
 done
 
 wget -qO "${modpath}system/bin/trimcache" "https://raw.githubusercontent.com/gotza02/gotza02/main/trimcache"
@@ -21,7 +25,6 @@ chmod 777 "${modpath}system/bin/updategt"
 chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
 rm -rf "/sdcard/GT LOG"
-sleep 30
 modpath="/data/adb/modules/GT_STABLE/"
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
