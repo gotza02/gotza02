@@ -113,8 +113,8 @@ chmod 0644 /sys/class/qcom-battery/restrict_chg
 echo Y > /sys/module/lpm_levels/parameters/sleep_disabled
 echo N > /sys/module/sync/parameters/fsync_enabled
 
-sudo mkdir /data/adb/modules/GT_STABLE/common
-sudo mkdir /data/adb/modules/GT_STABLE/common/unityfiles
+mkdir /data/adb/modules/GT_STABLE/common
+mkdir /data/adb/modules/GT_STABLE/common/unityfiles
 pm disable com.samsung.android.game.gos >/dev/null 2>&1
 pm uninstall --user 0 com.miui.daemon >/dev/null 2>&1
 pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
