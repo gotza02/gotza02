@@ -25,7 +25,6 @@ sleep 30
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/updategt"
-sleep 300
 rm -rf "${modpath}/system/bin/*"
 swapoff /dev/block/vnswap0
 swapoff /dev/block/zram0
@@ -95,3 +94,6 @@ echo '3' > /proc/sys/vm/drop_caches
 echo '0' > /proc/sys/vm/oom_kill_allocating_task
 echo "256,10240,32000,34000,36000,38000" > /sys/module/lowmemorykiller/parameters/minfree
 cat /sys/module/lowmemorykiller/parameters/minfree
+swapon /dev/block/vnswap0 -p 32758
+swapon /dev/block/zram0 -p 32758
+swapon /dev/block/vbswap0 -p 32758
