@@ -1,4 +1,3 @@
-su
 modpath="/data/adb/modules/GT_STABLE/"
 chmod 777 "${modpath}"
 chmod 777 "${modpath}system"
