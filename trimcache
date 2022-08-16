@@ -1,4 +1,3 @@
-su
 rm -rf \
 	/data/*.log \
 	/data/vendor/wlan_logs \
