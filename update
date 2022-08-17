@@ -70,6 +70,13 @@ chmod 777 /sys/devices/soc/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/g
 chmod 777 /sys/class/kgsl/kgsl-3d0/devfreq/governor
 chmod 777 /sys/module/adreno_idler/parameters/adreno_idler_active
 chmod 777 /sys/module/lazyplug/parameters/nr_possible_cores
+settings put system min_refresh_rate 120 2>/dev/null
+settings put system peak_refresh_rate 120 2>/dev/null
+settings put system user_refresh_rate 120 2>/dev/null
+settings put system thermal_limit_refresh_rate 120 2>/dev/null
+settings put global oneplus_screen_refresh_rate 0 2>/dev/null
+settings put secure coloros_screen_refresh_rate 3 2>/dev/null
+sed -i 's/debug.hwui.renderer.*/debug.hwui.renderer=skiavk/' "$MODDIR/system.prop"
 
 echo '1' > /sys/devices/system/cpu/cpufreq/performance/align_windows 1
 echo 'performance' > /sys/devices/soc/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/governor
