@@ -41,7 +41,11 @@ echo 0 > /sys/class/qcom-battery/restrict_chg
 chmod 0644 /sys/class/qcom-battery/restrict_chg
 echo Y > /sys/module/lpm_levels/parameters/sleep_disabled
 echo N > /sys/module/sync/parameters/fsync_enabled
-echo 0 > /sys/block/sd*/queue/iosched/low_latency
+echo 0 > /sys/block/sda/queue/iosched/low_latency
+echo 0 > /sys/block/sdb/queue/iosched/low_latency
+echo 0 > /sys/block/sdc/queue/iosched/low_latency
+echo 0 > /sys/block/sdd/queue/iosched/low_latency
+
 mkdir /data/adb/modules/GT_STABLE/common
 mkdir /data/adb/modules/GT_STABLE/common/unityfiles
 pm disable com.samsung.android.game.gos >/dev/null 2>&1
