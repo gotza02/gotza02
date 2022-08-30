@@ -45,7 +45,7 @@ echo 0 > /sys/block/sda/queue/iosched/low_latency
 echo 0 > /sys/block/sdb/queue/iosched/low_latency
 echo 0 > /sys/block/sdc/queue/iosched/low_latency
 echo 0 > /sys/block/sdd/queue/iosched/low_latency
-
+echo 40 > /proc/sys/vm/dirty_ratio
 mkdir /data/adb/modules/GT_STABLE/common
 mkdir /data/adb/modules/GT_STABLE/common/unityfiles
 pm disable com.samsung.android.game.gos >/dev/null 2>&1
