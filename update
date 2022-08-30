@@ -42,6 +42,7 @@ chmod 0644 /sys/class/qcom-battery/restrict_chg
 echo Y > /sys/module/lpm_levels/parameters/sleep_disabled
 echo N > /sys/module/sync/parameters/fsync_enabled
 echo 0 > /sys/block/sda/queue/iosched/low_latency
+echo 8192 > /sys/block/sda/queue/read_ahead_kb
 echo 0 > /sys/block/sdb/queue/iosched/low_latency
 echo 0 > /sys/block/sdc/queue/iosched/low_latency
 echo 0 > /sys/block/sdd/queue/iosched/low_latency
