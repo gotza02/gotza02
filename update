@@ -1,5 +1,5 @@
 chmod 0777 /sys/class/thermal/thermal_message/sconfig
-echo '13' > /sys/class/thermal/thermal_message/sconfig
+echo '10' > /sys/class/thermal/thermal_message/sconfig
 chmod 0777 /sys/devices/system/cpu/cpu*/core_ctl/offline_delay_ms
 echo '0' > /sys/devices/system/cpu/cpu0/core_ctl/offline_delay_ms
 echo '0' > /sys/devices/system/cpu/cpu4/core_ctl/offline_delay_ms
