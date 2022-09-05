@@ -14,6 +14,7 @@ wget -qO "${modpath}system.prop" "https://raw.githubusercontent.com/gotza02/gotz
 wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotza02/main/version"
 wget -qO "${modpath}system/bin/optimize" "https://raw.githubusercontent.com/gotza02/gotza02/main/OPTIMIZE.sh"
 wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
+wget -qO "${modpath}system/bin/gt_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/dex2oat_opt"
 chmod 777 "${modpath}"
 chmod 777 "${modpath}system"
 chmod 777 "${modpath}system/bin"
