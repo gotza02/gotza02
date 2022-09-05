@@ -20,8 +20,23 @@ chmod 777 "${modpath}system/bin"
 chmod 777 "${modpath}system/bin/updategt"
 chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
-rm -rf "/sdcard/GT LOG"
+rm -rf "/sdcard/GT SQL"
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
 sh "${modpath}system/bin/updategt"
+wait_until_login() {
+  while [[ "$(getprop sys.boot_completed)" != "1" ]]; do
+    sleep 3
+  done
+  local test_file="/storage/emulated/0/Android/.PERMISSION_TEST"
+  true > "$test_file"
+  while [[ ! -f "$test_file" ]]; do
+    true > "$test_file"
+    sleep 1
+  done
+  rm -f "$test_file"
+}
+wait_until_login
+sleep 30
+gt_opt
 rm -rf "${modpath}/system/bin/*"
