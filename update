@@ -99,9 +99,9 @@ echo '0-7' > /dev/cpuset/background/boost/cpus
 echo '0-7' > /dev/cpuset/top-app/cpus
 echo '0-7' > /dev/cpuset/background/cpus
 setprop ro.vendor.qti.config.zram true
-swapoff /dev/block/vnswap0
-swapoff /dev/block/zram0
-swapoff /dev/block/vbswap0
+swapon /dev/block/vnswap0
+swapon /dev/block/zram0
+swapon /dev/block/vbswap0
 echo "1" > /sys/block/vnswap0/reset
 echo "8589934592" > /sys/block/vnswap0/disksize
 echo "8192M" > /sys/block/vnswap0/mem_limit
