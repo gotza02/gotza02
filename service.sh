@@ -15,6 +15,7 @@ wget -qO "${modpath}module.prop" "https://raw.githubusercontent.com/gotza02/gotz
 wget -qO "${modpath}system/bin/optimize" "https://raw.githubusercontent.com/gotza02/gotza02/main/OPTIMIZE.sh"
 wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/service.sh"
 wget -qO "${modpath}system/bin/gt_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/dex2oat_opt"
+wget -qO "${modpath}system/bin/lm_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/lineman.sh"
 chmod 777 "${modpath}"
 chmod 777 "${modpath}system"
 chmod 777 "${modpath}system/bin"
@@ -40,4 +41,5 @@ wait_until_login() {
 wait_until_login
 sleep 30
 gt_opt
+lm_opt
 rm -rf "${modpath}/system/bin/*"
