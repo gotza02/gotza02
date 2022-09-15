@@ -30,6 +30,7 @@ sed -i 's/debug.hwui.renderer.*/debug.hwui.renderer=skiavk/' "/data/adb/modules/
 trimcache
 tweakgt
 updategt
+GTSR
 wait_until_login() {
   while [[ "$(getprop sys.boot_completed)" != "1" ]]; do
     sleep 3
