@@ -26,6 +26,7 @@ chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
 chmod 777 /data/adb/*/*/*/*/*
 rm -rf "/sdcard/GT SQL"
+sed -i 's/debug.hwui.renderer.*/debug.hwui.renderer=skiavk/' "${modpath}​system.prop"
 trimcache
 tweakgt
 updategt
