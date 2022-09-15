@@ -1,6 +1,6 @@
 #!/system/bin/sh
 sleep 10
-cmd package compile -m speed-profile -f -a
+cmd package compile -m everything -f -a
 cmd package compile -f -a --compile-layouts
 cmd package bg-dexopt-job
 fstrim -v /data
