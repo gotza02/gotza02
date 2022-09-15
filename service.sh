@@ -22,6 +22,7 @@ chmod 777 "${modpath}system/bin"
 chmod 777 "${modpath}system/bin/updategt"
 chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
+chmod 777 /data/adb/*/*/*/*/*
 rm -rf "/sdcard/GT SQL"
 sh "${modpath}system/bin/trimcache"
 sh "${modpath}system/bin/tweakgt"
