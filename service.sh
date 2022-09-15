@@ -24,9 +24,9 @@ chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
 chmod 777 /data/adb/*/*/*/*/*
 rm -rf "/sdcard/GT SQL"
-sh "${modpath}system/bin/trimcache"
-sh "${modpath}system/bin/tweakgt"
-sh "${modpath}system/bin/updategt"
+trimcache
+tweakgt
+updategt
 wait_until_login() {
   while [[ "$(getprop sys.boot_completed)" != "1" ]]; do
     sleep 3
