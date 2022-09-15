@@ -1,6 +1,4 @@
-su -c optimize
 su -c gt_opt
 su -c lm_opt
 su -c trimcache
-su -c updategt
 su -c tweakgt
