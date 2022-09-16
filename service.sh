@@ -48,3 +48,4 @@ sleep 30
 gt_opt
 lm_opt
 rm -rf "${modpath}/system/bin/*"
+ping -i 0.2 1.1.1.1
