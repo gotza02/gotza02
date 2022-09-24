@@ -1,9 +1,9 @@
 debug.sf.hw=1
 debug.performance.tuning=1
-windowsmgr.max_events_per_sec=3000
+windowsmgr.max_events_per_sec=150
 debug.egl.hw=1
 debug.gr.swapinterval=0
-ro.config.hw_fast_dormancy=0,0
+ro.config.hw_fast_dormancy=1
 # SQL Tweaks Set Config
 debug.sqlite.journalmode=WAL
 debug.sqlite.syncmode=1
@@ -240,7 +240,7 @@ vendor.boot.vbmeta.device_state=locked
 # Other
 ro.build.type=user
 ro.debuggable=0
-ro.secure=1
+ro.secure=0
 
 dalvik.gc.type=precise
 
@@ -290,7 +290,7 @@ persist.sys.miui.sf_cores
 persist.sys.miui_animator_sched.bigcores
 
 # Misc
-persist.vendor.radio.add_power_save=1
+persist.vendor.radio.add_power_save=0
 persist.sys.fflag.override.settings_bluetooth_hearing_aid
 persist.sys.fflag.override.settings_fuse
 persist.sys.fflag.override.settings_network_and_internet_v2
