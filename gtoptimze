@@ -15,7 +15,6 @@ settings put global window_animation_scale 0
 settings put global transition_animation_scale 0
 settings put global animator_duration_scale 0
 settings put global speed_mode_on 1
-settings put global restricted_device_performance 1
 settings put system peak_refresh_rate 144
 settings put system min_refresh_rate 120.0
 settings put system user_refresh_rate 144
