@@ -353,7 +353,6 @@ hwui.render_dirty_regions=false
 hwui.disable_vsync=true
 force_hw_ui=true
 debug.kill_allocating_task=0
-ro.debuggable=1
 ro.config.disable.hw_accel=false
 ro.kernel.android.checkjni=0
 ro.kernel.checkjni=0
@@ -361,7 +360,24 @@ persist.sys.composition.type=c2d
 persist.splitwindow.support_all=true
 ro.min_pointer_dur=1
 ro.config.low_ram.mod=true
-ro.secure=1
 ro.config.dha_tunnable=1
 ro.wmt.blcr.enable=0
 persist.sys.use_16bpp_alpha=1
+
+ro.boot.warranty_bit=0
+ro.vendor.boot.warranty_bit=0
+ro.vendor.warranty_bit=0
+ro.warranty_bit=0
+
+# OnePlus
+ro.is_ever_orange=0
+
+# SafetyNet
+ro.boot.verifiedbootstate=green
+ro.boot.veritymode=enforcing
+vendor.boot.vbmeta.device_state=locked
+
+# Other
+ro.build.type=user
+ro.debuggable=0
+ro.secure=1
