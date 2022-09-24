@@ -3,7 +3,7 @@ debug.performance.tuning=1
 windowsmgr.max_events_per_sec=300
 debug.egl.hw=1
 debug.gr.swapinterval=0
-ro.config.hw_fast_dormancy=1
+ro.config.hw_fast_dormancy=0
 # SQL Tweaks Set Config
 debug.sqlite.journalmode=WAL
 debug.sqlite.syncmode=1
