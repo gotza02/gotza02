@@ -336,6 +336,3 @@ ro.statsd.enable=false
 persist.bg.dexopt.enable=true
 pm.dexopt.bg-dexopt=everything
 pm.dexopt.forced-dexopt=everything
-
-persist.sys.NV_FPSLIMIT=144
-persist.sys.NV_POWERMODE=1
