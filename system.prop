@@ -1,6 +1,6 @@
 debug.sf.hw=1
 debug.performance.tuning=1
-windowsmgr.max_events_per_sec=150
+windowsmgr.max_events_per_sec=1500
 debug.egl.hw=1
 debug.gr.swapinterval=0
 ro.config.hw_fast_dormancy=1
@@ -325,9 +325,6 @@ persist.camera.imglib.logs=0
 persist.camera.isp.debug=0
 persist.camera.sensor.debug=0
 persist.camera.debug.logfile=0
-
-# ZRAM writeback
-ro.zram.first_wb_delay_mins
 
 # Disable DPM debugging
 persist.vendor.dpm.loglevel=0
