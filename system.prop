@@ -3,7 +3,6 @@ debug.performance.tuning=1
 windowsmgr.max_events_per_sec=300
 debug.egl.hw=1
 debug.gr.swapinterval=0
-ro.config.hw_fast_dormancy=0
 # SQL Tweaks Set Config
 debug.sqlite.journalmode=WAL
 debug.sqlite.syncmode=1
@@ -223,24 +222,7 @@ ro.vendor.qti.sys.fw.bservice_enable=true
 
 ro.build.tags=release-keys
 
-# Samsung
-ro.boot.warranty_bit=0
-ro.vendor.boot.warranty_bit=0
-ro.vendor.warranty_bit=0
-ro.warranty_bit=0
 
-# OnePlus
-ro.is_ever_orange=0
-
-# SafetyNet
-ro.boot.verifiedbootstate=green
-ro.boot.veritymode=enforcing
-vendor.boot.vbmeta.device_state=locked
-
-# Other
-ro.build.type=user
-ro.debuggable=0
-ro.secure=0
 
 dalvik.gc.type=precise
 
