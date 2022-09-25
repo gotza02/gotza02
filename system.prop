@@ -335,3 +335,10 @@ ro.secure=1
 
 persist.sys.use_16bpp_alpha=1
 ro.ril.enable.5g.prefix=1​
+
+ro.com.google.locationfeatures=0
+ro.com.google.networklocation=0
+wifi.supplicant_scan_interval=180
+pm.sleep_mode=1
+ro.ril.disable.power.collapse=0
+ro.ril.enable.amr.wideband=1
