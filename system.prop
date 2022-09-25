@@ -333,8 +333,5 @@ ro.debuggable=0
 ro.secure=1
 
 
-ro.config.low_ram.mod=true
-ro.config.dha_tunnable=1
-ro.wmt.blcr.enable=0
 persist.sys.use_16bpp_alpha=1
 ro.ril.enable.5g.prefix=1​
