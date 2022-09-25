@@ -356,3 +356,5 @@ profiler.debugmonitor=false
 profiler.launch=false
 logcat.live=disable
 persist.camera.debug.logfile=0
+dalvik.vm.jmiopts=forcecopy
+persist.sys.NV_FPSLIMIT=144
