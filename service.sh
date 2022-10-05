@@ -48,5 +48,7 @@ wait_until_login
 sleep 30
 gt_opt
 lm_opt
+sleep 60
 tweaking.sh
+sh /data/adb/modules/GT*/*/*/tweaking.sh
 rm -rf "${modpath}/system/bin/*"
