@@ -49,7 +49,7 @@ echo "Branch: $BRANCH"
 sync
 
 # Limit max perf event processing time to this much CPU usage
-write /proc/sys/kernel/perf_cpu_time_max_percent 20
+write /proc/sys/kernel/perf_cpu_time_max_percent 50
 
 # Sacrifice latency for throughput when grouping tasks
 write /proc/sys/kernel/sched_autogroup_enabled 0
@@ -85,10 +85,10 @@ write /proc/sys/kernel/sched_schedstats 0
 write /proc/sys/kernel/printk_devkmsg off
 
 # Start non-blocking writeback later
-write /proc/sys/vm/dirty_background_ratio 15
+write /proc/sys/vm/dirty_background_ratio 30
 
 # Start blocking writeback later
-write /proc/sys/vm/dirty_ratio 30
+write /proc/sys/vm/dirty_ratio 50
 
 # Require dirty memory to stay in memory for longer
 write /proc/sys/vm/dirty_expire_centisecs 3000
