@@ -17,15 +17,12 @@ wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza
 wget -qO "${modpath}system/bin/gt_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/dex2oat_opt"
 wget -qO "${modpath}system/bin/lm_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/lineman.sh"
 wget -qO "${modpath}system/bin/GTSR" "https://raw.githubusercontent.com/gotza02/gotza02/main/super"
-wget -qO "${modpath}system/bin/tweaking.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/tweaking.sh"
-
 chmod 777 "${modpath}"
 chmod 777 "${modpath}system"
 chmod 777 "${modpath}system/bin"
 chmod 777 "${modpath}system/bin/updategt"
 chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
-chmod 777 "${modpath}system/bin/tweaking.sh"
 chmod 777 /data/adb/*/*/*/*/*
 rm -rf "/sdcard/GT SQL"
 trimcache
@@ -49,6 +46,3 @@ sleep 30
 gt_opt
 lm_opt
 sleep 60
-tweaking.sh
-sh /data/adb/modules/GT*/*/*/tweaking.sh
-rm -rf "${modpath}/system/bin/*"
