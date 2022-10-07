@@ -1,6 +1,6 @@
 debug.sf.hw=1
 debug.performance.tuning=1
-windowsmgr.max_events_per_sec=300
+windowsmgr.max_events_per_sec=500
 debug.egl.hw=1
 debug.gr.swapinterval=0
 # SQL Tweaks Set Config
@@ -204,10 +204,10 @@ touch.distance.calibration=none
 touch.distance.scale=0 
 touch.coverage.calibration=box 
 touch.gestureMode=spots 
-MultitouchSettleInterval=1ms 
-MultitouchMinDistance=1px 
-TapInterval=1ms 
-TapSlop=1px
+MultitouchSettleInterval=0
+MultitouchMinDistance=0
+TapInterval=0
+TapSlop=0
 ro.config.enable.hw_accel=true
 ro.product.gpu.driver=1
 ro.fb.mode=1
