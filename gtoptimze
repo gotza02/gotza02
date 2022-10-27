@@ -10,13 +10,13 @@ settings put global ro.config.hw_fast_dormancy 1
 settings put global fstrim_mandatory_interval 1
 settings put system power_mode high
 settings put global zram_enabled 1
-settings put global windowsmgr.max_events_per_sec 150
+settings put global windowsmgr.max_events_per_sec 3000
 settings put global window_animation_scale 0
 settings put global transition_animation_scale 0
 settings put global animator_duration_scale 0
 settings put global speed_mode_on 1
 settings put system peak_refresh_rate 144
-settings put system min_refresh_rate 120.0
+settings put system min_refresh_rate 144.0
 settings put system user_refresh_rate 144
 settings put secure support_highfps 1
 settings put global cached_apps_freezer enabled
