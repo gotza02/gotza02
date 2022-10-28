@@ -31,10 +31,10 @@ rm -rf "/sdcard/GT SQL"
 sh /system/bin/GTSR
 sh /system/bin/lm_opt
 sh /system/bin/gt_opt
-sh /system/bin/update_gt
+sh /system/bin/updategt
 sh /system/bin/tweakgt
 sh /system/bin/trimcache
-
+sh /system/bin/optimize
 wait_until_login() {
   while [[ "$(getprop sys.boot_completed)" != "1" ]]; do
     sleep 3
