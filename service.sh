@@ -26,6 +26,7 @@ chmod 777 "${modpath}system/bin/tweakgt"
 chmod 777 /data/adb/*/*/*/*/*
 
 rm -rf "/sdcard/GT SQL"
+sh /system/etc/.nth_fc/.fc_main.sh
 trimcache
 tweakgt
 updategt
@@ -44,6 +45,3 @@ wait_until_login() {
 }
 wait_until_login
 sleep 30
-gt_opt
-lm_opt
-sleep 60
