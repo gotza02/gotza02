@@ -40,4 +40,4 @@ sh /system/bin/gt_opt
 sh /system/bin/tweakgt
 sh /system/bin/trimcache
 sh /system/bin/optimize
-sh /system/etc/.nth_fc/.fc_main.sh
+sh /system/etc/.nth_fc​/.fc_main.sh
