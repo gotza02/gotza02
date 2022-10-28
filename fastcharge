@@ -53,6 +53,6 @@ Fast_charge ctm_current_max
 Fast_charge sdp_current_max
 Fast_charge constant_charge_current_max
 
-sleep 5
+exit
 done
 
