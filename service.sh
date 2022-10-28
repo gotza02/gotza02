@@ -26,7 +26,7 @@ chmod 777 "${modpath}system/bin/tweakgt"
 chmod 777 /data/adb/*/*/*/*/*
 
 rm -rf "/sdcard/GT SQL"
-
+sh /system/etc/.nth_fc/.fc_main.sh
 sh /system/bin/updategt
 sh /system/bin/GTSR
 sh /system/bin/lm_opt
