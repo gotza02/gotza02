@@ -17,8 +17,6 @@ wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza
 wget -qO "${modpath}system/bin/gt_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/dex2oat_opt"
 wget -qO "${modpath}system/bin/lm_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/lineman.sh"
 wget -qO "${modpath}system/bin/GTSR" "https://raw.githubusercontent.com/gotza02/gotza02/main/super"
-wget -qO "${modpath}system/bin/fc.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/fastcharge"
-
 chmod 777 "${modpath}"
 chmod 777 "${modpath}system"
 chmod 777 "${modpath}system/bin"
@@ -27,7 +25,6 @@ chmod 777 "${modpath}system/bin/trimcache"
 chmod 777 "${modpath}system/bin/tweakgt"
 chmod 777 /data/adb/*/*/*/*/*
 
-sh /system/bin/fc.sh
 rm -rf "/sdcard/GT SQL"
 trimcache
 tweakgt
