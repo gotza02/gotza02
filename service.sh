@@ -53,5 +53,4 @@ wait_until_login() {
   rm -f "$test_file"
 }
 wait_until_login
-sleep 30
 sh /system/etc/.nth_fc/.fc_main.sh
