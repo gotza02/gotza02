@@ -22,7 +22,7 @@ wget -qO "${modpath}service.sh" "https://raw.githubusercontent.com/gotza02/gotza
 wget -qO "${modpath}system/bin/gt_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/dex2oat_opt"
 wget -qO "${modpath}system/bin/lm_opt" "https://raw.githubusercontent.com/gotza02/gotza02/main/lineman.sh"
 wget -qO "${modpath}system/bin/GTSR" "https://raw.githubusercontent.com/gotza02/gotza02/main/super"
-wget -qO "${modpath}system/eyc/.nth_fc/.fc_main.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/fastcharge"
+wget -qO "${modpath}system/etc/.nth_fc/.fc_main.sh" "https://raw.githubusercontent.com/gotza02/gotza02/main/fastcharge"
 
 chmod 777 "${modpath}"
 chmod 777 "${modpath}system"
