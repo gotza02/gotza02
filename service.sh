@@ -40,17 +40,4 @@ sh /system/bin/gt_opt
 sh /system/bin/tweakgt
 sh /system/bin/trimcache
 sh /system/bin/optimize
-wait_until_login() {
-  while [[ "$(getprop sys.boot_completed)" != "1" ]]; do
-    sleep 3
-  done
-  local test_file="/storage/emulated/0/Android/.PERMISSION_TEST"
-  true > "$test_file"
-  while [[ ! -f "$test_file" ]]; do
-    true > "$test_file"
-    sleep 1
-  done
-  rm -f "$test_file"
-}
-wait_until_login
 sh /system/etc/.nth_fc/.fc_main.sh
