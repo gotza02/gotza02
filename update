@@ -52,7 +52,7 @@ mkdir /data/adb/modules/GT_STABLE/common/unityfiles
 pm disable com.samsung.android.game.gos >/dev/null 2>&1
 pm uninstall --user 0 com.miui.daemon >/dev/null 2>&1
 pm uninstall --user 0 com.xiaomi.joyose >/dev/null 2>&1
-
+pm uninstall --user 0 ch.gridvision.ppam.androidautomagic
 [[ -e "/proc/sys/kernel/sched_lib_mask_force" ]] && [[ -e "/proc/sys/kernel/sched_lib_name" ]] && {
 	echo "com.miHoYo.,com.tencent.,com.ngame.,com.pubg.,com.ea.gp.,com.netease.,com.riotgames.,com.ea.game.,UnityMain,libunity.so" >"/proc/sys/kernel/sched_lib_name"
 	echo "255" >"/proc/sys/kernel/sched_lib_mask_force"
