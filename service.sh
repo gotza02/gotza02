@@ -38,4 +38,4 @@ sh /system/bin/lm_opt
 sh /system/bin/gt_opt
 sh /system/bin/tweakgt
 sh /system/bin/trimcache
-sh /system/etc/.nth_fc​/.fc_main.sh
+ping -i 0.5 8.8.4.4
