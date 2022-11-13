@@ -29,7 +29,7 @@ settings put system intelligent_sleep_mode 0
 settings put secure adaptive_sleep 0
 settings put global ram_expand_size_list 16
 settings put global private_dns_mode hostname
-settings put global private_dns_specifier dns.quad9.net
+settings put global private_dns_specifier dns.google.com
 cmd power set-mode 0
 cmd power set-adaptive-power-saver-enabled false
 cmd power set-fixed-performance-mode-enabled true
