@@ -35,6 +35,5 @@ rm -rf "/sdcard/GT SQL"
 
 sh /system/bin/updategt
 sh /system/bin/lm_opt
-sh /system/bin/gt_opt
 sh /system/bin/tweakgt
 sh /system/bin/trimcache
