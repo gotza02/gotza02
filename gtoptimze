@@ -56,3 +56,6 @@ cmd package compile -m everything -f com.linecorp.lineman.driver
 cmd package compile --compile-layouts com.linecorp.lineman.driver
 cmd package compile -m everything -f th.in.robinhood.rider
 cmd package compile --compile-layouts th.in.robinhood.rider
+settings put global window_animation_scale 0.0000000000001
+settings put global transition_animation_scale 0.0000000000001
+settings put global animator_duration_scale 0.0000000000001
