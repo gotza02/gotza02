@@ -101,3 +101,22 @@ echo "performance" > /sys/class/devfreq/gpufreq/governor
 
 # I/O scheduler setting
 echo "bfq" > /sys/block/sda/queue/scheduler
+
+
+#!/system/bin/sh
+
+# Increase TCP buffer size
+echo "8388608" > /proc/sys/net/core/wmem_max
+echo "8388608" > /proc/sys/net/core/rmem_max
+echo "2097152" > /proc/sys/net/ipv4/tcp_wmem
+echo "2097152" > /proc/sys/net/ipv4/tcp_rmem
+
+# DNS settings
+echo "options timeout:2 attempts:2" > /system/etc/resolv.conf
+
+# Network performance settings
+echo "0" > /proc/sys/net/ipv4/tcp_timestamps
+echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
+echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+echo "1" > /proc/sys/net/ipv4/tcp_sack
+echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
