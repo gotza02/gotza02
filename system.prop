@@ -1,73 +1,52 @@
-# CPU/GPU performance tweaks
+# Performance tweaks
 ro.config.hw_quickpoweron=true
-ro.config.hw_apps_optimization=true
-ro.config.hw_boot_file_backup=1
-persist.sys.NV_FPSLIMIT=120
-persist.sys.NV_POWERMODE=2
-persist.sys.NV_PROFVER=15
-persist.sys.NV_STEREOCTRL=0
-persist.sys.NV_STEREOSEP=20
-persist.sys.NV_PLSDISABLE=0
-debug.performance.tuning=1
-debug.sf.hw=1
-debug.composition.type=gpu
+ro.kernel.android.checkjni=0
+ro.kernel.checkjni=0
+ro.kernel.dns-debug=0
+
+# Disable fast dormancy
+ro.ril.fast.dormancy.timeout=1000000
+
+# Enable error checking
+persist.sys.assert.disable=0
+ro.config.disable.assert=0
+
+# I/O tweaks
+ro.config.hw_file_min_free_space=0
+ro.config.hw_sdcard_blocksize=2048
+ro.config.hw_sdcard_blockcount=1024
+
+# GPU tweaks
 debug.egl.profiler=1
 debug.egl.hw=1
-video.accelerate.hw=1
-
-# I/O performance tweaks
-ro.min_pointer_dur=8
-ro.service.swiqi.supported=true
-ro.min_freq=0
-ro.min_freq_0=0
-ro.min_freq_4=0
-ro.min_freq_8=0
-ro.min_freq_12=0
-ro.min_freq_16=0
-ro.min_freq_20=0
-ro.min_freq_24=0
-ro.min_freq_28=0
-persist.sys.io.scheduler=bfq
-persist.sys.use_dithering=0
-
-# RAM & Swap RAM tweaks
-ro.sys.fw.bg_apps_limit=60
-ro.sys.fw.total_ram=12GB
-ro.sys.fw.ram_threshold=10
-ro.sys.fw.ram_ecc=0
-ro.sys.swap.ratio=100
-
-# No animation
-debug.sf.nobootanimation=1
-debug.performance.no_anim=1
-
-# Cache
-persist.sys.clear_data_cache=0
-persist.sys.clear_cache=0
-persist.sys.dalvik.vm.dexopt-flags=m=y
-
-# Maximum Performance
+debug.composition.type=gpu
+debug.sf.hw=1
 debug.performance.tuning=1
+video.accelerate.hw=1
+debug.performance.game=1
+
+# Improve graphics
+debug.hwui.render_quality=high
+debug.hwui.text_render_shadow=1
+debug.hwui.text_small_cache_width=4096
+debug.hwui.text_large_cache_width=8192
+
+# Game stability
 debug.assert=0
 debug.mb.running=0
 debug.mb.streaming=0
 debug.mb.hang=0
 debug.mb.debug.show=0
-debug.hwui.render_quality=high
 
 # Internet tweaks
-net.tcp.buffersize.default=4096,87380,256960,4096, 16384,256960
-net.tcp.buffersize.wifi=4096,87380,256960,4096,163 84,256960
-net.tcp.buffersize.umts=4096,87380,256960,4096,163 84,256960
-net.tcp.buffersize.gprs=4096,87380,256960,4096,163 84,256960
-net.tcp.buffersize.edge=4096,87380,256960,4096,163 84,256960
-
-# Improve download speed
+net.tcp.buffersize.default=16384,2621440,33554432,4096, 16384,33554432
+net.tcp.buffersize.wifi=16384,2621440,33554432,4096,16384,33554432
+net.tcp.buffersize.umts=16384,2621440,33554432,4096,16384,33554432
+net.tcp.buffersize.gprs=16384,2621440,33554432,4096,16384,33554432
+net.tcp.buffersize.edge=16384,2621440,33554432,4096,16384,33554432
 ro.config.tcp_default_init_rwnd=60
-
-# Improve internet speed
-ro.ril.hsxpa=4
-ro.ril.hsdpa.category=10
-ro.ril.hsupa.category=6
+ro.ril.hsxpa=3
+ro.ril.hsdpa.category=14
+ro.ril.hsupa.category=7
 ro.ril.disable.cpc=0
 ro.ril.fast.dormancy.rule=0
