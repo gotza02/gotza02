@@ -368,3 +368,43 @@ net.tcp.buffersize.umts=4096,87380,256960,4096,163 84,256960
 net.tcp.buffersize.gprs=4096,87380,256960,4096,163 84,256960
 net.tcp.buffersize.edge=4096,87380,256960,4096,163 84,256960
 
+# Touchscreen responsiveness
+windowsmgr.max_events_per_sec=300
+ro.min.fling_velocity=8000
+ro.max.fling_velocity=12000
+ro.min.fling_velocity=40000
+
+# Disable touch buttons light
+ro.rui.touchlight=false
+
+# Improve touch recognition
+ro.input.nits=75
+
+# Disable touch boost
+ro.config.hw_power_saving=false
+
+# Disable touch wake
+ro.input.disable_pwr_key=true
+
+# Increase touch scan rate
+debug.qctwa.prescansp=24
+debug.qctwa.postscansp=24
+debug.qctwa.prescanamount=24
+debug.qctwa.postscanamount=24
+
+# Disable button backlight timeout
+ro.mot.buttonlight.timeout=0
+
+# Enable touch boost
+ro.config.enable_touchboost=true
+
+# Improve touch accuracy
+ro.input.fh_enabled=true
+ro.input.fh.ReleaseVelocityThreshold=20000
+ro.input.fh.PressVelocityThreshold=20000
+
+# Disable touch jitter reduction
+ro.mot.proximity.jitter=false
+
+# Disable touch filtering
+ro.input.nofilter=false
