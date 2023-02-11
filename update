@@ -276,3 +276,13 @@ fi
 until [[ "$(getprop sys.boot_completed)" -eq "1" ]] || [[ "$(getprop dev.bootcomplete)" -eq "1" ]]; do
     sleep 1
 done
+
+setprop debug.sys.fqcoder 0
+setprop debug.sys.gpucomp 0
+
+swapoff /dev/block/zram0
+echo 1 > /sys/block/zram0/reset
+echo $((1024*1024*1024)) > /sys/block/zram0/disksize
+mkswap /dev/block/zram0
+swapon /dev/block/zram0
+
