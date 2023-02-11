@@ -286,3 +286,15 @@ echo $((1024*1024*1024)) > /sys/block/zram0/disksize
 mkswap /dev/block/zram0
 swapon /dev/block/zram0
 
+
+#!/system/bin/sh
+# Script for improving touchscreen performance
+
+# Increase touch scan rate
+echo 24 > /sys/devices/virtual/input/lge_touch/sp_prescan
+echo 24 > /sys/devices/virtual/input/lge_touch/sp_postscan
+echo 24 > /sys/devices/virtual/input/lge_touch/scan_prescan
+echo 24 > /sys/devices/virtual/input/lge_touch/scan_postscan
+
+# Enable touch boost
+echo 1 > /sys/devices/virtual/misc/touchboost/enable
