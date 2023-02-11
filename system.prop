@@ -13,10 +13,6 @@ video.accelerate.hw=1
 ro.kernel.android.checkjni=0
 ro.kernel.checkjni=0
 
-# Improve GPU performance
-debug.egl.profiler=1
-debug.egl.hw=1
-debug.enabletr=true
 
 # Improve RAM performance
 ro.config.hw_quickpoweron=true
