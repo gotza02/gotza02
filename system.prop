@@ -360,7 +360,6 @@ persist.sys.NV_FPSLIMIT=144
 # Improve I/O performance
 ro.min_pointer_dur=8
 ro.min_free_kbytes=65536
-ro.config.zram=true
 
 # Improve internet speed
 net.tcp.buffersize.default=4096,87380,256960,4096, 16384,256960
@@ -369,5 +368,3 @@ net.tcp.buffersize.umts=4096,87380,256960,4096,163 84,256960
 net.tcp.buffersize.gprs=4096,87380,256960,4096,163 84,256960
 net.tcp.buffersize.edge=4096,87380,256960,4096,163 84,256960
 
-# Disable data compression
-persist.data_netmgrd_compression=0
