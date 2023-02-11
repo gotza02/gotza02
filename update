@@ -1,122 +1,28 @@
 #!/system/bin/sh
 
-# Enable KSM to reduce memory usage
-echo 1 > /sys/kernel/mm/ksm/run
+# CPU
+echo "performance" > /sys/devices/system/cpu/*/cpufreq/scaling_governor
 
-# Enable zRAM for improved memory management
-echo lz4 > /sys/block/zram0/comp_algorithm
-echo 1073741824 > /sys/block/zram0/disksize # 1GB of swap space
-echo 1 > /sys/block/zram0/reset
-mkswap /dev/block/zram0
-swapon /dev/block/zram0
+# GPU
+echo "performance" > /sys/class/kgsl/kgsl-3d0/devfreq/governor
 
-# Adjust scheduler settings for improved CPU performance
-echo cfq > /sys/block/mmcblk0/queue/scheduler
-echo 128 > /sys/block/mmcblk0/queue/nr_requests
-echo 1024 > /sys/block/mmcblk0/queue/read_ahead_kb
-echo 1 > /sys/block/mmcblk0/queue/iosched/low_latency
-echo 0 > /sys/block/mmcblk0/queue/add_random
+# RAM
+echo "0" > /proc/sys/vm/swappiness
+echo "100" > /proc/sys/vm/vfs_cache_pressure
+echo "60" > /proc/sys/vm/dirty_ratio
+echo "30" > /proc/sys/vm/dirty_background_ratio
+echo "10" > /proc/sys/vm/dirty_expire_centisecs
+echo "200" > /proc/sys/vm/dirty_writeback_centisecs
 
-# Disable debugging for improved performance
-echo 0 > /sys/kernel/debug/debug_enabled
+# I/O
+echo "bfq" > /sys/block/mmcblk0/queue/scheduler
+echo "bfq" > /sys/block/mmcblk1/queue/scheduler
+echo "15" > /sys/block/mmcblk0/queue/iosched/back_seek_max
+echo "15" > /sys/block/mmcblk1/queue/iosched/back_seek_max
 
-# Apply kernel tweaks for improved performance
-echo 0 > /proc/sys/kernel/sched_boost
-echo 0 > /proc/sys/kernel/sched_child_runs_first
-echo 0 > /proc/sys/kernel/sched_migration_cost
-echo 0 > /proc/sys/kernel/sched_autogroup_enabled
-echo 0 > /proc/sys/kernel/sched_wakeup_granularity_ns
-echo 1000000000 > /proc/sys/kernel/sched_latency_ns
-echo 1000000 > /proc/sys/kernel/sched_min_granularity_ns
-echo 1000000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
-
-# Disable unnecessary services for improved performance
-stop thermal-engine
-stop thermal-engine-2801
-stop thermal-engine-3100
-
-# Disable Logcat for improved performance
-stop logd
-stop logd-reinit
-stop logcatd
-#!/system/bin/sh
-
-Enable zRAM for improved memory management
-echo lz4 > /sys/block/zram0/comp_algorithm
-echo 1073741824 > /sys/block/zram0/disksize
-echo 1 > /sys/block/zram0/reset
-mkswap /dev/block/zram0
-swapon /dev/block/zram0
-
-Adjust scheduler settings for improved CPU performance
-echo cfq > /sys/block/mmcblk0/queue/scheduler
-echo 512 > /sys/block/mmcblk0/queue/nr_requests
-echo 2048 > /sys/block/mmcblk0/queue/read_ahead_kb
-echo 1 > /sys/block/mmcblk0/queue/iosched/low_latency
-
-Apply kernel tweaks for improved performance
-echo 200000000 > /proc/sys/kernel/sched_latency_ns
-echo 200000 > /proc/sys/kernel/sched_min_granularity_ns
-
-Disable unnecessary services for improved performance
-stop thermal-engine
-stop thermal-engine-2801
-stop thermal-engine-3100
-
-Set GPU performance
-echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
-
-Disable animations
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load
-echo 200000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/sampling_down_factor
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate
-Optimize internet connectivity
-echo 2 > /proc/sys/net/ipv4/tcp_syn_retries
-echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
-echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
-echo 524288 > /proc/sys/net/core/wmem_max
-echo 524288 > /proc/sys/net/core/rmem_max
-echo 262144 > /proc/sys/net/ipv4/tcp_wmem
-echo 262144 > /proc/sys/net/ipv4/tcp_rmem
-Create swap space using RAM
-echo 1 > /proc/sys/vm/swappiness
-dd if=/dev/zero of=/swapfile bs=4M count=4096
-mkswap /swapfile
-swapon /swapfile
-
-#!/system/bin/sh
-
-# CPU governor setting
-echo "performance" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-echo "performance" > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
-
-# GPU governor setting
-echo "performance" > /sys/class/devfreq/gpufreq/governor
-
-# I/O scheduler setting
-echo "bfq" > /sys/block/sda/queue/scheduler
-
-
-#!/system/bin/sh
-
-# Increase TCP buffer size
-echo "8388608" > /proc/sys/net/core/wmem_max
-echo "8388608" > /proc/sys/net/core/rmem_max
-echo "2097152" > /proc/sys/net/ipv4/tcp_wmem
-echo "2097152" > /proc/sys/net/ipv4/tcp_rmem
-
-# DNS settings
-echo "options timeout:2 attempts:2" > /system/etc/resolv.conf
-
-# Network performance settings
-echo "0" > /proc/sys/net/ipv4/tcp_timestamps
-echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
-echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
-echo "1" > /proc/sys/net/ipv4/tcp_sack
+# Internet
+echo "4096,87380,256960,4096,16384,256960" > /proc/sys/net/ipv4/tcp_rmem
+echo "4096,87380,256960,4096,16384,256960" > /proc/sys/net/ipv4/tcp_wmem
+echo "tcp_westwood" > /proc/sys/net/ipv4/tcp_congestion_control
+echo "1" > /proc/sys/net/ipv4/tcp_timestamps
 echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
