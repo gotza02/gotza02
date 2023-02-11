@@ -26,3 +26,13 @@ echo "4096,87380,256960,4096,16384,256960" > /proc/sys/net/ipv4/tcp_wmem
 echo "tcp_westwood" > /proc/sys/net/ipv4/tcp_congestion_control
 echo "1" > /proc/sys/net/ipv4/tcp_timestamps
 echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
+
+echo "performance" > /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+echo "false" > /system/build.prop
+debug.hwui.render_dirty_regions=false
+
+echo "4" > /system/build.prop
+zipalign=4
+
+echo "256m" > /system/build.prop
+dalvik.vm.heapsize=256m
