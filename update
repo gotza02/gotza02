@@ -11,81 +11,52 @@ mkswap /dev/block/zram0
 swapon /dev/block/zram0
 
 # Adjust scheduler settings for improved CPU performance
-echo cfq > /sys/block/mmcblk0/queue/scheduler
-echo 128 > /sys/block/mmcblk0/queue/nr_requests
-echo 1024 > /sys/block/mmcblk0/queue/read_ahead_kb
-echo 1 > /sys/block/mmcblk0/queue/iosched/low_latency
-echo 0 > /sys/block/mmcblk0/queue/add_random
-
-# Disable debugging for improved performance
-echo 0 > /sys/kernel/debug/debug_enabled
+echo deadline > /sys/block/mmcblk0/queue/scheduler
+echo 2048 > /sys/block/mmcblk0/queue/nr_requests
+echo 4096 > /sys/block/mmcblk0/queue/read_ahead_kb
+echo 0 > /sys/block/mmcblk0/queue/iosched/fifo_batch
+echo 0 > /sys/block/mmcblk0/queue/iosched/writes_starved
 
 # Apply kernel tweaks for improved performance
-echo 0 > /proc/sys/kernel/sched_boost
-echo 0 > /proc/sys/kernel/sched_child_runs_first
-echo 0 > /proc/sys/kernel/sched_migration_cost
+echo 1 > /proc/sys/kernel/sched_migration_cost_ns
 echo 0 > /proc/sys/kernel/sched_autogroup_enabled
-echo 0 > /proc/sys/kernel/sched_wakeup_granularity_ns
-echo 1000000000 > /proc/sys/kernel/sched_latency_ns
-echo 1000000 > /proc/sys/kernel/sched_min_granularity_ns
-echo 1000000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+echo 1 > /proc/sys/kernel/sched_cstate_aware
+echo 0 > /proc/sys/kernel/sched_boost
+echo 1 > /proc/sys/kernel/sched_prefer_sync_wakee_to_waker
+echo 500000 > /proc/sys/kernel/sched_latency_ns
+echo 100000 > /proc/sys/kernel/sched_min_granularity_ns
+echo 500000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+
+# Set governor for maximum CPU performance
+echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+
+# Set GPU governor for maximum performance
+echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
 
 # Disable unnecessary services for improved performance
 stop thermal-engine
 stop thermal-engine-2801
 stop thermal-engine-3100
 
-# Disable Logcat for improved performance
-stop logd
-stop logd-reinit
-stop logcatd
-#!/system/bin/sh
+# Disable animations for maximum performance
+settings put global window_animation_scale 0.0
+settings put global transition_animation_scale 0.0
+settings put global animator_duration_scale 0.0
 
-Enable zRAM for improved memory management
-echo lz4 > /sys/block/zram0/comp_algorithm
-echo 1073741824 > /sys/block/zram0/disksize
-echo 1 > /sys/block/zram0/reset
-mkswap /dev/block/zram0
-swapon /dev/block/zram0
+# Enable high-performance mode for screen
+echo 1 > /sys/class/graphics/fb0/hpd_mode
 
-Adjust scheduler settings for improved CPU performance
-echo cfq > /sys/block/mmcblk0/queue/scheduler
-echo 512 > /sys/block/mmcblk0/queue/nr_requests
-echo 2048 > /sys/block/mmcblk0/queue/read_ahead_kb
-echo 1 > /sys/block/mmcblk0/queue/iosched/low_latency
-
-Apply kernel tweaks for improved performance
-echo 200000000 > /proc/sys/kernel/sched_latency_ns
-echo 200000 > /proc/sys/kernel/sched_min_granularity_ns
-
-Disable unnecessary services for improved performance
-stop thermal-engine
-stop thermal-engine-2801
-stop thermal-engine-3100
-
-Set GPU performance
-echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
-
-Disable animations
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load
-echo 200000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/sampling_down_factor
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate
-Optimize internet connectivity
-echo 2 > /proc/sys/net/ipv4/tcp_syn_retries
+# Optimize internet connectivity for maximum performance
+echo 3 > /proc/sys/net/ipv4/tcp_syn_retries
 echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
 echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
-echo 524288 > /proc/sys/net/core/wmem_max
-echo 524288 > /proc/sys/net/core/rmem_max
-echo 262144 > /proc/sys/net/ipv4/tcp_wmem
-echo 262144 > /proc/sys/net/ipv4/tcp_rmem
-Create swap space using RAM
-echo 1 > /proc/sys/vm/swappiness
-dd if=/dev/zero of=/swapfile bs=4M count=4096
+echo 1048576 > /proc/sys/net/core/wmem_max
+echo 1048576 > /proc/sys/net/core/rmem_max
+echo 1048576 > /proc/sys/net/ipv4/tcp_wmem
+echo 1048576 > /proc/sys/net/ipv4/tcp_rmem
+
+# Create swap space using RAM
+echo 0 > /proc/sys/vm/swappiness
+dd if=/dev/zero of=/swapfile bs=1M count=2048
 mkswap /swapfile
 swapon /swapfile
