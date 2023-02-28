@@ -1,50 +1,38 @@
 #!/system/bin/sh
 
-# Enable KSM to reduce memory usage
+# Enable Kernel Same-page Merging (KSM) to reduce memory usage
 echo 1 > /sys/kernel/mm/ksm/run
+echo 1000 > /sys/kernel/mm/ksm/sleep_millisecs
+echo 500 > /sys/kernel/mm/ksm/pages_to_scan
+echo 1 > /sys/kernel/mm/ksm/deferred_timer
 
 # Enable zRAM for improved memory management
 echo lz4 > /sys/block/zram0/comp_algorithm
-echo 1073741824 > /sys/block/zram0/disksize # 1GB of swap space
+echo $(( $(cat /sys/devices/system/memory/block_size_bytes) * 128 )) > /sys/block/zram0/disksize # Set zRAM size to 128 times the block size
 echo 1 > /sys/block/zram0/reset
 mkswap /dev/block/zram0
 swapon /dev/block/zram0
 
-# Adjust scheduler settings for improved CPU performance
-echo deadline > /sys/block/mmcblk0/queue/scheduler
-echo 2048 > /sys/block/mmcblk0/queue/nr_requests
-echo 4096 > /sys/block/mmcblk0/queue/read_ahead_kb
+# Adjust scheduler settings for improved I/O performance
+echo noop > /sys/block/mmcblk0/queue/scheduler
+echo 128 > /sys/block/mmcblk0/queue/nr_requests
+echo 8192 > /sys/block/mmcblk0/queue/read_ahead_kb
 echo 0 > /sys/block/mmcblk0/queue/iosched/fifo_batch
 echo 0 > /sys/block/mmcblk0/queue/iosched/writes_starved
 
-# Apply kernel tweaks for improved performance
-echo 1 > /proc/sys/kernel/sched_migration_cost_ns
-echo 0 > /proc/sys/kernel/sched_autogroup_enabled
-echo 1 > /proc/sys/kernel/sched_cstate_aware
-echo 0 > /proc/sys/kernel/sched_boost
-echo 1 > /proc/sys/kernel/sched_prefer_sync_wakee_to_waker
-echo 500000 > /proc/sys/kernel/sched_latency_ns
-echo 100000 > /proc/sys/kernel/sched_min_granularity_ns
-echo 500000 > /proc/sys/kernel/sched_wakeup_granularity_ns
-
-# Set governor for maximum CPU performance
+# Set governor for maximum CPU and GPU performance
 echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
-
-# Set GPU governor for maximum performance
 echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
 
 # Disable unnecessary services for improved performance
 stop thermal-engine
-stop thermal-engine-2801
-stop thermal-engine-3100
+stop mpdecision
+stop sched_boost
 
 # Disable animations for maximum performance
 settings put global window_animation_scale 0.0
 settings put global transition_animation_scale 0.0
 settings put global animator_duration_scale 0.0
-
-# Enable high-performance mode for screen
-echo 1 > /sys/class/graphics/fb0/hpd_mode
 
 # Optimize internet connectivity for maximum performance
 echo 3 > /proc/sys/net/ipv4/tcp_syn_retries
@@ -55,8 +43,165 @@ echo 1048576 > /proc/sys/net/core/rmem_max
 echo 1048576 > /proc/sys/net/ipv4/tcp_wmem
 echo 1048576 > /proc/sys/net/ipv4/tcp_rmem
 
-# Create swap space using RAM
+# Create swap space using zRAM
 echo 0 > /proc/sys/vm/swappiness
-dd if=/dev/zero of=/swapfile bs=1M count=2048
-mkswap /swapfile
-swapon /swapfile
+
+# Set kernel parameters for improved performance
+echo 1 > /proc/sys/kernel/sched_migration_cost_ns
+echo 0 > /proc/sys/kernel/sched_autogroup_enabled
+echo 1 > /proc/sys/kernel/sched_cstate_aware
+echo 0 > /proc/sys/kernel/sched_boost
+echo 1 > /proc/sys/kernel/sched_prefer_sync_wakee_to_waker
+echo 500000 > /proc/sys/kernel/sched_latency_ns
+echo 100000 > /proc/sys/kernel/sched_min_granularity_ns
+echo 500000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+
+# Enable TCP BBR congestion control algorithm
+echo bbr > /proc/sys/net/ipv4/tcp_congestion_control
+
+# Disable kernel printk messages that are not useful for performance monitoring
+echo 0 > /proc/sys/kernel/printk_ratelimit
+
+# Enable kernel memory compaction for better memory utilization
+echo 1 > /proc/sys/vm/compact_memory
+
+# Set swappiness to 10 for better memory utilization
+echo 10 > /proc/sys/vm/swappiness
+
+# Optimize kernel memory management for better performance
+echo 1 > /proc/sys/vm/dirty_background_ratio
+echo 10 > /proc/sys/vm/dirty_ratio
+echo 100 > /proc/sys/vm/vfs_cache_pressure
+echo 1500 > /proc/sys/vm/dirty_writeback_centisecs
+echo 5 > /proc/sys/vm/laptop_mode
+echo 1 > /proc/sys/vm/page-cluster
+echo 1 > /proc/sys/vm/overcommit_memory
+echo 50 > /proc/sys/vm/dirty_expire_centisecs
+echo 0 > /proc/sys/vm/oom_kill_allocating_task
+echo 1 > /proc/sys/vm/panic_on_oom
+echo 30 > /proc/sys/vm/dirtytime_expire_seconds
+
+# Disable kernel debugging features for improved performance
+echo 0 > /proc/sys/kernel/kptr_restrict
+echo 0 > /proc/sys/kernel/panic
+echo 0 > /proc/sys/kernel/panic_on_oops
+echo 0 > /proc/sys/kernel/sysrq
+
+# Optimize filesystems for better performance
+tune2fs -o journal_data_writeback /dev/block/mmcblk0p2
+tune2fs -o journal_data_writeback /dev/block/mmcblk0p3
+
+# Set TCP keepalive timeout to 60 seconds for better network performance
+echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time
+
+# Enable Wi-Fi power management for better battery life
+echo 1 > /sys/module/bcmdhd/parameters/wlrx_divide
+
+# Increase maximum number of open files
+echo 65535 > /proc/sys/fs/nr_open
+
+# Optimize virtual memory management for better performance
+echo 100 > /proc/sys/vm/swappiness
+echo 0 > /proc/sys/vm/overcommit_memory
+echo 10 > /proc/sys/vm/dirty_ratio
+echo 5 > /proc/sys/vm/dirty_background_ratio
+echo 500 > /proc/sys/vm/dirty_writeback_centisecs
+echo 0 > /proc/sys/vm/panic_on_oom
+echo 0 > /proc/sys/kernel/hung_task_timeout_secs
+
+# Disable kernel module autoloading
+echo 0 > /proc/sys/kernel/modprobe
+
+# Reduce network latency for improved network performance
+echo 1 > /proc/sys/net/ipv4/tcp_low_latency
+
+# Set GPU scaling to performance mode
+echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/cur_freq
+
+# Reduce memory allocation fragmentation
+echo 1 > /proc/sys/vm/overcommit_ratio
+
+# Disable IPv6 for improved network performance
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+
+# Limit the maximum number of processes for better performance
+echo 100 > /proc/sys/kernel/threads-max
+
+# Set the maximum number of open files per process to 2048
+echo 2048 > /proc/sys/fs/file-max
+
+# Enable high-performance mode for screen
+echo 1 > /sys/class/graphics/fb0/hpd_mode
+
+# Enable hardware acceleration for video playback
+echo 1 > /sys/module/videobuf2_v4l2/parameters/low_latency
+
+# Optimize TCP receive window size for better network performance
+echo 8192 > /proc/sys/net/ipv4/tcp_rmem
+echo 8192 > /proc/sys//ipv4/tcp_wmem
+
+# Set the maximum number of packets queued
+echo 4096 > /proc/sys/net/core/netdev_max_backlog
+
+# Increase the default TCP receive buffer size
+echo 87380 > /proc/sys/net/core/rmem_default
+echo 87380 > /proc/sys/net/core/wmem_default
+
+# Increase the maximum TCP receive buffer size
+echo 16777216 > /proc/sys/net/core/rmem_max
+echo 16777216 > /proc/sys/net/core/wmem_max
+
+# Enable TCP Fast Open for improved network performance
+echo 3 > /proc/sys/net/ipv4/tcp_fastopen
+
+# Optimize kernel memory management for better performance
+echo 1500 > /proc/sys/vm/dirty_expire_centisecs
+echo 1500 > /proc/sys/vm/dirty_writeback_centisecs
+echo 5000 > /proc/sys/vm/dirty_writeback_suspend_centisecs
+echo 30 > /proc/sys/vm/dirty_ratio
+echo 10 > /proc/sys/vm/dirty_background_ratio
+echo 60 > /proc/sys/vm/swappiness
+
+# Disable kernel messages that are not useful for performance monitoring
+echo 0 > /proc/sys/kernel/printk_ratelimit
+echo 0 > /proc/sys/kernel/printk
+
+# Set readahead buffer size for improved I/O performance
+echo 2048 > /sys/block/mmcblk0/queue/read_ahead_kb
+
+# Enable transparent huge pages for improved memory management
+echo always > /sys/kernel/mm/transparent_hugepage/enabled
+
+# Optimize the CPU frequency for better performance
+echo "90 800000:75 998400:85 1094400:95 1209600:99" > /sys/devices/system/cpu/cpufreq/policy0/interactive/target_loads
+echo 80000 > /sys/devices/system/cpu/cpufreq/policy0/interactive/timer_rate
+echo 998400 > /sys/devices/system/cpu/cpufreq/policy0/interactive/hispeed_freq
+echo 60000 > /sys/devices/system/cpu/cpufreq/policy0/interactive/timer_slack
+echo 1209600 > /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq
+
+# Set swappiness to 0 for better memory utilization
+echo 0 > /proc/sys/vm/swappiness
+
+# Set the maximum number of open files system-wide to 65536
+ulimit -n 65536
+
+# Optimize the kernel scheduler for better performance
+echo 1 > /proc/sys/kernel/sched_migration_cost_ns
+echo 0 > /proc/sys/kernel/sched_autogroup_enabled
+echo 1 > /proc/sys/kernel/sched_cstate_aware
+echo 0 > /proc/sys/kernel/sched_boost
+echo 1 > /proc/sys/kernel/sched_prefer_sync_wakee_to_waker
+echo 500000 > /proc/sys/kernel/sched_latency_ns
+echo 100000 > /proc/sys/kernel/sched_min_granularity_ns
+echo 500000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+
+# Set the default file descriptor limit to 65536
+echo "* soft nofile 65536" > /etc/security/limits.conf
+echo "* hard nofile 65536" >> /etc/security/limits.conf
+
+# Disable Swap to improve performance
+swapoff -a
+
+# Disable unnecessary kernel modules for improved performance
+rmmod cifs
