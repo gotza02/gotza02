@@ -205,3 +205,132 @@ swapoff -a
 
 # Disable unnecessary kernel modules for improved performance
 rmmod cifs
+
+
+#!/system/bin/sh
+
+# Increase the swappiness value to improve performance
+echo 100 > /proc/sys/vm/swappiness
+
+# Disable debugging and logging to improve performance
+setprop debug.sf.nobootanimation 1
+setprop persist.sys.disable_rescue 1
+setprop ro.kernel.android.checkjni 0
+setprop logcat.live 0
+
+# Clear the system cache to free up memory
+/sbin/cache clear
+
+# Set CPU governor to performance
+echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo performance > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+echo performance > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
+echo performance > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
+
+# Set GPU governor to performance
+echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
+
+# Enable TCP Fast Open to improve internet performance
+echo 3 > /proc/sys/net/ipv4/tcp_fastopen
+
+# Disable animations to improve UI performance
+settings put global window_animation_scale 0.0
+settings put global transition_animation_scale 0.0
+settings put global animator_duration_scale 0.0
+
+# Disable unnecessary apps and services to free up ROM and RAM
+pm disable com.android.email
+pm disable com.android.exchange
+pm disable com.google.android.apps.books
+pm disable com.google.android.apps.magazines
+pm disable com.google.android.apps.photos
+pm disable com.google.android.gms.unstable
+pm disable com.google.android.marvin.talkback
+pm disable com.google.android.music
+pm disable com.google.android.videos
+pm disable com.google.android.youtube
+pm disable com.google.android.youtube.tv
+pm disable com.google.android.vr.home
+pm disable com.google.ar.core
+pm disable com.google.vr.vrcore
+pm disable com.qualcomm.qti.qms.service.connectionsecurity
+pm disable com.qualcomm.qti.remoteSimlockAuth
+pm disable com.samsung.android.service.peoplestripe
+
+# Enable force GPU rendering and 4x MSAA for all apps
+settings put global force_gpu_rendering 1
+settings put global msaa 4
+
+# Disable app notifications to reduce RAM usage
+settings put global heads_up_notifications_enabled 0
+settings put global show_importance_slider 0
+
+# Disable Google Play Services
+pm disable com.google.android.gms
+pm disable com.google.android.gsf
+
+# Disable Google Search and Assistant
+pm disable com.google.android.googlequicksearchbox
+pm disable com.google.android.apps.googleassistant
+
+# Disable Samsung bloatware
+pm disable com.samsung.android.calendar
+pm disable com.samsung.android.game.gamehome
+pm disable com.samsung.android.game.gametools
+pm disable com.samsung.android.game.gos
+pm disable com.samsung.android.messaging
+pm disable com.samsung.android.securitylogagent
+pm disable com.samsung.android.svoiceime
+pm disable com.samsung.android.wellbeing
+pm disable com.samsung.android.wellbeing.service
+pm disable com.samsung.android.weather
+pm disable com.samsung.android.widgetapp.yahooedge.finance
+pm disable com.samsung.android.widgetapp.yahooedge.sport
+pm disable com.samsung.android.net.wifi.wifiguider
+pm disable com.samsung.android.forest
+pm disable com.samsung.android.service.aircommand
+pm disable com.samsung.android.smartswitchassistant
+pm disable com.samsung.android.service.livedrawing
+pm disable com.samsung.android.ardrawing
+pm disable com.samsung.android.service.peoplestripe
+pm disable com.samsung.android.app.watchmanagerstub
+# Disable Samsung Dex and DeX for PC
+pm disable com.sec.android.desktopmode.uiservice
+pm disable com.samsung.desktopsystemui
+pm disable com.sec.android.app.desktoplauncher
+pm disable com.sec.android.app.desktoplauncher.legacy
+pm disable com.sec.android.app.desktopmonitor
+pm disable com.sec.android.app.dexonpc
+pm disable com.sec.android.app.mirrorlink
+pm disable com.sec.android.easyMover.Agent
+pm disable com.sec.android.easyMover.SMAgent
+pm disable com.sec.android.easyMover.Server
+pm disable com.sec.android.easyMover.Client
+
+# Disable Samsung Health and Fitness
+pm disable com.samsung.android.shealth
+pm disable com.samsung.android.shealthservice
+pm disable com.sec.android.app.shealth
+pm disable com.sec.android.service.health
+
+# Disable Samsung Pay and Bixby
+pm disable com.samsung.android.bixby.agent
+pm disable com.samsung.android.bixby.agent.dummy
+pm disable com.samsung.android.bixby.service
+pm disable com.samsung.android.bixby.wakeup
+pm disable com.samsung.android.bixbyvision.framework
+pm disable com.samsung.android.paymentserver
+pm disable com.samsung.android.samsungpass
+pm disable com.samsung.android.spay
+pm disable com.samsung.android.spayfw
+pm disable com.samsung.android.visionintelligence
+
+# Disable Facebook and Messenger
+pm disable com.facebook.appmanager
+pm disable com.facebook.services
+pm disable com.facebook.system
+pm disable com.facebook.katana
+pm disable com.facebook.orca
+
+# Restart the system UI to apply changes
+pkill com.android.systemui
