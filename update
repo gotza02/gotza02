@@ -334,3 +334,112 @@ pm disable com.facebook.orca
 
 # Restart the system UI to apply changes
 pkill com.android.systemui
+#!/system/bin/sh
+
+# Enable hardware acceleration
+setprop debug.sf.hw 1
+setprop debug.performance.tuning 1
+
+# Improve touch responsiveness
+setprop debug.touch_pressure_scale 0.001
+
+# Increase the speed of the user interface
+setprop windowsmgr.max_events_per_sec 150
+
+# Improve scrolling responsiveness
+setprop ro.min_pointer_dur 8
+
+# Disable logging to save resources
+setprop logcat.live disable
+
+# Reduce the time it takes for the device to recognize a wireless ADB connection
+setprop service.adb.tcp.timeout 10
+
+# Optimize the Dalvik Virtual Machine (for non-ART runtime devices)
+setprop dalvik.vm.dexopt-flags m=v,o=y
+setprop dalvik.vm.execution-mode int:jit
+
+# Improve JPEG quality for the camera
+setprop ro.media.enc.jpeg.quality 100
+
+# Improve video streaming quality
+setprop media.stagefright.enable-player true
+setprop media.stagefright.enable-meta true
+setprop media.stagefright.enable-scan true
+setprop media.stagefright.enable-http true
+
+# Increase overall performance by reducing debugging
+setprop persist.sys.purgeable_assets 1
+setprop persist.sys.use_dithering 0
+setprop ro.kernel.android.checkjni 0
+setprop ro.kernel.checkjni 0
+
+# Disable animations
+setprop ro.animation.scale 0.0
+
+# Disable auto brightness
+settings put system screen_brightness_mode 0
+
+# Disable haptic feedback
+settings put system haptic_feedback_enabled 0
+
+# Disable sound on keypress
+settings put system sound_on_keypress 0
+
+# Disable vibration on touch
+settings put system haptic_feedback_enabled 0
+
+# Limit background processes
+setprop ro.sys.fw.bg_apps_limit 20
+
+# Enable data saver mode
+setprop net.tcp.buffersize.default 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.wifi 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.umts 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.gprs 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.edge 4096,87380,256960,4096,16384,256960
+setprop net.ipv4.tcp_ecn 0
+setprop net.ipv4.route.flush 1
+setprop net.ipv6.route.flush 1
+
+# Improve Wi-Fi performance
+setprop wifi.supplicant_scan_interval 180
+
+# Increase Bluetooth audio quality
+setprop persist.bluetooth.enable.sbc_hd true
+
+# Optimize GPU performance
+setprop debug.composition.type gpu
+setprop ro.opengles.version 196608
+
+# Set CPU performance and maximum frequency for all cores
+echo "performance" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo "performance" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+echo "performance" > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
+echo "performance" > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
+echo "performance" > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+echo "performance" > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor
+echo "performance" > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor
+echo "performance" > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor
+
+
+setprop ro.sys.fw.use_trim_settings 1
+setprop pm.sleep_mode 1
+
+setprop ro.vold.umsdirtyratio 20
+setprop ro.vold.umsidlefreq 1000
+setprop net.tcp.buffersize.default 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.wifi 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.umts 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.gprs 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.edge 4096,87380,256960,4096,16384,256960
+setprop net.ipv4.tcp_ecn 0
+setprop net.ipv4.route.flush 1
+setprop net.ipv6.route.flush 1
+setprop ro.gps.agps_provider '1'
+
+# Disable animations
+setprop ro.animation.scale 0.0
+
+
+
