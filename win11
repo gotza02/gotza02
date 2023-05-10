@@ -1,0 +1,113 @@
+#!/bin/bash
+startup_programs=$(systemctl list-timers --all | grep "Startup Applications" | awk '{print $1}')
+for program in $startup_programs; do
+
+systemctl disable $program
+
+done
+
+# Defragment your hard drive
+
+# Get the path to the C: drive
+
+c_drive=$(df -h | awk '$1 == "/c" {print $6}')
+defrag $c_drive
+
+# Delete temporary files
+
+# Get the path to the temporary files directory
+
+temp_dir=$(echo %temp%)
+defrag $c_drive
+
+# Delete temporary files
+
+# Get the path to the temporary files directory
+
+temp_dir=$(echo %temp%)
+
+Delete all temporary files
+
+rm -rf $temp_dir/*
+
+# Clear your browser's cache
+
+# Get the name of your default browser
+
+browser=$(reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" | awk '$1 == "Favorites" {print $2}')
+
+Clear your browser's cache
+
+if [ "$browser" == "Chrome" ]; then
+
+google-chrome --clear-cache
+
+elif [ "$browser" == "Firefox" ]; then
+
+firefox -private-window -no-remote -preferences -tab-browser -clear-recent-history
+
+elif [ "$browser" == "Edge" ]; then
+
+edge --private-window --no-referrer -incognito -clear-history
+
+fi
+
+# Disable unnecessary services
+
+# Get a list of all services
+
+services=$(systemctl list-units --type service | awk '{print $1}')
+
+Disable all unnecessary services
+
+for service in $services; do
+
+if [ ! -d "/etc/systemd/system/$service.service" ]; then
+
+systemctl disable $service
+
+fi
+
+done
+
+# Update your drivers
+
+# Get a list of all devices
+
+devices=$(lshw -c disk | awk '{print $1}')
+
+Update the drivers for all devices
+
+for device in $devices; do
+
+sudo update-pciids
+
+done
+
+# Clean up your registry
+
+# Get a list of all registry keys
+
+registry_keys=$(reg query HKLM /s | awk '{print $1}')
+
+Delete all unused registry keys
+
+for registry_key in $registry_keys; do
+
+if [ ! -d "HKLM/$registry_key" ]; then
+
+reg delete HKLM/$registry_key /f
+
+fi
+
+done
+
+Use a performance optimization tool
+
+Install a performance optimization tool
+
+sudo apt-get install systweak-performance-optimizer
+
+Run the performance optimization tool
+
+systweak-performance-optimizer
