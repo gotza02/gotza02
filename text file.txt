@@ -1,0 +1,1204 @@
+# classes3.dex
+
+.class public final Lghost/rq;
+.super Ljava/lang/Object;
+.source "rrtkd"
+
+
+# static fields
+.field public static a:Ljava/lang/reflect/Method;
+
+.field public static b:Z
+
+.field public static c:Ljava/lang/reflect/Field;
+
+.field public static d:Z
+
+
+# direct methods
+.method public static a(F)I
+    .registers 3
+
+    invoke-static {}, Landroid/content/res/Resources;->getSystem()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-static {v1, p0, v0}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
+
+    move-result p0
+
+    float-to-int p0, p0
+
+    return p0
+.end method
+
+.method public static a(Ljava/util/List;Ljava/io/InputStream;Lghost/jx;)I
+    .registers 7
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/List<",
+            "Lcom/bumptech/glide/load/ImageHeaderParser;",
+            ">;",
+            "Ljava/io/InputStream;",
+            "Larm/m9;",
+            ")I"
+        }
+    .end annotation
+
+    const/4 v0, -0x1
+
+    if-nez p1, :cond_4
+
+    return v0
+
+    :cond_4
+    invoke-virtual {p1}, Ljava/io/InputStream;->markSupported()Z
+
+    move-result v1
+
+    if-nez v1, :cond_10
+
+    new-instance v1, Lghost/jG;
+
+    invoke-direct {v1, p1, p2}, Lghost/jG;-><init>(Ljava/io/InputStream;Lghost/jx;)V
+
+    move-object p1, v1
+
+    :cond_10
+    const/high16 v1, 0x500000
+
+    invoke-virtual {p1, v1}, Ljava/io/InputStream;->mark(I)V
+
+    .line 1
+    invoke-interface {p0}, Ljava/util/List;->size()I
+
+    move-result v1
+
+    const/4 v2, 0x0
+
+    :goto_1a
+    if-ge v2, v1, :cond_35
+
+    invoke-interface {p0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v3
+
+    check-cast v3, Lghost/T;
+
+    .line 2
+    :try_start_22
+    invoke-interface {v3, p1, p2}, Lghost/T;->a(Ljava/io/InputStream;Lghost/jx;)I
+
+    move-result v3
+    :try_end_26
+    .catchall {:try_start_22 .. :try_end_26} :catchall_30
+
+    invoke-virtual {p1}, Ljava/io/InputStream;->reset()V
+
+    if-eq v3, v0, :cond_2d
+
+    move v0, v3
+
+    goto :goto_35
+
+    :cond_2d
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_1a
+
+    :catchall_30
+    move-exception p0
+
+    invoke-virtual {p1}, Ljava/io/InputStream;->reset()V
+
+    throw p0
+
+    :cond_35
+    :goto_35
+    return v0
+.end method
+
+.method public static a(Ljava/lang/Object;)Ljava/lang/Object;
+    .registers 1
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "<T:",
+            "Ljava/lang/Object;",
+            ">(TT;)TT;"
+        }
+    .end annotation
+
+    if-eqz p0, :cond_3
+
+    return-object p0
+
+    :cond_3
+    const/4 p0, 0x0
+
+    throw p0
+.end method
+
+.method public static a(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "<T:",
+            "Ljava/lang/Object;",
+            ">(TT;",
+            "Ljava/lang/String;",
+            ")TT;"
+        }
+    .end annotation
+
+    if-eqz p0, :cond_3
+
+    return-object p0
+
+    :cond_3
+    new-instance p0, Ljava/lang/NullPointerException;
+
+    invoke-direct {p0, p1}, Ljava/lang/NullPointerException;-><init>(Ljava/lang/String;)V
+
+    throw p0
+.end method
+
+.method public static a(Landroid/content/Context;)Ljava/lang/String;
+    .registers 4
+    .annotation build Landroid/annotation/SuppressLint;
+        value = {
+            "NewApi",
+            "MissingPermission",
+            "HardwareIds"
+        }
+    .end annotation
+
+    sget-object v0, Landroid/os/Build;->SERIAL:Ljava/lang/String;
+
+    invoke-static {v0}, Lghost/rq;->a(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_12
+
+    invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+
+    move-result-object v0
+
+    const-string v1, "android_id"
+
+    invoke-static {v0, v1}, Landroid/provider/Settings$Secure;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :cond_12
+    invoke-static {v0}, Lghost/rq;->a(Ljava/lang/String;)Z
+
+    move-result v1
+
+    const/16 v2, 0x1d
+
+    if-eqz v1, :cond_22
+
+    sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    if-eq v1, v2, :cond_22
+
+    invoke-static {}, Landroid/os/Build;->getSerial()Ljava/lang/String;
+
+    move-result-object v0
+
+    :cond_22
+    invoke-static {v0}, Lghost/rq;->a(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_38
+
+    sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    if-eq v1, v2, :cond_38
+
+    const-string v0, "phone"
+
+    invoke-virtual {p0, v0}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+
+    move-result-object p0
+
+    check-cast p0, Landroid/telephony/TelephonyManager;
+
+    invoke-virtual {p0}, Landroid/telephony/TelephonyManager;->getImei()Ljava/lang/String;
+
+    move-result-object v0
+
+    :cond_38
+    return-object v0
+.end method
+
+.method public static a(Lghost/di;)Ljava/lang/String;
+    .registers 3
+
+    invoke-virtual {p0}, Lghost/di;->b()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Lghost/di;->d()Ljava/lang/String;
+
+    move-result-object p0
+
+    if-eqz p0, :cond_1e
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const/16 v0, 0x3f
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    :cond_1e
+    return-object v0
+.end method
+
+.method public static a(Ljava/util/Locale;)Ljava/lang/String;
+    .registers 2
+
+    invoke-virtual {p0}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, "zh"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_f
+
+    const-string p0, "确定"
+
+    return-object p0
+
+    :cond_f
+    const-string p0, "Confirm"
+
+    return-object p0
+.end method
+
+.method public static a(Landroid/view/LayoutInflater;Landroid/view/LayoutInflater$Factory2;)V
+    .registers 5
+
+    sget-boolean v0, Lghost/rq;->d:Z
+
+    if-nez v0, :cond_17
+
+    const/4 v0, 0x1
+
+    :try_start_5
+    const-class v1, Landroid/view/LayoutInflater;
+
+    const-string v2, "mFactory2"
+
+    invoke-virtual {v1, v2}, Ljava/lang/Class;->getDeclaredField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+
+    move-result-object v1
+
+    sput-object v1, Lghost/rq;->c:Ljava/lang/reflect/Field;
+
+    invoke-virtual {v1, v0}, Ljava/lang/reflect/Field;->setAccessible(Z)V
+    :try_end_12
+    .catch Ljava/lang/NoSuchFieldException; {:try_start_5 .. :try_end_12} :catch_13
+
+    goto :goto_15
+
+    :catch_13
+    const-class v1, Landroid/view/LayoutInflater;
+
+    :goto_15
+    sput-boolean v0, Lghost/rq;->d:Z
+
+    :cond_17
+    sget-object v0, Lghost/rq;->c:Ljava/lang/reflect/Field;
+
+    if-eqz v0, :cond_34
+
+    :try_start_1b
+    invoke-virtual {v0, p0, p1}, Ljava/lang/reflect/Field;->set(Ljava/lang/Object;Ljava/lang/Object;)V
+    :try_end_1e
+    .catch Ljava/lang/IllegalAccessException; {:try_start_1b .. :try_end_1e} :catch_1f
+
+    goto :goto_34
+
+    :catch_1f
+    new-instance p1, Ljava/lang/StringBuilder;
+
+    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v0, "forceSetFactory2 could not set the Factory2 on LayoutInflater "
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    const-string p0, "; inflation may have unexpected results."
+
+    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    :cond_34
+    :goto_34
+    return-void
+.end method
+
+.method public static a(Landroid/widget/TextView;I)V
+    .registers 4
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x17
+
+    if-lt v0, v1, :cond_a
+
+    invoke-virtual {p0, p1}, Landroid/widget/TextView;->setTextAppearance(I)V
+
+    goto :goto_11
+
+    :cond_a
+    invoke-virtual {p0}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-virtual {p0, v0, p1}, Landroid/widget/TextView;->setTextAppearance(Landroid/content/Context;I)V
+
+    :goto_11
+    return-void
+.end method
+
+.method public static a(Ljava/lang/Object;Ljava/lang/StringBuilder;)V
+    .registers 4
+
+    if-nez p0, :cond_8
+
+    const-string p0, "null"
+
+    :goto_4
+    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    goto :goto_3d
+
+    :cond_8
+    invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/Class;->getSimpleName()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-gtz v1, :cond_2c
+
+    invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/Class;->getName()Ljava/lang/String;
+
+    move-result-object v0
+
+    const/16 v1, 0x2e
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->lastIndexOf(I)I
+
+    move-result v1
+
+    if-lez v1, :cond_2c
+
+    add-int/lit8 v1, v1, 0x1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    :cond_2c
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const/16 v0, 0x7b
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    invoke-static {p0}, Ljava/lang/System;->identityHashCode(Ljava/lang/Object;)I
+
+    move-result p0
+
+    invoke-static {p0}, Ljava/lang/Integer;->toHexString(I)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_4
+
+    :goto_3d
+    return-void
+.end method
+
+.method public static a(Z)V
+    .registers 1
+
+    if-eqz p0, :cond_3
+
+    return-void
+
+    :cond_3
+    new-instance p0, Ljava/lang/IllegalArgumentException;
+
+    invoke-direct {p0}, Ljava/lang/IllegalArgumentException;-><init>()V
+
+    throw p0
+.end method
+
+.method public static a(ZLjava/lang/String;)V
+    .registers 2
+
+    if-eqz p0, :cond_3
+
+    return-void
+
+    :cond_3
+    new-instance p0, Ljava/lang/IllegalArgumentException;
+
+    invoke-direct {p0, p1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
+
+    throw p0
+.end method
+
+.method public static a(II)Z
+    .registers 3
+
+    const/high16 v0, -0x80000000
+
+    if-eq p0, v0, :cond_10
+
+    if-eq p1, v0, :cond_10
+
+    const/16 v0, 0x200
+
+    if-gt p0, v0, :cond_10
+
+    const/16 p0, 0x180
+
+    if-gt p1, p0, :cond_10
+
+    const/4 p0, 0x1
+
+    goto :goto_11
+
+    :cond_10
+    const/4 p0, 0x0
+
+    :goto_11
+    return p0
+.end method
+
+.method public static a(Landroid/graphics/drawable/Drawable;I)Z
+    .registers 8
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x17
+
+    if-lt v0, v1, :cond_b
+
+    invoke-virtual {p0, p1}, Landroid/graphics/drawable/Drawable;->setLayoutDirection(I)Z
+
+    move-result p0
+
+    return p0
+
+    :cond_b
+    sget-boolean v0, Lghost/rq;->b:Z
+
+    const/4 v1, 0x0
+
+    const/4 v2, 0x1
+
+    if-nez v0, :cond_26
+
+    :try_start_11
+    const-class v0, Landroid/graphics/drawable/Drawable;
+
+    const-string v3, "setLayoutDirection"
+
+    new-array v4, v2, [Ljava/lang/Class;
+
+    sget-object v5, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
+
+    aput-object v5, v4, v1
+
+    invoke-virtual {v0, v3, v4}, Ljava/lang/Class;->getDeclaredMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+
+    move-result-object v0
+
+    sput-object v0, Lghost/rq;->a:Ljava/lang/reflect/Method;
+
+    invoke-virtual {v0, v2}, Ljava/lang/reflect/Method;->setAccessible(Z)V
+    :try_end_24
+    .catch Ljava/lang/NoSuchMethodException; {:try_start_11 .. :try_end_24} :catch_24
+
+    :catch_24
+    sput-boolean v2, Lghost/rq;->b:Z
+
+    :cond_26
+    sget-object v0, Lghost/rq;->a:Ljava/lang/reflect/Method;
+
+    if-eqz v0, :cond_39
+
+    :try_start_2a
+    new-array v3, v2, [Ljava/lang/Object;
+
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object p1
+
+    aput-object p1, v3, v1
+
+    invoke-virtual {v0, p0, v3}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    :try_end_35
+    .catch Ljava/lang/Exception; {:try_start_2a .. :try_end_35} :catch_36
+
+    return v2
+
+    :catch_36
+    const/4 p0, 0x0
+
+    sput-object p0, Lghost/rq;->a:Ljava/lang/reflect/Method;
+
+    :cond_39
+    return v1
+.end method
+
+.method public static a(Landroid/net/Uri;)Z
+    .registers 3
+
+    if-eqz p0, :cond_1c
+
+    invoke-virtual {p0}, Landroid/net/Uri;->getScheme()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "content"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1c
+
+    invoke-virtual {p0}, Landroid/net/Uri;->getAuthority()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, "media"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_1c
+
+    const/4 p0, 0x1
+
+    goto :goto_1d
+
+    :cond_1c
+    const/4 p0, 0x0
+
+    :goto_1d
+    return p0
+.end method
+
+.method public static a(Ljava/lang/String;)Z
+    .registers 3
+
+    const/4 v0, 0x1
+
+    if-nez p0, :cond_4
+
+    return v0
+
+    :cond_4
+    invoke-virtual {p0}, Ljava/lang/String;->isEmpty()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_b
+
+    return v0
+
+    :cond_b
+    const-string v0, "unknown"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public static a(Ljava/io/InputStream;)[B
+    .registers 5
+
+    new-instance v0, Ljava/io/ByteArrayOutputStream;
+
+    invoke-direct {v0}, Ljava/io/ByteArrayOutputStream;-><init>()V
+
+    const/16 v1, 0x400
+
+    new-array v1, v1, [B
+
+    :goto_9
+    :try_start_9
+    invoke-virtual {p0, v1}, Ljava/io/InputStream;->read([B)I
+
+    move-result v2
+
+    const/4 v3, -0x1
+
+    if-eq v2, v3, :cond_15
+
+    const/4 v3, 0x0
+
+    invoke-virtual {v0, v1, v3, v2}, Ljava/io/ByteArrayOutputStream;->write([BII)V
+    :try_end_14
+    .catch Ljava/lang/Exception; {:try_start_9 .. :try_end_14} :catch_15
+
+    goto :goto_9
+
+    :catch_15
+    :cond_15
+    invoke-virtual {v0}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
+.method public static a([B)[B
+    .registers 4
+
+    new-instance v0, Ljava/security/spec/PKCS8EncodedKeySpec;
+
+    const-string v1, "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAJzsaOgs7sRuThYxFdE5HqmKb5vJvMBNZIelRXZTXcYsQ8CBHDwEVjKFacPiT3fvqZSyzvxXxpS+gbxfzE3J0I5GaEkSDWsGSMcjNNwJ36MmFthdxYTfCkR6bYwsfGuKBdo86FGuThDmbXL68tT/a0HtQgCpebQxfiEGdTluOB9pAgMBAAECgYAT7mMUukBJask4QFvJCzw9xHuQifsTYcEXCYLdGJGcjhq85Kk1Zkecex2H58K4NRSQ8nUfz/ZFBj1sM667Ypq+hFTdxAVYXNE3tNxV8bS4wBAI6z4V96P+7mmXp+/GCublxW9AyPXHWDfgyr2MX9CrDQrZfTc+NAPKUYyNspH7UQJBANmHuNEy4t+Vy4YoDPM6B/uIMq+r1RsYWNgvKzWTpaT+BXf8P1YURRMNDW5mv6I7l1gEzqLRhs7qAgKVHW7idEcCQQC4rNTetnnQicF8M/chJPococ7KTVEclJgH1xpto5N/gxMBidXQNleir3dOWetffdFH7OjzkRFcHtA+GPd88hbPAkAUqyupXO9nlSEQby/D0Ii/opJGVMpb17VhXSH65jt/8M7uNp6B/E0P4VacXdDphkX8DADiQYxQjrWAL1Drn0KzAkA8jl/XD9rt6N4LTjbxJWDmVqCqcaPxTUB1AbHm1cad/2sSDBKSjd86t3LVvGKUE3u2rBbPF3irzmbWlfVBgVi9AkAOvjfqYb939tDJ0LozfIxc6ji1mlKK15G9qUiHH0vJTMX3Yr/j8BMM8QaSEWJRquWVJ2gB0JxoaxGQioyASKS0"
+
+    const/4 v2, 0x2
+
+    invoke-static {v1, v2}, Landroid/util/Base64;->decode(Ljava/lang/String;I)[B
+
+    move-result-object v1
+
+    invoke-direct {v0, v1}, Ljava/security/spec/PKCS8EncodedKeySpec;-><init>([B)V
+
+    const-string v1, "RSA"
+
+    invoke-static {v1}, Ljava/security/KeyFactory;->getInstance(Ljava/lang/String;)Ljava/security/KeyFactory;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/security/KeyFactory;->generatePrivate(Ljava/security/spec/KeySpec;)Ljava/security/PrivateKey;
+
+    move-result-object v0
+
+    const-string v1, "SHA1WithRSA"
+
+    invoke-static {v1}, Ljava/security/Signature;->getInstance(Ljava/lang/String;)Ljava/security/Signature;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/security/Signature;->initSign(Ljava/security/PrivateKey;)V
+
+    const-string v0, "Armadillo"
+
+    invoke-virtual {v0}, Ljava/lang/String;->getBytes()[B
+
+    move-result-object v0
+
+    invoke-static {p0, v0}, Lghost/rq;->a([B[B)[B
+
+    move-result-object p0
+
+    const-string v0, "1110300103"
+
+    invoke-virtual {v0}, Ljava/lang/String;->getBytes()[B
+
+    move-result-object v0
+
+    invoke-static {p0, v0}, Lghost/rq;->a([B[B)[B
+
+    move-result-object p0
+
+    invoke-virtual {v1, p0}, Ljava/security/Signature;->update([B)V
+
+    invoke-virtual {v1}, Ljava/security/Signature;->sign()[B
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
+.method public static a([B[B)[B
+    .registers 5
+
+    array-length v0, p0
+
+    array-length v1, p1
+
+    add-int/2addr v0, v1
+
+    new-array v0, v0, [B
+
+    array-length v1, p0
+
+    const/4 v2, 0x0
+
+    invoke-static {p0, v2, v0, v2, v1}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
+
+    array-length p0, p0
+
+    array-length v1, p1
+
+    invoke-static {p1, v2, v0, p0, v1}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
+
+    return-object v0
+.end method
+
+.method public static b(Ljava/util/List;Ljava/io/InputStream;Lghost/jx;)Lghost/tU;
+    .registers 6
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/List<",
+            "Lcom/bumptech/glide/load/ImageHeaderParser;",
+            ">;",
+            "Ljava/io/InputStream;",
+            "Larm/m9;",
+            ")",
+            "Lcom/bumptech/glide/load/ImageHeaderParser$ImageType;"
+        }
+    .end annotation
+
+    if-nez p1, :cond_5
+
+    sget-object p0, Lghost/tU;->UNKNOWN:Lghost/tU;
+
+    return-object p0
+
+    :cond_5
+    invoke-virtual {p1}, Ljava/io/InputStream;->markSupported()Z
+
+    move-result v0
+
+    if-nez v0, :cond_11
+
+    new-instance v0, Lghost/jG;
+
+    invoke-direct {v0, p1, p2}, Lghost/jG;-><init>(Ljava/io/InputStream;Lghost/jx;)V
+
+    move-object p1, v0
+
+    :cond_11
+    const/high16 p2, 0x500000
+
+    invoke-virtual {p1, p2}, Ljava/io/InputStream;->mark(I)V
+
+    .line 1
+    invoke-interface {p0}, Ljava/util/List;->size()I
+
+    move-result p2
+
+    const/4 v0, 0x0
+
+    :goto_1b
+    if-ge v0, p2, :cond_37
+
+    invoke-interface {p0, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Lghost/T;
+
+    .line 2
+    :try_start_23
+    invoke-interface {v1, p1}, Lghost/T;->a(Ljava/io/InputStream;)Lghost/tU;
+
+    move-result-object v1
+    :try_end_27
+    .catchall {:try_start_23 .. :try_end_27} :catchall_32
+
+    invoke-virtual {p1}, Ljava/io/InputStream;->reset()V
+
+    .line 3
+    sget-object v2, Lghost/tU;->UNKNOWN:Lghost/tU;
+
+    if-eq v1, v2, :cond_2f
+
+    goto :goto_39
+
+    :cond_2f
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_1b
+
+    :catchall_32
+    move-exception p0
+
+    .line 4
+    invoke-virtual {p1}, Ljava/io/InputStream;->reset()V
+
+    throw p0
+
+    .line 5
+    :cond_37
+    sget-object v1, Lghost/tU;->UNKNOWN:Lghost/tU;
+
+    :goto_39
+    return-object v1
+.end method
+
+.method public static b(Landroid/content/Context;)Ljava/lang/String;
+    .registers 2
+
+    invoke-virtual {p0}, Landroid/content/Context;->getApplicationInfo()Landroid/content/pm/ApplicationInfo;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+
+    move-result-object p0
+
+    invoke-virtual {v0, p0}, Landroid/content/pm/ApplicationInfo;->loadLabel(Landroid/content/pm/PackageManager;)Ljava/lang/CharSequence;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
+.method public static b(Ljava/util/Locale;)Ljava/lang/String;
+    .registers 2
+
+    invoke-virtual {p0}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, "zh"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_f
+
+    const-string p0, "不支持的弹窗风格 value ->"
+
+    return-object p0
+
+    :cond_f
+    const-string p0, "Unsupported pop-up style value ->"
+
+    return-object p0
+.end method
+
+.method public static b(Ljava/lang/String;)Z
+    .registers 2
+
+    invoke-static {p0}, Lghost/rq;->c(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_31
+
+    const-string v0, "OPTIONS"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_31
+
+    const-string v0, "DELETE"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_31
+
+    const-string v0, "PROPFIND"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_31
+
+    const-string v0, "MKCOL"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_31
+
+    const-string v0, "LOCK"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_2f
+
+    goto :goto_31
+
+    :cond_2f
+    const/4 p0, 0x0
+
+    goto :goto_32
+
+    :cond_31
+    :goto_31
+    const/4 p0, 0x1
+
+    :goto_32
+    return p0
+.end method
+
+.method public static c(Landroid/content/Context;)I
+    .registers 3
+
+    :try_start_0
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object p0
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, p0, v1}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
+
+    move-result-object p0
+
+    iget p0, p0, Landroid/content/pm/PackageInfo;->versionCode:I
+    :try_end_f
+    .catch Landroid/content/pm/PackageManager$NameNotFoundException; {:try_start_0 .. :try_end_f} :catch_10
+
+    return p0
+
+    :catch_10
+    const/4 p0, -0x1
+
+    return p0
+.end method
+
+.method public static c(Ljava/util/Locale;)Ljava/lang/String;
+    .registers 2
+
+    invoke-virtual {p0}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, "zh"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_f
+
+    const-string p0, "无可操作视图"
+
+    return-object p0
+
+    :cond_f
+    const-string p0, "No actionable view"
+
+    return-object p0
+.end method
+
+.method public static c(Ljava/lang/String;)Z
+    .registers 2
+
+    const-string v0, "POST"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_2b
+
+    const-string v0, "PUT"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_2b
+
+    const-string v0, "PATCH"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_2b
+
+    const-string v0, "PROPPATCH"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_2b
+
+    const-string v0, "REPORT"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_29
+
+    goto :goto_2b
+
+    :cond_29
+    const/4 p0, 0x0
+
+    goto :goto_2c
+
+    :cond_2b
+    :goto_2b
+    const/4 p0, 0x1
+
+    :goto_2c
+    return p0
+.end method
+
+.method public static d(Landroid/content/Context;)Ljava/lang/String;
+    .registers 3
+
+    :try_start_0
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object p0
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, p0, v1}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
+
+    move-result-object p0
+
+    iget-object p0, p0, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
+    :try_end_f
+    .catch Landroid/content/pm/PackageManager$NameNotFoundException; {:try_start_0 .. :try_end_f} :catch_10
+
+    return-object p0
+
+    :catch_10
+    const-string p0, "unknown"
+
+    return-object p0
+.end method
+
+.method public static d(Ljava/util/Locale;)Ljava/lang/String;
+    .registers 2
+
+    invoke-virtual {p0}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, "zh"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_f
+
+    const-string p0, "卡密验证中...."
+
+    return-object p0
+
+    :cond_f
+    const-string p0, "Card secret verification ..."
+
+    return-object p0
+.end method
+
+.method public static e(Landroid/content/Context;)Landroid/graphics/drawable/Drawable;
+    .registers 2
+
+    invoke-virtual {p0}, Landroid/content/Context;->getApplicationInfo()Landroid/content/pm/ApplicationInfo;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+
+    move-result-object p0
+
+    invoke-virtual {v0, p0}, Landroid/content/pm/ApplicationInfo;->loadIcon(Landroid/content/pm/PackageManager;)Landroid/graphics/drawable/Drawable;
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
+.method public static e(Ljava/util/Locale;)Ljava/lang/String;
+    .registers 2
+
+    invoke-virtual {p0}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, "zh"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_f
+
+    const-string p0, "验证成功\n%s"
+
+    return-object p0
+
+    :cond_f
+    const-string p0, "Verified successfully\n%s"
+
+    return-object p0
+.end method
