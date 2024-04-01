@@ -75,7 +75,9 @@ exit /b
 
 rem System Performance sub-menu
 :system_performance_menu
+
 cls
+
 echo System Performance Optimizations
 echo =================================
 echo 1. Optimize Power Plan
@@ -85,9 +87,11 @@ echo 4. Clean Up and Optimize Disk
 echo 5. Disable Startup Apps
 echo 6. Optimize SSD Settings
 echo 7. Manage Startup Applications
-echo 8. Back to Main Menu
+echo 8. Windows Settings
+echo 9. Back to Main Menu
 echo.
-choice /c 12345678 /m "Enter your choice: "
+
+choice /c 123456789 /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :optimize_power_plan
 if %errorlevel% equ 2 call :optimize_pagefile
@@ -96,9 +100,102 @@ if %errorlevel% equ 4 call :disk_cleanup
 if %errorlevel% equ 5 call :disable_startup_apps
 if %errorlevel% equ 6 call :optimize_ssd
 if %errorlevel% equ 7 call :manage_startup_apps
-if %errorlevel% equ 8 goto :eof
+if %errorlevel% equ 8 call :windows_settings
+if %errorlevel% equ 9 goto :main_menu
 
 goto system_performance_menu
+
+:windows_settings
+
+cls
+
+echo Windows Settings
+echo =================================
+echo 1. Enable/Disable Windows Update
+echo 2. Enable/Disable Windows Defender
+echo 3. Enable/Disable Windows Firewall
+echo 4. Back to Performance Menu
+echo.
+
+choice /c 1234 /m "Enter your choice: "
+
+if %errorlevel% equ 1 call :windows_update_settings
+if %errorlevel% equ 2 call :windows_defender_settings
+if %errorlevel% equ 3 call :windows_firewall_settings
+if %errorlevel% equ 4 goto system_performance_menu
+
+goto windows_settings
+
+REM Add functions for Windows Update, Defender, and Firewall settings here
+REM Example:
+:windows_update_settings
+cls
+echo Windows Update Settings
+echo ========================
+echo 1. Enable Windows Update
+echo 2. Disable Windows Update
+echo 3. Back
+
+choice /c 123 /m "Enter your choice: "
+if %errorlevel% equ 1 (
+    REM Enable Windows Update
+    reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Windows Update\Auto Update" /v AUOptions /t REG_DWORD /d 3 /f
+    echo Windows Update enabled.
+) else if %errorlevel% equ 2 (
+    REM Disable Windows Update
+    reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Windows Update\Auto Update" /v AUOptions /t REG_DWORD /d 1 /f
+    echo Windows Update disabled.
+) else (
+    goto windows_settings
+)
+pause
+goto windows_settings
+
+:windows_defender_settings
+cls
+echo Windows Defender Settings
+echo =========================
+echo 1. Enable Windows Defender
+echo 2. Disable Windows Defender
+echo 3. Back
+
+choice /c 123 /m "Enter your choice: "
+if %errorlevel% equ 1 (
+    REM Enable Windows Defender
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 0 /f
+    echo Windows Defender enabled.
+) else if %errorlevel% equ 2 (
+    REM Disable Windows Defender
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+    echo Windows Defender disabled.
+) else (
+    goto windows_settings
+)
+pause
+goto windows_settings
+
+:windows_firewall_settings
+cls
+echo Windows Firewall Settings
+echo =========================
+echo 1. Enable Windows Firewall
+echo 2. Disable Windows Firewall
+echo 3. Back
+
+choice /c 123 /m "Enter your choice: "
+if %errorlevel% equ 1 (
+    REM Enable Windows Firewall
+    NetSh Advfirewall set allprofiles state on
+    echo Windows Firewall enabled.
+) else if %errorlevel% equ 2 (
+    REM Disable Windows Firewall
+    NetSh Advfirewall set allprofiles state off
+    echo Windows Firewall disabled.
+) else (
+    goto windows_settings
+)
+pause
+goto windows_settings
 
 :manage_startup_apps
 cls
@@ -850,13 +947,24 @@ goto :eof
 :optimize_wifi
 echo Optimizing Wi-Fi settings...
 
-netsh wlan set autoconfig enabled=no interface="Wi-Fi"
+REM Get the Wi-Fi interface name
+for /f "tokens=2 delims=:" %%a in ('netsh wlan show interfaces ^| findstr /r /c:"[ ]*Name"') do set "wifi_name=%%a"
+set "wifi_name=%wifi_name:~1%"
+
+REM Disable auto configuration for the Wi-Fi interface
+netsh wlan set autoconfig enabled=no interface="%wifi_name%"
+
+REM Get the power scheme GUID
+for /f "tokens=2 delims==" %%a in ('powercfg /getactivescheme ^| findstr "GUID"') do set "power_scheme_guid=%%a"
 
 if %ram% lss 4096 (
-powershell -command "Set-NetAdapterAdvancedProperty -Name 'Wi-Fi' -DisplayName 'Power Saving Mode' -DisplayValue 'Maximum Performance'"
-
+    REM Set the power saving mode to "Maximum Performance"
+    powercfg /setacvalueindex "%power_scheme_guid%" 19cbb8fa-5279-450e-9fac-8a3d5fedd0c1 12bbebe6-58d6-4636-95bb-3217ef867c1a 0
+    powercfg /setactive "%power_scheme_guid%"
 ) else (
-powershell -command "Set-NetAdapterAdvancedProperty -Name 'Wi-Fi' -DisplayName 'Power Saving Mode' -DisplayValue 'Disabled'"
+    REM Disable the power saving mode
+    powercfg /setacvalueindex "%power_scheme_guid%" 19cbb8fa-5279-450e-9fac-8a3d5fedd0c1 12bbebe6-58d6-4636-95bb-3217ef867c1a 1
+    powercfg /setactive "%power_scheme_guid%"
 )
 
 echo Wi-Fi settings optimized.
