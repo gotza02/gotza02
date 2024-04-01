@@ -17,6 +17,17 @@ call :check_ram
 call :check_disk
 call :check_cpu
 
+
+cls
+
+NET SESSION >nul 2>&1
+IF %ERRORLEVEL% EQU 0 (
+    GOTO main_menu
+) ELSE (
+    echo This script requires administrator privileges. Please run as administrator.
+    pause
+    exit
+)
 rem Display main menu
 :main_menu
 cls
@@ -160,17 +171,65 @@ echo 2. Disable Windows Defender
 echo 3. Back
 
 choice /c 123 /m "Enter your choice: "
+
 if %errorlevel% equ 1 (
     REM Enable Windows Defender
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 0 /f
-    echo Windows Defender enabled.
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIOAVProtection /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 0 /f
+    sc config WdBoot start= auto
+    sc config WdFilter start= auto
+    sc config WdNisDrv start= auto
+    sc config WdNisSvc start= auto
+    sc config WinDefend start= auto
+    sc config SecurityHealthService start= auto
+    net start WdBoot
+    net start WdFilter
+    net start WdNisDrv
+    net start WdNisSvc
+    net start WinDefend
+    net start SecurityHealthService
+    schtasks /Change /TN "Microsoft\Windows\ExploitGuard\ExploitGuard MDM policy Refresh" /Enable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" /Enable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Cleanup" /Enable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" /Enable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Verification" /Enable
+    echo Windows Defender fully enabled, including real-time protection, all services, and scheduled tasks.
 ) else if %errorlevel% equ 2 (
     REM Disable Windows Defender
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
-    echo Windows Defender disabled.
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIOAVProtection /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f
+    net stop WdBoot
+    net stop WdFilter
+    net stop WdNisDrv
+    net stop WdNisSvc
+    net stop WinDefend
+    net stop SecurityHealthService
+    sc config WdBoot start= disabled
+    sc config WdFilter start= disabled
+    sc config WdNisDrv start= disabled
+    sc config WdNisSvc start= disabled
+    sc config WinDefend start= disabled
+    sc config SecurityHealthService start= disabled
+    schtasks /Change /TN "Microsoft\Windows\ExploitGuard\ExploitGuard MDM policy Refresh" /Disable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" /Disable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Cleanup" /Disable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" /Disable
+    schtasks /Change /TN "Microsoft\Windows\Windows Defender\Windows Defender Verification" /Disable
+    echo Windows Defender fully disabled, including real-time protection, all services, and scheduled tasks. It will remain disabled even after restarting the computer.
 ) else (
     goto windows_settings
 )
+
 pause
 goto windows_settings
 
