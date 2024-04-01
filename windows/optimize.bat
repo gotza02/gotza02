@@ -425,33 +425,34 @@ echo 6. OpenDNS (208.67.222.222, 208.67.220.220)
 echo 7. Reset to Default
 echo 8. Back to Main Menu
 echo.
+
 choice /c 12345678 /m "Enter your choice: "
 
 if %errorlevel% equ 1 (
-    call :auto_dns
+call :auto_dns
 ) else if %errorlevel% equ 2 (
-    netsh interface ipv4 set dnsservers "Wi-Fi" static 8.8.8.8 primary
-    netsh interface ipv4 add dnsservers "Wi-Fi" 8.8.4.4 index=2
-    echo Google DNS configured.
+netsh interface ipv4 set dnsservers "Wi-Fi" static 8.8.8.8 validate=no
+netsh interface ipv4 add dnsservers "Wi-Fi" 8.8.4.4 index=2 validate=no
+echo Google DNS configured.
 ) else if %errorlevel% equ 3 (
-    netsh interface ipv4 set dnsservers "Wi-Fi" static 1.1.1.1 primary
-    netsh interface ipv4 add dnsservers "Wi-Fi" 1.0.0.1 index=2
-    echo Cloudflare DNS configured.
+netsh interface ipv4 set dnsservers "Wi-Fi" static 1.1.1.1 validate=no
+netsh interface ipv4 add dnsservers "Wi-Fi" 1.0.0.1 index=2 validate=no
+echo Cloudflare DNS configured.
 ) else if %errorlevel% equ 4 (
-    netsh interface ipv4 set dnsservers "Wi-Fi" static 9.9.9.9 primary
-    netsh interface ipv4 add dnsservers "Wi-Fi" 149.112.112.112 index=2
-    echo Quad9 DNS configured.
+netsh interface ipv4 set dnsservers "Wi-Fi" static 9.9.9.9 validate=no
+netsh interface ipv4 add dnsservers "Wi-Fi" 149.112.112.112 index=2 validate=no
+echo Quad9 DNS configured.
 ) else if %errorlevel% equ 5 (
-    netsh interface ipv4 set dnsservers "Wi-Fi" static 94.140.14.14 primary
-    netsh interface ipv4 add dnsservers "Wi-Fi" 94.140.15.15 index=2
-    echo AdGuard DNS configured.
+netsh interface ipv4 set dnsservers "Wi-Fi" static 94.140.14.14 validate=no
+netsh interface ipv4 add dnsservers "Wi-Fi" 94.140.15.15 index=2 validate=no
+echo AdGuard DNS configured.
 ) else if %errorlevel% equ 6 (
-    netsh interface ipv4 set dnsservers "Wi-Fi" static 208.67.222.222 primary
-    netsh interface ipv4 add dnsservers "Wi-Fi" 208.67.220.220 index=2
-    echo OpenDNS configured.
+netsh interface ipv4 set dnsservers "Wi-Fi" static 208.67.222.222 validate=no
+netsh interface ipv4 add dnsservers "Wi-Fi" 208.67.220.220 index=2 validate=no
+echo OpenDNS configured.
 ) else if %errorlevel% equ 7 (
-    netsh interface ip set dnsservers name="Wi-Fi" source=dhcp
-    echo DNS reset to default.
+netsh interface ipv4 set dnsservers "Wi-Fi" dhcp
+echo DNS reset to default.
 ) else if %errorlevel% equ 8 goto :eof
 
 pause
@@ -459,14 +460,19 @@ goto :eof
 
 :auto_dns
 echo Checking for fastest DNS...
-for /f "delims=" %%i in ('PowerShell -Command "&{$res=@();$dns=@('8.8.8.8','1.1.1.1','9.9.9.9','94.140.14.14','208.67.222.222');foreach($d in $dns){$res+=@(@(Test-Connection -ComputerName $d -Count 1 -EA 0|%%{[Math]::Sqrt($_.ResponseTime)},0)[0],$d)};$res|Sort-Object {[Double]$_[0]}}"') do set "sorted_dns=%%i"
-set "primary_dns=%sorted_dns:~39,15%"
-set "secondary_dns=%sorted_dns:~55%"
 
-netsh interface ipv4 set dnsservers "Wi-Fi" static %primary_dns% primary
-netsh interface ipv4 add dnsservers "Wi-Fi" %secondary_dns% index=2
+for /f "tokens=1,2 delims=," %%a in ('PowerShell -Command "& {$res=@();$dns=@('8.8.8.8','1.1.1.1','9.9.9.9','94.140.14.14','208.67.222.222');foreach($d in $dns){$ping=Test-Connection -ComputerName $d -Count 1 -EA 0;if($ping){$res+=@($ping.ResponseTime,$d)}};($res|sort|select -First 2)[-1,-2]-join','}"') do (
+set "primary_dns=%%a"
+set "secondary_dns=%%b"
+)
+
+netsh interface ipv4 set dnsservers "Wi-Fi" static %primary_dns% validate=no
+if defined secondary_dns (
+netsh interface ipv4 add dnsservers "Wi-Fi" %secondary_dns% index=2 validate=no
+)
 
 echo Fastest DNS (%primary_dns%, %secondary_dns%) configured.
+
 pause
 goto :eof
 
@@ -915,16 +921,57 @@ pause
 goto :eof
 
 :optimize_gpu_settings
-echo Optimizing GPU settings...
+cls
+echo Optimize GPU Settings
+echo =====================
+echo 1. High Performance Mode
+echo 2. Balanced Mode
+echo 3. Power Saving Mode
 
+echo 4. Automatic (Based on system specs)
+echo 5. Back to Main Menu
+echo.
+choice /c 12345 /m "Enter your choice: "
+
+if %errorlevel% equ 1 (
 reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 1 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 0 /f
+if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
+echo High Performance mode set.
+) else if %errorlevel% equ 2 (
+reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /f
+if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 0 /f
+echo Balanced mode set.
 
-if "%IS_WIN11%" == "1" (
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
+) else if %errorlevel% equ 3 (
+reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 5000 /f
+if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 1 /f
+echo Power Saving mode set.
+) else if %errorlevel% equ 4 (
+if %ram% gtr 8192 (
+if %cores% gtr 4 (
+reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 0 /f
+if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
+echo High Performance mode set based on system specs.
+) else (
+reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+
+reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /f
+if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 0 /f
+echo Balanced mode set based on system specs.
+)
+) else (
+reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 5000 /f
+if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 1 /f
+echo Power Saving mode set based on system specs.
 )
 
-echo GPU settings optimized.
+) else if %errorlevel% equ 5 goto :eof
+
 pause
 goto :eof
 
