@@ -4,12 +4,12 @@ setlocal EnableDelayedExpansion
 rem Check OS version
 for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION=%%i.%%j
 if "%version%" == "10.0" (
-set IS_WIN10=1
+    set IS_WIN10=1
 ) else if "%version%" == "11.0" (
-set IS_WIN11=1
+    set IS_WIN11=1
 ) else (
-set IS_WIN10=0
-set IS_WIN11=0
+    set IS_WIN10=0
+    set IS_WIN11=0
 )
 
 rem Get system specs
@@ -39,19 +39,18 @@ echo Disk: %disksize% MB
 echo CPU Cores: %cores%
 echo.
 echo Select an optimization category:
-echo 1. System Performance
-echo 2. Network And Internet
-echo 3. User Interface And Personalization
-echo 4. Privacy And Security
-echo 5. Gaming And Multimedia
-echo 6. Perform All Optimizations
-echo 7. Undo Last Optimization
-echo 8. Advanced Power Settings
-echo 9. Software Management
-echo 10. System Maintenance
-echo 11. Exit
+echo 0. System Performance
+echo 1. Network And Internet
+echo 2. User Interface And Personalization
+echo 3. Privacy And Security
+echo 4. Gaming And Multimedia
+echo 5. Perform All Optimizations
+echo 6. Undo Last Optimization
+echo 7. Advanced Power Settings
+echo 8. Software Management And System Maintenance
+echo x. Exit
 echo.
-choice /c 12345678910 /m "Enter your choice: "
+choice /c 012345678x /m "Enter your choice: "
 goto main_option%errorlevel%
 
 :main_option1
@@ -91,7 +90,7 @@ call :software_management_menu
 goto main_menu
 
 :main_option10
-call :system_maintenance_menu  
+call :system_maintenance_menu
 goto main_menu
 
 :main_option11
@@ -101,9 +100,7 @@ exit /b
 
 rem System Performance sub-menu
 :system_performance_menu
-
 cls
-
 echo System Performance Optimizations
 echo =================================
 echo 1. Optimize Power Plan
@@ -115,11 +112,10 @@ echo 6. Optimize SSD Settings
 echo 7. Manage Startup Applications
 echo 8. Windows Settings
 echo 9. Disable Timeline
-echo 10. Disable Background Apps
-echo 11. Back to Main Menu
+echo 0. Disable Background Apps
+echo x. Back to Main Menu
 echo.
-
-choice /c 1234567891011 /m "Enter your choice: "
+choice /c 1234567890x /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :optimize_power_plan
 if %errorlevel% equ 2 call :optimize_pagefile
@@ -145,7 +141,6 @@ echo 3. Enable/Disable Windows Firewall
 echo 4. Customize Privacy Settings
 echo 5. Back to Performance Menu 
 echo.
-
 choice /c 12345 /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :windows_update_settings
@@ -164,8 +159,8 @@ echo 1. Enable Windows Update
 echo 2. Disable Windows Update  
 echo 3. Customize Update Settings
 echo 4. Back
-
 choice /c 1234 /m "Enter your choice: "
+
 if %errorlevel% equ 1 (
     REM Enable Windows Update
     reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 3 /f
@@ -176,9 +171,10 @@ if %errorlevel% equ 1 (
     echo Windows Update disabled.  
 ) else if %errorlevel% equ 3 (
     start ms-settings:windowsupdate-options
-) else (
+) else if %errorlevel% equ 4 (
     goto windows_settings
 )
+
 pause
 goto windows_settings
 
@@ -190,7 +186,6 @@ echo 1. Enable Windows Defender
 echo 2. Disable Windows Defender
 echo 3. Customize Defender Settings  
 echo 4. Back
-
 choice /c 1234 /m "Enter your choice: "
 
 if %errorlevel% equ 1 (
@@ -215,7 +210,7 @@ if %errorlevel% equ 1 (
     echo Windows Defender disabled.
 ) else if %errorlevel% equ 3 (
     start windowsdefender:
-) else (
+) else if %errorlevel% equ 4 (
     goto windows_settings
 )
 
@@ -230,8 +225,8 @@ echo 1. Enable Windows Firewall
 echo 2. Disable Windows Firewall
 echo 3. Customize Firewall Settings
 echo 4. Back
-
 choice /c 1234 /m "Enter your choice: "
+
 if %errorlevel% equ 1 (
     REM Enable Windows Firewall 
     NetSh Advfirewall set allprofiles state on
@@ -242,9 +237,10 @@ if %errorlevel% equ 1 (
     echo Windows Firewall disabled.
 ) else if %errorlevel% equ 3 (
     start wf.msc
-) else (
+) else if %errorlevel% equ 4 (
     goto windows_settings 
 )
+
 pause
 goto windows_settings
 
@@ -258,7 +254,6 @@ echo 3. Disable Advertising ID
 echo 4. Disable App Permissions
 echo 5. Open Privacy Settings
 echo 6. Back
-
 choice /c 123456 /m "Enter your choice: "
 
 if %errorlevel% equ 1 (
@@ -277,9 +272,10 @@ if %errorlevel% equ 1 (
     echo App permissions disabled.
 ) else if %errorlevel% equ 5 (
     start ms-settings:privacy
-) else (
+) else if %errorlevel% equ 6 (
     goto windows_settings
 )
+
 pause
 goto windows_settings
 
@@ -295,7 +291,7 @@ choice /c 123 /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :startup_app_selection
 if %errorlevel% equ 2 call :startup_delay_settings
-if %errorlevel% equ 3 goto :eof
+if %errorlevel% equ 3 goto system_performance_menu
 
 goto manage_startup_apps
 
@@ -347,9 +343,7 @@ if /i "%app_choice%"=="a" (
 
 del startup_apps.tmp
 pause
-goto :eof
-
-goto system_performance_menu
+goto manage_startup_apps
 
 rem Network & Internet sub-menu
 :network_menu
@@ -364,10 +358,10 @@ echo 5. Disable Autotuning
 echo 6. Optimize Network Adapter Settings
 echo 7. Enable Jumbo Frames
 echo 8. Disable IPv6
-echo 9. Optimize Proxy Settings  
+echo 9. Optimize Proxy Settings
 echo 10. Back to Main Menu
 echo.
-choice /c 12345678910 /m "Enter your choice: "  
+choice /c 1234567890 /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :optimize_tcp
 if %errorlevel% equ 2 call :optimize_dns
@@ -375,17 +369,16 @@ if %errorlevel% equ 3 call :flush_dns_cache
 if %errorlevel% equ 4 call :optimize_wifi
 if %errorlevel% equ 5 call :disable_autotuning
 if %errorlevel% equ 6 call :optimize_network_adapter
-if %errorlevel% equ 7 call :enable_jumbo_frames  
+if %errorlevel% equ 7 call :enable_jumbo_frames
 if %errorlevel% equ 8 call :disable_ipv6
 if %errorlevel% equ 9 call :optimize_proxy
-if %errorlevel% equ 10 goto :eof
+if %errorlevel% equ 10 goto main_menu
 
 goto network_menu
 
 rem User Interface & Personalization sub-menu
 :ui_personalization_menu
 cls
-
 echo User Interface ^& Personalization Optimizations
 echo ===============================================
 echo 1. Disable Animations and Effects
@@ -393,14 +386,14 @@ echo 2. Customize Start Menu Layout
 echo 3. Customize Taskbar Settings
 echo 4. Customize File Explorer Options
 echo 5. Enable Dark Mode
-echo 6. Customize Mouse Settings  
+echo 6. Customize Mouse Settings
 echo 7. Customize Desktop Icons
 echo 8. Disable Lock Screen
 echo 9. Disable Action Center
-echo 10. Restore Default Theme
-echo 11. Back to Main Menu
+echo 0. Restore Default Theme
+echo x. Back to Main Menu
 echo.
-choice /c 12345678910 /m "Enter your choice: "
+choice /c 1234567890x /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :disable_effects
 if %errorlevel% equ 2 call :customize_start_menu
@@ -412,7 +405,7 @@ if %errorlevel% equ 7 call :customize_desktop_icons
 if %errorlevel% equ 8 call :disable_lock_screen
 if %errorlevel% equ 9 call :disable_action_center
 if %errorlevel% equ 10 call :restore_default_theme
-if %errorlevel% equ 11 goto :eof
+if %errorlevel% equ 11 goto ui_personalization_menu
 
 goto ui_personalization_menu
 
@@ -429,10 +422,10 @@ echo 6. Disable Mouse Acceleration
 echo 7. Optimize Steam Settings
 echo 8. Disable Xbox Game Bar
 echo 9. Optimize Nvidia Settings
-echo 10. Optimize AMD Settings
-echo 11. Back to Main Menu
+echo 0. Optimize AMD Settings
+echo x. Back to Main Menu
 echo.  
-choice /c 12345678910 /m "Enter your choice: "
+choice /c 1234567890x /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :optimize_visual_effects
 if %errorlevel% equ 2 call :disable_game_bar
@@ -444,7 +437,7 @@ if %errorlevel% equ 7 call :optimize_steam_settings
 if %errorlevel% equ 8 call :disable_xbox_game_bar
 if %errorlevel% equ 9 call :optimize_nvidia_settings
 if %errorlevel% equ 10 call :optimize_amd_settings
-if %errorlevel% equ 11 goto :eof
+if %errorlevel% equ 11 goto EOF
 
 goto gaming_multimedia_menu
 
@@ -461,9 +454,9 @@ echo 6. Disable Windows Defender
 echo 7. Clear Windows Event Logs
 echo 8. Disable Wi-Fi Sense
 echo 9. Disable SmartScreen Filter
-echo 10. Back to Main Menu
+echo 0. Back to Main Menu
 echo.
-choice /c 12345678910 /m "Enter your choice: "
+choice /c 1234567890 /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :disable_telemetry
 if %errorlevel% equ 2 call :harden_security
@@ -474,7 +467,7 @@ if %errorlevel% equ 6 call :disable_windows_defender
 if %errorlevel% equ 7 call :clear_event_logs
 if %errorlevel% equ 8 call :disable_wifi_sense
 if %errorlevel% equ 9 call :disable_smartscreen
-if %errorlevel% equ 10 goto :eof
+if %errorlevel% equ 10 goto EOF
 
 goto privacy_security_menu
 
@@ -496,7 +489,7 @@ if %errorlevel% equ 2 call :disable_fast_startup
 if %errorlevel% equ 3 call :disable_hibernation
 if %errorlevel% equ 4 call :optimize_battery_settings
 if %errorlevel% equ 5 call :optimize_processor_power
-if %errorlevel% equ 6 goto :eof
+if %errorlevel% equ 6 goto EOF
 
 goto advanced_power_menu
 
@@ -509,16 +502,18 @@ echo 2. Disable OneDrive
 echo 3. Disable Cortana
 echo 4. Disable Windows Media Player
 echo 5. Disable Internet Explorer
-echo 6. Back to Main Menu
+echo 6. System Management menu
+echo 7. Back to Main Menu
 echo.
-choice /c 123456 /m "Enter your choice: "
+choice /c 1234567 /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :uninstall_apps
 if %errorlevel% equ 2 call :disable_onedrive
 if %errorlevel% equ 3 call :disable_cortana
 if %errorlevel% equ 4 call :disable_media_player
 if %errorlevel% equ 5 call :disable_internet_explorer  
-if %errorlevel% equ 6 goto :eof
+if %errorlevel% equ 6 call :system_maintenance_menu  
+if %errorlevel% equ 7 goto EOF
 
 goto software_management_menu
 
@@ -542,7 +537,7 @@ if %errorlevel% equ 3 call :check_disk
 if %errorlevel% equ 4 call :repair_system_files
 if %errorlevel% equ 5 call :optimize_delivery_optimization
 if %errorlevel% equ 6 call :disable_automatic_maintenance
-if %errorlevel% equ 7 goto :eof
+if %errorlevel% equ 7 goto EOF
 
 goto system_maintenance_menu
 
@@ -576,10 +571,10 @@ if %errorlevel% equ 1 (
     powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
     powercfg -setactive e9a42b02-d5df-448d-aa00-03f14749eb61
     echo Ultimate performance power plan activated.
-) else if %errorlevel% equ 5 goto :eof
+) else if %errorlevel% equ 5 goto EOF
 
 pause  
-goto :eof
+goto system_performance_menu
 
 :optimize_pagefile
 cls
@@ -605,10 +600,10 @@ if %errorlevel% equ 1 (
     wmic computersystem where name="%computername%" set AutomaticManagedPagefile=False
     wmic pagefileset where name="C:\pagefile.sys" delete
     echo Page file disabled.
-) else if %errorlevel% equ 4 goto :eof
+) else if %errorlevel% equ 4 goto EOF
 
 pause
-goto :eof  
+goto system_performance_menu  
 
 :disable_services
 cls
@@ -646,30 +641,29 @@ if %errorlevel% equ 1 (
     sc config Spooler start= disabled
     sc config Fax start= disabled
     echo All services disabled.
-) else if %errorlevel% equ 7 goto :eof
+) else if %errorlevel% equ 7 goto EOF
 
 pause
-goto :eof
+goto system_performance_menu
 
 :disk_cleanup
 echo Cleaning up and optimizing disk...
 
 if %disksize% lss 51200 (
-cleanmgr /sagerun:1
+    cleanmgr /sagerun:1
 ) else (
-cleanmgr /sagerun:1 /setup
+    cleanmgr /sagerun:1 /setup
 )
 
 if "%IS_WIN10%" == "1" (
-defrag /C /H /V /U
+    defrag /C /H /V /U
 ) else if "%IS_WIN11%" == "1" (
-defrag /C /H /V /U /X
+    defrag /C /H /V /U /X
 )  
 
 echo Disk cleaned up and optimized.
 pause
-
-goto :eof
+goto system_performance_menu
 
 :optimize_tcp
 cls
@@ -729,10 +723,10 @@ if %errorlevel% equ 1 (
     netsh int tcp set global rsc=default
     
     echo TCP settings reset to defaults.
-) else if %errorlevel% equ 4 goto :eof
+) else if %errorlevel% equ 4 goto EOF
 
 pause
-goto :eof
+goto network_menu
 
 :optimize_dns
 cls  
@@ -748,76 +742,74 @@ echo 7. Custom DNS
 echo 8. Reset to Default
 echo 9. Back to Main Menu
 echo.
-
 choice /c 123456789 /m "Enter your choice: "
 
 if %errorlevel% equ 1 (
-call :auto_dns
+    call :auto_dns
 ) else if %errorlevel% equ 2 (
-netsh interface ipv4 set dnsservers "Wi-Fi" static 8.8.8.8 validate=no
-netsh interface ipv4 add dnsservers "Wi-Fi" 8.8.4.4 index=2 validate=no
-echo Google DNS configured.
+    netsh interface ipv4 set dnsservers "Wi-Fi" static 8.8.8.8 validate=no
+    netsh interface ipv4 add dnsservers "Wi-Fi" 8.8.4.4 index=2 validate=no
+    echo Google DNS configured.
 ) else if %errorlevel% equ 3 (
-netsh interface ipv4 set dnsservers "Wi-Fi" static 1.1.1.1 validate=no
-netsh interface ipv4 add dnsservers "Wi-Fi" 1.0.0.1 index=2 validate=no
-echo Cloudflare DNS configured.
+    netsh interface ipv4 set dnsservers "Wi-Fi" static 1.1.1.1 validate=no
+    netsh interface ipv4 add dnsservers "Wi-Fi" 1.0.0.1 index=2 validate=no
+    echo Cloudflare DNS configured.
 ) else if %errorlevel% equ 4 (  
-netsh interface ipv4 set dnsservers "Wi-Fi" static 9.9.9.9 validate=no
-netsh interface ipv4 add dnsservers "Wi-Fi" 149.112.112.112 index=2 validate=no
-echo Quad9 DNS configured.
+    netsh interface ipv4 set dnsservers "Wi-Fi" static 9.9.9.9 validate=no
+    netsh interface ipv4 add dnsservers "Wi-Fi" 149.112.112.112 index=2 validate=no
+    echo Quad9 DNS configured.
 ) else if %errorlevel% equ 5 (
-netsh interface ipv4 set dnsservers "Wi-Fi" static 94.140.14.14 validate=no
-netsh interface ipv4 add dnsservers "Wi-Fi" 94.140.15.15 index=2 validate=no
-echo AdGuard DNS configured.
+    netsh interface ipv4 set dnsservers "Wi-Fi" static 94.140.14.14 validate=no
+    netsh interface ipv4 add dnsservers "Wi-Fi" 94.140.15.15 index=2 validate=no
+    echo AdGuard DNS configured.
 ) else if %errorlevel% equ 6 (
-netsh interface ipv4 set dnsservers "Wi-Fi" static 208.67.222.222 validate=no
-netsh interface ipv4 add dnsservers "Wi-Fi" 208.67.220.220 index=2 validate=no
-echo OpenDNS configured.
+    netsh interface ipv4 set dnsservers "Wi-Fi" static 208.67.222.222 validate=no
+    netsh interface ipv4 add dnsservers "Wi-Fi" 208.67.220.220 index=2 validate=no
+    echo OpenDNS configured.
 ) else if %errorlevel% equ 7 (
-set /p primary_dns="Enter primary DNS server: "
-set /p secondary_dns="Enter secondary DNS server: "
-netsh interface ipv4 set dnsservers "Wi-Fi" static %primary_dns% validate=no
-netsh interface ipv4 add dnsservers "Wi-Fi" %secondary_dns% index=2 validate=no
-echo Custom DNS configured.
+    set /p primary_dns="Enter primary DNS server: "
+    set /p secondary_dns="Enter secondary DNS server: "
+    netsh interface ipv4 set dnsservers "Wi-Fi" static %primary_dns% validate=no
+    netsh interface ipv4 add dnsservers "Wi-Fi" %secondary_dns% index=2 validate=no
+    echo Custom DNS configured.
 ) else if %errorlevel% equ 8 (
-netsh interface ip set dnsservers name="Wi-Fi" source=dhcp
-echo DNS reset to default.
-) else if %errorlevel% equ 9 goto :eof
+    netsh interface ip set dnsservers name="Wi-Fi" source=dhcp
+    echo DNS reset to default.
+) else if %errorlevel% equ 9 goto EOF
 
 pause
-goto :eof
+goto network_menu
 
 :auto_dns
 echo Checking for fastest DNS...
 
 for /f "tokens=1,2 delims=," %%a in ('PowerShell -Command "& {$res=@();$dns=@('8.8.8.8','1.1.1.1','9.9.9.9','94.140.14.14','208.67.222.222');foreach($d in $dns){$ping=Test-Connection -ComputerName $d -Count 1 -EA 0;if($ping){$res+=@($ping.ResponseTime,$d)}};($res|sort|select -First 2)[-1,-2]-join','}"') do (
-set "primary_dns=%%a"
-set "secondary_dns=%%b"
+    set "primary_dns=%%a"
+    set "secondary_dns=%%b"
 )
 
 netsh interface ipv4 set dnsservers "Wi-Fi" static %primary_dns% validate=no
 if defined secondary_dns (
-netsh interface ipv4 add dnsservers "Wi-Fi" %secondary_dns% index=2 validate=no
+    netsh interface ipv4 add dnsservers "Wi-Fi" %secondary_dns% index=2 validate=no
 )
 
 echo Fastest DNS (%primary_dns%, %secondary_dns%) configured.
 
 pause
-goto :eof
+goto network_menu
 
 :disable_background_apps
 echo Disabling background apps...
 
 if "%IS_WIN10%" == "1" (
-reg add HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications /v GlobalUserDisabled /t REG_DWORD /d 1 /f
+    reg add HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications /v GlobalUserDisabled /t REG_DWORD /d 1 /f
 ) else if "%IS_WIN11%" == "1" (
-reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy /v LetAppsRunInBackground /t REG_DWORD /d 2 /f
+    reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy /v LetAppsRunInBackground /t REG_DWORD /d 2 /f
 )
 
 echo Background apps disabled.
 pause
-
-goto :eof
+goto system_performance_menu
 
 :disable_effects
 cls
@@ -842,28 +834,26 @@ if %errorlevel% equ 1 (
     reg add "HKCU\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9e3e07e325000000 /f
     reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 1 /f
     echo Animations and effects disabled for best appearance.
-) else if %errorlevel% equ 4 goto :eof
+) else if %errorlevel% equ 4 goto EOF
 
 pause
-goto :eof
+goto ui_personalization_menu
 
 :customize_start_menu
 echo Customizing Start Menu layout...
 
 if "%IS_WIN11%" == "1" (
-REM Customize Start Menu layout for Windows 11
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_Layout /t REG_DWORD /d 1 /f
-powershell -command "Import-StartLayout -LayoutPath 'C:\Windows11StartLayout.xml' -MountPath $env:SystemDrive"
+    REM Customize Start Menu layout for Windows 11
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_Layout /t REG_DWORD /d 1 /f
+    powershell -command "Import-StartLayout -LayoutPath 'C:\Windows11StartLayout.xml' -MountPath $env:SystemDrive"
 ) else (
-
-REM Customize Start Menu layout for Windows 10
-powershell -command "Import-StartLayout -LayoutPath 'C:\Windows10StartLayout.xml' -MountPath $env:SystemDrive"
-
+    REM Customize Start Menu layout for Windows 10
+    powershell -command "Import-StartLayout -LayoutPath 'C:\Windows10StartLayout.xml' -MountPath $env:SystemDrive"
 )
 
 echo Start Menu layout customized.
 pause
-goto :eof
+goto ui_personalization_menu
 
 :customize_taskbar
 echo Customizing taskbar settings...
@@ -874,12 +864,12 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Sh
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f
 
 if "%IS_WIN11%" == "1" (
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
 )
 
 echo Taskbar settings customized.
 pause
-goto :eof
+goto ui_personalization_menu
 
 :customize_file_explorer
 echo Customizing File Explorer options...
@@ -888,15 +878,14 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v La
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
 
 if %ram% lss 4096 (
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v SeparateProcess /t REG_DWORD /d 0 /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v SeparateProcess /t REG_DWORD /d 0 /f
 ) else (
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v SeparateProcess /t REG_DWORD /d 1 /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v SeparateProcess /t REG_DWORD /d 1 /f
 )
 
 echo File Explorer options customized.
 pause
-
-goto :eof
+goto ui_personalization_menu
 
 :disable_telemetry
 echo Disabling telemetry and data collection...
@@ -904,17 +893,17 @@ echo Disabling telemetry and data collection...
 reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection /v AllowTelemetry /t REG_DWORD /d 0 /f
 
 if "%IS_WIN10%" == "1" (
-sc config DiagTrack start= disabled
-sc config dmwappushservice start= disabled
+    sc config DiagTrack start= disabled
+    sc config dmwappushservice start= disabled
 ) else if "%IS_WIN11%" == "1" (
-sc config DiagTrack start= disabled
-sc config dmwappushservice start= disabled
-reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat /v AITEnable /t REG_DWORD /d 0 /f
+    sc config DiagTrack start= disabled
+    sc config dmwappushservice start= disabled
+    reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat /v AITEnable /t REG_DWORD /d 0 /f
 )
 
 echo Telemetry and data collection disabled.
 pause
-goto :eof
+goto privacy_security_menu
 
 :harden_security
 echo Hardening system security settings...
@@ -923,17 +912,16 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverrideMask /t REG_DWORD /d 3 /f
 
 if "%IS_WIN10%" == "1" (
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server" /v Enabled /t REG_DWORD /d 1 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server" /v Enabled /t REG_DWORD /d 1 /f
 ) else if "%IS_WIN11%" == "1" (
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server" /v Enabled /t REG_DWORD /d 1 /f
-
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server" /v Enabled /t REG_DWORD /d 1 /f
 )
 
 echo System security settings hardened.
 pause
-goto :eof
+goto privacy_security_menu
 
 :optimize_uac
 echo Optimizing User Account Control settings...
@@ -943,25 +931,26 @@ reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v Prompt
 
 echo User Account Control settings optimized.
 pause
-goto :eof
+goto privacy_security_menu
+
 :optimize_visual_effects
 echo Optimizing visual effects for performance...
 
 if %ram% lss 4096 (
-reg add "HKCU\Control Panel\Desktop" /v FontSmoothing /t REG_SZ /d 0 /f
-reg add "HKCU\Control Panel\Desktop" /v DragFullWindows /t REG_SZ /d 0 /f
-SystemPropertiesPerformance.exe
-REM Manually adjust settings for best performance
+    reg add "HKCU\Control Panel\Desktop" /v FontSmoothing /t REG_SZ /d 0 /f
+    reg add "HKCU\Control Panel\Desktop" /v DragFullWindows /t REG_SZ /d 0 /f
+    SystemPropertiesPerformance.exe
+    REM Manually adjust settings for best performance
 ) else (
-reg add "HKCU\Control Panel\Desktop" /v FontSmoothing /t REG_SZ /d 2 /f
-reg add "HKCU\Control Panel\Desktop" /v DragFullWindows /t REG_SZ /d 1 /f
-SystemPropertiesPerformance.exe
-REM Manually adjust settings for best appearance
+    reg add "HKCU\Control Panel\Desktop" /v FontSmoothing /t REG_SZ /d 2 /f
+    reg add "HKCU\Control Panel\Desktop" /v DragFullWindows /t REG_SZ /d 1 /f
+    SystemPropertiesPerformance.exe
+    REM Manually adjust settings for best appearance
 )
 
 echo Visual effects optimized for performance.
 pause
-goto :eof
+goto gaming_multimedia_menu
 
 :disable_game_bar
 echo Disabling Game Bar and Game Mode...
@@ -970,14 +959,14 @@ reg add "HKCU\Software\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 0
 reg add "HKCU\Software\Microsoft\GameBar" /v AutoGameModeEnabled /t REG_DWORD /d 0 /f
 
 if "%IS_WIN10%" == "1" (
-reg add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f
+    reg add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f
 ) else if "%IS_WIN11%" == "1" (
-reg add "HKCU\System\GameConfigStore" /v GameDVR_FSEBehavior /t REG_DWORD /d 2 /f
+    reg add "HKCU\System\GameConfigStore" /v GameDVR_FSEBehavior /t REG_DWORD /d 2 /f
 )
 
 echo Game Bar and Game Mode disabled.
 pause
-goto :eof
+goto gaming_multimedia_menu
 
 :disable_fullscreen_opt
 echo Disabling fullscreen optimizations...
@@ -988,24 +977,22 @@ reg add "HKCU\System\GameConfigStore" /v Win32_GameModeRelatedProcesses /t REG_B
 
 echo Fullscreen optimizations disabled.
 pause
-
-goto :eof
+goto gaming_multimedia_menu
 
 :optimize_sound
 echo Optimizing sound settings...
 
 if %ram% lss 4096 (
-reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v UserDuckingPreference /t REG_DWORD /d 3 /f
-reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v EnableAudioDucking /t REG_DWORD /d 0 /f
+    reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v UserDuckingPreference /t REG_DWORD /d 3 /f
+    reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v EnableAudioDucking /t REG_DWORD /d 0 /f
 ) else (
-reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v UserDuckingPreference /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v EnableAudioDucking /t REG_DWORD /d 1 /f
-
+    reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v UserDuckingPreference /t REG_DWORD /d 1 /f
+    reg add "HKCU\Software\Microsoft\Multimedia\Audio" /v EnableAudioDucking /t REG_DWORD /d 1 /f
 )
 
 echo Sound settings optimized.
 pause
-goto :eof
+goto gaming_multimedia_menu
 
 :optimize_all
 echo Performing all system optimizations...
@@ -1037,9 +1024,10 @@ call :disable_fullscreen_opt
 call :optimize_sound
 call :optimize_gpu_settings
 call :disable_mouse_acceleration
+
 echo All system optimizations completed.
 pause
-goto :eof
+goto main_menu
 
 :undo_optimization
 echo Undoing last system optimization...
@@ -1048,7 +1036,6 @@ REM Undo power plan optimization
 powercfg -restoredefaultschemes
 
 REM Undo page file optimization
-
 wmic computersystem where name="%computername%" set AutomaticManagedPagefile=True
 
 REM Undo service disabling
@@ -1069,7 +1056,6 @@ reg delete HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplic
 reg delete HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy /v LetAppsRunInBackground /f
 
 REM Undo effects disabling
-
 reg add "HKCU\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9e3e078012000000 /f
 reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 1 /f
 
@@ -1091,7 +1077,6 @@ reg delete "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Pro
 
 REM Undo visual effects optimization
 reg delete "HKCU\Control Panel\Desktop" /v FontSmoothing /f
-
 reg delete "HKCU\Control Panel\Desktop" /v DragFullWindows /f
 
 REM Undo game optimizations
@@ -1105,7 +1090,6 @@ reg delete "HKCU\Software\Microsoft\Multimedia\Audio" /v EnableAudioDucking /f
 REM Undo mouse customizations
 reg delete "HKCU\Control Panel\Mouse" /v MouseSensitivity /f
 reg delete "HKCU\Control Panel\Mouse" /v MouseSpeed /f
-
 reg delete "HKCU\Control Panel\Mouse" /v MouseThreshold1 /f
 reg delete "HKCU\Control Panel\Mouse" /v MouseThreshold2 /f
 
@@ -1115,17 +1099,17 @@ reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode 
 
 echo Last system optimization undone.
 pause
-goto :eof
+goto main_menu
 
 rem System spec check functions
 :check_ram
 for /f "tokens=2 delims==" %%a in ('wmic memorychip get capacity /value ^| findstr Capacity') do set ram=%%a
 set /a ram=%ram:~0,-6%
 goto :eof
+
 :check_disk
 for /f "tokens=2 delims==" %%a in ('wmic logicaldisk where "DeviceID='C:'" get Size /value ^| findstr Size') do set disksize=%%a
 set /a disksize=%disksize:~0,-6%
-
 goto :eof
 
 :check_cpu
@@ -1137,44 +1121,43 @@ rem Additional functions
 echo Disabling unnecessary startup apps...
 
 if "%IS_WIN10%" == "1" (
-REM Disable unnecessary startup apps for Windows 10
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /f
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "Skype for Desktop" /f
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v Spotify /f
+    REM Disable unnecessary startup apps for Windows 10
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /f
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "Skype for Desktop" /f
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v Spotify /f
 ) else if "%IS_WIN11%" == "1" (
-
-REM Disable unnecessary startup apps for Windows 11
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /f
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "Skype for Desktop" /f
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v Spotify /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" /v SecurityHealthSystray /t REG_BINARY /d 030000000000000000000000 /f
+    REM Disable unnecessary startup apps for Windows 11
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /f
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "Skype for Desktop" /f
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v Spotify /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" /v SecurityHealthSystray /t REG_BINARY /d 030000000000000000000000 /f
 )
 
 echo Unnecessary startup apps disabled.
 pause
-goto :eof
+goto system_performance_menu
 
 :optimize_ssd
 echo Optimizing SSD settings...
 
 if "%IS_WIN10%" == "1" (
-fsutil behavior set disabledeletenotify 0
+    fsutil behavior set disabledeletenotify 0
 ) else if "%IS_WIN11%" == "1" (
-fsutil behavior set disabledeletenotify 0
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Services\fssfltr" /v EnableOverride /t REG_DWORD /d 1 /f
+    fsutil behavior set disabledeletenotify 0
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\fssfltr" /v EnableOverride /t REG_DWORD /d 1 /f
 )
 
 echo SSD settings optimized.
 pause
-goto :eof
+goto system_performance_menu
 
 :flush_dns_cache
 echo Flushing DNS cache...
 ipconfig /flushdns
 echo DNS cache flushed.
 pause
-goto :eof
+goto network_menu
 
 :optimize_wifi
 echo Optimizing Wi-Fi settings...
@@ -1201,7 +1184,7 @@ if %ram% lss 4096 (
 
 echo Wi-Fi settings optimized.
 pause
-goto :eof
+goto network_menu
 
 :enable_dark_mode
 cls
@@ -1221,10 +1204,11 @@ if %errorlevel% equ 1 (
     reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize /v AppsUseLightTheme /t REG_DWORD /d 1 /f  
     if "%IS_WIN11%" == "1" reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize /v SystemUsesLightTheme /t REG_DWORD /d 1 /f
     echo Light mode enabled.  
-) else if %errorlevel% equ 3 goto :eof
+) else if %errorlevel% equ 3 goto ui_personalization_menu
 
 pause
-goto :eof
+goto ui_personalization_menu
+
 :customize_mouse_settings
 echo Customizing mouse settings...
 
@@ -1234,16 +1218,15 @@ reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
 reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
 
 echo Mouse settings customized.
-
 pause
-goto :eof
+goto ui_personalization_menu
 
 :enable_windows_firewall
 echo Enabling Windows Firewall...
 netsh advfirewall set allprofiles state on
 echo Windows Firewall enabled.
 pause
-goto :eof
+goto privacy_security_menu
 
 :disable_remote_access
 echo Disabling remote access...
@@ -1252,13 +1235,12 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnec
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
 
 if "%IS_WIN11%" == "1" (
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowFullControl /t REG_DWORD /d 0 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowFullControl /t REG_DWORD /d 0 /f
 )
 
 echo Remote access disabled.
 pause
-
-goto :eof
+goto privacy_security_menu
 
 :optimize_gpu_settings
 cls
@@ -1267,53 +1249,49 @@ echo =====================
 echo 1. High Performance Mode
 echo 2. Balanced Mode
 echo 3. Power Saving Mode
-
 echo 4. Automatic (Based on system specs)
 echo 5. Back to Main Menu
 echo.
 choice /c 12345 /m "Enter your choice: "
 
 if %errorlevel% equ 1 (
-reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 1 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 0 /f
-if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
-echo High Performance mode set.
+    reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 1 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 0 /f
+    if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
+    echo High Performance mode set.
 ) else if %errorlevel% equ 2 (
-reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
-reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /f
-if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 0 /f
-echo Balanced mode set.
-
+    reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+    reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /f
+    if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 0 /f
+    echo Balanced mode set.
 ) else if %errorlevel% equ 3 (
-reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 5000 /f
-if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 1 /f
-echo Power Saving mode set.
+    reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 5000 /f
+    if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 1 /f
+    echo Power Saving mode set.
 ) else if %errorlevel% equ 4 (
-if %ram% gtr 8192 (
-if %cores% gtr 4 (
-reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 1 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 0 /f
-if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
-echo High Performance mode set based on system specs.
-) else (
-reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
-
-reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /f
-if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 0 /f
-echo Balanced mode set based on system specs.
-)
-) else (
-reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 5000 /f
-if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 1 /f
-echo Power Saving mode set based on system specs.
-)
-
-) else if %errorlevel% equ 5 goto :eof
+    if %ram% gtr 8192 (
+        if %cores% gtr 4 (
+            reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 1 /f
+            reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 0 /f
+            if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
+            echo High Performance mode set based on system specs.
+        ) else (
+            reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+            reg delete "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /f
+            if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 0 /f
+            echo Balanced mode set based on system specs.
+        )
+    ) else (
+        reg add "HKCU\Software\Microsoft\GameBar" /v UseGpuHighPerformance /t REG_DWORD /d 0 /f
+        reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v VsyncIdleTimeout /t REG_DWORD /d 5000 /f
+        if "%IS_WIN11%" == "1" reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 1 /f
+        echo Power Saving mode set based on system specs.
+    )
+) else if %errorlevel% equ 5 goto gaming_multimedia_menu
 
 pause
-goto :eof
+goto gaming_multimedia_menu
 
 :disable_mouse_acceleration
 echo Disabling mouse acceleration...
@@ -1324,7 +1302,7 @@ reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
 
 echo Mouse acceleration disabled.
 pause
-goto :eof
+goto gaming_multimedia_menu
 
 :customize_power_plan
 cls
@@ -1336,7 +1314,6 @@ echo 3. Wireless Adapter Power Management
 echo 4. Sleep and Hibernation Settings
 echo 5. USB Power Management
 echo 6. Back to Main Menu
-
 choice /c 123456 /m "Enter your choice: "
 
 if %errorlevel% equ 1 call :processor_power_management
@@ -1344,7 +1321,7 @@ if %errorlevel% equ 2 call :hard_disk_power_management
 if %errorlevel% equ 3 call :wireless_adapter_power_management
 if %errorlevel% equ 4 call :sleep_hibernation_settings
 if %errorlevel% equ 5 call :usb_power_management
-if %errorlevel% equ 6 goto advanced_power_menu
+if %errorlevel% equ 6 goto EOF
 
 goto customize_power_plan
 
@@ -1355,13 +1332,13 @@ echo Processor Power Management Settings
 echo ===================================
 echo 1. Minimum Processor State: 5%
 echo 2. Minimum Processor State: 25%
-echo 3. Minimum Processor State: 50%
+echo 3.Minimum Processor State: 50%
 echo 4. Maximum Processor State: 100%
 echo 5. Maximum Processor State: 90%
 echo 6. Maximum Processor State: 75%
 echo 7. Back to Power Plan Settings
-
 choice /c 1234567 /m "Enter your choice: "
+
 set powerguid=
 for /f "tokens=2 delims={}" %%a in ('powercfg /getactivescheme') do set powerguid=%%a
 
@@ -1390,7 +1367,7 @@ if %errorlevel% equ 1 (
     powercfg /setactive %powerguid%
     echo Maximum processor state set to 75%%.
 ) else if %errorlevel% equ 7 (
-    goto customize_power_plan
+    goto EOF
 )
 
 pause
@@ -1406,8 +1383,8 @@ echo 2. Turn off hard disk after 10 minutes
 echo 3. Turn off hard disk after 20 minutes
 echo 4. Never turn off hard disk
 echo 5. Back to Power Plan Settings
-
 choice /c 12345 /m "Enter your choice: "
+
 set powerguid=
 for /f "tokens=2 delims={}" %%a in ('powercfg /getactivescheme') do set powerguid=%%a
 
@@ -1428,7 +1405,7 @@ if %errorlevel% equ 1 (
     powercfg /setactive %powerguid%
     echo Hard disk will never turn off.
 ) else if %errorlevel% equ 5 (
-    goto customize_power_plan
+    goto EOF
 )
 
 pause
@@ -1444,8 +1421,8 @@ echo 2. Low Power Saving mode
 echo 3. Medium Power Saving mode 
 echo 4. Maximum Power Saving mode
 echo 5. Back to Power Plan Settings
-
 choice /c 12345 /m "Enter your choice: "
+
 set powerguid=
 for /f "tokens=2 delims={}" %%a in ('powercfg /getactivescheme') do set powerguid=%%a
 
@@ -1466,7 +1443,7 @@ if %errorlevel% equ 1 (
     powercfg /setactive %powerguid%
     echo Wireless adapter set to Maximum Power Saving mode.
 ) else if %errorlevel% equ 5 (
-    goto customize_power_plan
+    goto EOF
 )
 
 pause
@@ -1485,8 +1462,8 @@ echo 5. Hibernate after 1 hour
 echo 6. Hibernate after 2 hours 
 echo 7. Never hibernate
 echo 8. Back to Power Plan Settings
-
 choice /c 12345678 /m "Enter your choice: "
+
 set powerguid=
 for /f "tokens=2 delims={}" %%a in ('powercfg /getactivescheme') do set powerguid=%%a
 
@@ -1519,7 +1496,7 @@ if %errorlevel% equ 1 (
     powercfg /setactive %powerguid%
     echo System will never hibernate.  
 ) else if %errorlevel% equ 8 (
-    goto customize_power_plan
+    goto EOF
 )
 
 pause
@@ -1533,8 +1510,8 @@ echo =============================
 echo 1. Disable selective suspend
 echo 2. Enable selective suspend
 echo 3. Back to Power Plan Settings
-
 choice /c 123 /m "Enter your choice: "
+
 set powerguid=
 for /f "tokens=2 delims={}" %%a in ('powercfg /getactivescheme') do set powerguid=%%a
 
@@ -1547,7 +1524,7 @@ if %errorlevel% equ 1 (
     powercfg /setactive %powerguid%
     echo USB selective suspend enabled.
 ) else if %errorlevel% equ 3 (
-    goto customize_power_plan
+    goto EOF
 )
 
 pause
