@@ -230,7 +230,9 @@ echo "Applying Cmd Settings..."
 sleep 1
 
 #JIT compile
+cmd package bg-dexopt-job
 cmd package compile -m everything -f -a
+cmd package compile --compile-layouts -a
 
 # Aggressive cache trim
 pm trim-caches 4096M
