@@ -231,8 +231,10 @@ sleep 1
 
 #JIT compile
 cmd package bg-dexopt-job
-cmd package compile -m everything -f -a
 cmd package compile --compile-layouts -a
+cmd package compile -r -a
+cmd package compile -s -a
+cmd package compile -m everything -f -a
 
 # Aggressive cache trim
 pm trim-caches 4096M
