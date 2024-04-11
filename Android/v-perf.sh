@@ -114,6 +114,8 @@ set_vgame() {
   pm disable-user --user 0 com.google.android.videos
 }
 set_vgame > /dev/null 2>&1
+echo -ne '###########                    (33%)\r'
+sleep 1
 
 #JITGame 
 set_jitc() {
@@ -122,12 +124,16 @@ set_jitc() {
   cmd package compile --compile-layouts -a
 }
 set_jitc > /dev/null 2>&1
+echo -ne '###############                (50%)\r'
+sleep 1
 
 #cachetrim
 set_cache_trim() {  
   pm trim-caches 999G
 }
 set_cache_trim > /dev/null 2>&1
+echo -ne '#######################        (66%)\r'
+sleep 1
 
 #RamKiller
 {
@@ -138,6 +144,8 @@ set_cache_trim > /dev/null 2>&1
     fi
   done
 } > /dev/null 2>&1
+echo -ne '############################### (100%)\r'
+echo -ne '\n'
 
 sleep 0.5
 echo " V-Game installation completed successfully!"
