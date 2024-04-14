@@ -11,14 +11,19 @@ echo " Installation in progress, please wait... "
 echo ""
 
 set_vgame() {
+  # Use SkiaGL for rendering, which can improve performance on some devices
   setprop debug.hwui.renderer skiagl
+  
+  # Disable vsync for potentially smoother gameplay at the risk of visual artifacts
   setprop debug.gr.swapinterval -1
+  
+  # Other properties are set to optimize performance without compromising stability
   setprop debug.hwui.disabledither false
   setprop debug.disable.hwacc 0
   setprop debug.disable_sched_boost true
   setprop debug.javafx.animation.fullspeed true
   setprop debug.rs.default-CPU-driver 1
-  setprop debug.MB.inner.running 24 
+  setprop debug.MB.inner.running 24
   setprop debug.MB.running 72
   setprop debug.hwui.render_dirty_regions false
   setprop debug.hwc.bq_count 3
@@ -27,7 +32,7 @@ set_vgame() {
   setprop debug.low_power_sticky 0
   setprop debug.heat_suppression 0
   setprop debug.egl.force_msaa false
-  setprop debug.egl.force_fxaa false 
+  setprop debug.egl.force_fxaa false
   setprop debug.egl.force_taa false
   setprop debug.egl.force_ssaa false
   setprop debug.egl.force_smaa false
@@ -117,35 +122,43 @@ set_vgame > /dev/null 2>&1
 echo -ne '###########                    (33%)\r'
 sleep 1
 
-#JITGame 
+# JIT Compiler Optimization
 set_jitc() {
-  cmd package compile -m everything -a -f
+  cmd package compile -m speed -a
   cmd package bg-dexopt-job
   cmd package compile --compile-layouts -a
 }
-set_jitc > /dev/null 2>&1
-echo -ne '###############                (50%)\r'
-sleep 1
 
-#cachetrim
-set_cache_trim() {  
-  pm trim-caches 999G
+# Redirect output to null to suppress command output
+set_jitc > /dev/null 2>&1 &
+
+# Cache Management Optimization
+set_cache_trim() {
+  local cache_size=$(du -sh /data/cache | cut -f1)
+  pm trim-caches "$cache_size"
 }
-set_cache_trim > /dev/null 2>&1
-echo -ne '#######################        (66%)\r'
-sleep 1
 
-#RamKiller
-{
+# Redirect output to null to suppress command output
+set_cache_trim > /dev/null 2>&1 &
+
+# RAM Management Optimization
+ram_killer() {
+  local threshold=50 # Set the threshold for memory usage in MB
   for app in $(cmd package list packages -3 | cut -f 2 -d ":"); do
-    if [[ ! "$app" == "me.piebridge.brevent" ]]; then
+    local mem_usage=$(dumpsys meminfo "$app" | grep TOTAL: | tr -s ' ' | cut -d ' ' -f2)
+    if [[ ! "$app" == "me.piebridge.brevent" ]] && (( mem_usage > threshold )); then
       cmd activity force-stop "$app"
-      cmd activity kill "$app" 
     fi
   done
-} > /dev/null 2>&1
-echo -ne '############################### (100%)\r'
-echo -ne '\n'
+}
+
+# Redirect output to null to suppress command output
+ram_killer > /dev/null 2>&1 &
+
+# Improved Progress Indicator
+echo -ne 'Initializing optimizations...\r'
+wait
+echo -ne 'Optimizations complete.       \n'
 
 sleep 0.5
 echo " V-Game installation completed successfully!"
