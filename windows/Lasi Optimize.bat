@@ -1,907 +1,1456 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:menu
-cls
-echo ============================================
-echo          Windows 11 Optimization Menu
-echo ============================================
-echo [1] System Optimize
-echo [2] Internet Optimize
-echo [3] Game Optimize
-echo [4] CPU Optimize
-echo [5] Mode Switcher
-echo [6] Animation Optimize
-echo [7] Graphic Optimize
-echo [8] Power Optimize
-echo [9] Windows Update
-echo [10] RAM Optimize
-echo [11] Firewall and Windows Defender Antivirus
-echo [12] System Repair and Fixes
-echo [13] Backup and Restore
-echo [14] Disk Management
-echo [0] Exit
-echo ============================================
-set /p choice=Select an option:
+:: Function declarations
+call :initialize
+call :main_menu
 
-if "%choice%"=="1" goto system_optimize
-if "%choice%"=="2" goto internet_optimize
-if "%choice%"=="3" goto game_optimize
-if "%choice%"=="4" goto cpu_optimize
-if "%choice%"=="5" goto mode_switcher
-if "%choice%"=="6" goto animation_optimize
-if "%choice%"=="7" goto graphic_optimize
-if "%choice%"=="8" goto power_optimize
-if "%choice%"=="9" goto windows_update
-if "%choice%"=="10" goto ram_optimize
-if "%choice%"=="11" goto firewall_defender
-if "%choice%"=="12" goto system_repair
-if "%choice%"=="13" goto backup_restore
-if "%choice%"=="14" goto disk_management
-if "%choice%"=="0" goto exit_script
-
-goto menu
-
-:system_optimize
-cls
-echo ============================================
-echo          System Optimize Menu
-echo ============================================
-echo [1] Disk Cleanup
-echo [2] Registry Cleaner
-echo [3] Startup Manager
-echo [4] Defragment and Optimize Drives
-echo [5] Temporary Files Cleaner
-echo [0] Back to Main Menu
-echo ============================================
-set /p sys_choice=Select an option:
-
-if "%sys_choice%"=="1" goto disk_cleanup
-if "%sys_choice%"=="2" goto registry_cleaner
-if "%sys_choice%"=="3" goto startup_manager
-if "%sys_choice%"=="4" goto defrag_drives
-if "%sys_choice%"=="5" goto temp_files_cleaner
-if "%sys_choice%"=="0" goto menu
-
-goto system_optimize
-
-:disk_cleanup
-echo Cleaning Disk...
-cleanmgr /sagerun:1
+:end
+echo Exiting the Windows 11 Utility Tool...
 pause
-goto system_optimize
+exit
 
-:registry_cleaner
-echo Cleaning Registry...
-reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" > nul 2>&1
-if %errorlevel% NEQ 0 (
-    echo You need administrative privileges to clean the registry.
+:initialize
+cls
+echo =============================================
+echo            Initializing Windows 11 Utility Tool
+echo =============================================
+:: Check for administrator privileges
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo This tool requires administrator privileges. Please run as administrator.
     pause
-    goto system_optimize
+    exit
 )
-echo Using PowerShell to clean the registry...
-powershell -Command "Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' | Remove-Item -Recurse"
-pause
-goto system_optimize
+:: Create a log file
+set LOGFILE=%~dp0utility_tool.log
+echo Windows 11 Utility Tool Log > %LOGFILE%
+echo Initialized on %date% at %time% >> %LOGFILE%
+goto :eof
 
-:startup_manager
-echo Managing Startup Programs...
-start msconfig
-pause
-goto system_optimize
-
-:defrag_drives
-echo Defragmenting and Optimizing Drives...
-defrag C: /O
-pause
-goto system_optimize
-
-:temp_files_cleaner
-echo Cleaning Temporary Files...
-del /q/f/s %TEMP%\*
-pause
-goto system_optimize
-
-:internet_optimize
+:main_menu
 cls
-echo ============================================
-echo          Internet Optimize Menu
-echo ============================================
-echo [1] Network Settings Tuning
-echo [2] DNS Optimization
-echo [3] Cache Cleaning
-echo [4] Flush DNS Cache
-echo [5] Internet Speed Test
-echo [0] Back to Main Menu
-echo ============================================
-set /p net_choice=Select an option:
-
-if "%net_choice%"=="1" goto network_settings_tuning
-if "%net_choice%"=="2" goto dns_optimization
-if "%net_choice%"=="3" goto cache_cleaning
-if "%net_choice%"=="4" goto flush_dns
-if "%net_choice%"=="5" goto internet_speed_test
-if "%net_choice%"=="0" goto menu
-
-goto internet_optimize
-
-:network_settings_tuning
-echo Tuning Network Settings...
-netsh int tcp set global autotuninglevel=normal
-pause
-goto internet_optimize
-
-:dns_optimization
-echo Optimizing DNS Settings...
-netsh interface ipv4 set dns name="Wi-Fi" source=dhcp
-pause
-goto internet_optimize
-
-:cache_cleaning
-echo Cleaning Browser Cache...
-for /d %%x in ("%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache\*.*") do rmdir /s /q "%%x"
-pause
-goto internet_optimize
-
-:flush_dns
-echo Flushing DNS Cache...
-ipconfig /flushdns
-pause
-goto internet_optimize
-
-:internet_speed_test
-echo Performing Internet Speed Test...
-start msedge "https://www.speedtest.net"
-pause
-goto internet_optimize
-
-:game_optimize
-cls
-echo ============================================
-echo          Game Optimize Menu
-echo ============================================
-echo [1] Game Mode
-echo [2] GPU Settings Optimization
-echo [3] Latency Reducer
-echo [4] Install Game Boosters
-echo [0] Back to Main Menu
-echo ============================================
-set /p game_choice=Select an option:
-
-if "%game_choice%"=="1" goto game_mode
-if "%game_choice%"=="2" goto gpu_settings_optimization
-if "%game_choice%"=="3" goto latency_reducer
-if "%game_choice%"=="4" goto install_game_boosters
-if "%game_choice%"=="0" goto menu
-
-goto game_optimize
-
-:game_mode
-echo Activating Game Mode...
-reg add "HKEY_CURRENT_USER\Software\Microsoft\GameBar" /v "AutoGameModeEnabled" /t REG_DWORD /d 1 /f
-pause
-goto game_optimize
-
-:gpu_settings_optimization
-echo Optimizing GPU Settings...
-start "nvcplui"
-pause
-goto game_optimize
-
-:latency_reducer
-echo Reducing Latency...
-netsh int tcp set global lowlatency=enabled
-pause
-goto game_optimize
-
-:install_game_boosters
-echo Installing Game Boosters...
-start msedge "https://www.iobit.com/en/gamebooster.php"
-pause
-goto game_optimize
-
-:cpu_optimize
-cls
-echo ============================================
-echo          CPU Optimize Menu
-echo ============================================
-echo [1] Process Priority Manager
-echo [2] Core Parking
-echo [3] Power Plan Optimization
-echo [4] Processor Affinity
-echo [5] Enable Virtualization
-echo [0] Back to Main Menu
-echo ============================================
-set /p cpu_choice=Select an option:
-
-if "%cpu_choice%"=="1" goto process_priority_manager
-if "%cpu_choice%"=="2" goto core_parking
-if "%cpu_choice%"=="3" goto power_plan_optimization
-if "%cpu_choice%"=="4" goto processor_affinity
-if "%cpu_choice%"=="5" goto enable_virtualization
-if "%cpu_choice%"=="0" goto menu
-
-goto cpu_optimize
-
-:process_priority_manager
-echo Managing Process Priority...
-wmic process where name="someprocess.exe" CALL setpriority "high priority"
-pause
-goto cpu_optimize
-
-:core_parking
-echo Optimizing Core Parking...
-powershell -Command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583' -Name 'Attributes' -Value 2"
-pause
-goto cpu_optimize
-
-:power_plan_optimization
-echo Optimizing Power Plan...
-powercfg /change standby-timeout-ac 0
-pause
-goto cpu_optimize
-
-:processor_affinity
-echo Setting Processor Affinity...
-start msconfig
-pause
-goto cpu_optimize
-
-:enable_virtualization
-echo Enabling Virtualization...
-dism /online /enable-feature /featurename:VirtualMachinePlatform
-pause
-goto cpu_optimize
-
-:mode_switcher
-cls
-echo ============================================
-echo          Mode Switcher Menu
-echo ============================================
-echo [1] Dark Mode
-echo [2] Light Mode
-echo [3] High Contrast Mode
-echo [0] Back to Main Menu
-echo ============================================
-set /p mode_choice=Select an option:
-
-if "%mode_choice%"=="1" goto dark_mode
-if "%mode_choice%"=="2" goto light_mode
-if "%mode_choice%"=="3" goto high_contrast_mode
-if "%mode_choice%"=="0" goto menu
-
-goto mode_switcher
-
-:dark_mode
-echo Activating Dark Mode...
-powershell -Command "New-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 0 -PropertyType DWord -Force"
-pause
-goto mode_switcher
-
-:light_mode
-echo Activating Light Mode...
-powershell -Command "New-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 1 -PropertyType DWord -Force"
-pause
-goto mode_switcher
-
-:high_contrast_mode
-echo Activating High Contrast Mode...
-powershell -Command "New-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'HighContrast' -Value 1 -PropertyType DWord -Force"
-pause
-goto mode_switcher
-
-:animation_optimize
-cls
-echo ============================================
-echo          Animation Optimize Menu
-echo ============================================
-echo [1] Animation Tuning
-echo [2] Reduce Motion
-echo [3] Frame Rate Adjustment
-echo [4] Disable Transparency
-echo [0] Back to Main Menu
-echo ============================================
-set /p anim_choice=Select an option:
-
-if "%anim_choice%"=="1" goto animation_tuning
-if "%anim_choice%"=="2" goto reduce_motion
-if "%anim_choice%"=="3" goto frame_rate_adjustment
-if "%anim_choice%"=="4" goto disable_transparency
-if "%anim_choice%"=="0" goto menu
-
-goto animation_optimize
-
-:animation_tuning
-cls
-echo Tuning Animations...
-reg add "HKCU\Control Panel\Desktop" /v "MenuShowDelay" /t REG_SZ /d "0" /f
-reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v "MinAnimate" /t REG_SZ /d "0" /f
-echo Animations have been tuned.
-pause
-goto animation_optimize
-
-:reduce_motion
-cls
-echo Reducing Motion...
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarAnimations" /t REG_DWORD /d 0 /f
-reg add "HKCU\Control Panel\Accessibility" /v "AnimationEffect" /t REG_DWORD /d 0 /f
-echo Motion has been reduced.
-pause
-goto animation_optimize
-
-:frame_rate_adjustment
-cls
-echo Adjusting Frame Rate...
-echo Frame rate adjustment is not implemented yet.
-pause
-goto animation_optimize
-
-:disable_transparency
-cls
-echo Disabling Transparency...
-reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "EnableTransparency" /t REG_DWORD /d 0 /f
-echo Transparency has been disabled.
-pause
-goto animation_optimize
-
-:graphic_optimize
-cls
-echo ============================================
-echo          Graphic Optimize Menu
-echo ============================================
-echo [1] Resolution Optimization
-echo [2] Color Calibration
-echo [3] Driver Update
-echo [4] Monitor Calibration
-echo [0] Back to Main Menu
-echo ============================================
-set /p graph_choice=Select an option:
-
-if "%graph_choice%"=="1" goto resolution_optimization
-if "%graph_choice%"=="2" goto color_calibration
-if "%graph_choice%"=="3" goto driver_update
-if "%graph_choice%"=="4" goto monitor_calibration
-if "%graph_choice%"=="0" goto menu
-
-goto graphic_optimize
-
-:resolution_optimization
-echo Optimizing Screen Resolution...
-start desk.cpl
-pause
-goto graphic_optimize
-
-:color_calibration
-echo Calibrating Display Color...
-start dccw.exe
-pause
-goto graphic_optimize
-
-:driver_update
-echo Updating GPU Driver...
-start /wait nvidia-installer.exe --update
-pause
-goto graphic_optimize
-
-:monitor_calibration
-echo Calibrating Monitor...
-start msedge "https://www.calibrate-monitor.com/"
-pause
-goto graphic_optimize
-
-:power_optimize
-cls
-echo ============================================
-echo          Power Optimize Menu
-echo ============================================
-echo [1] Battery Saver Mode
-echo [2] Power Consumption Monitoring
-echo [3] Sleep and Hibernate Settings
-echo [4] Power Troubleshooter
-echo [5] USB Power Management
-echo [0] Back to Main Menu
-echo ============================================
-set /p power_choice=Select an option:
-
-if "%power_choice%"=="1" goto battery_saver_mode
-if "%power_choice%"=="2" goto power_consumption_monitoring
-if "%power_choice%"=="3" goto sleep_hibernate_settings
-if "%power_choice%"=="4" goto power_troubleshooter
-if "%power_choice%"=="5" goto usb_power_management
-if "%power_choice%"=="0" goto menu
-
-goto power_optimize
-
-:battery_saver_mode
-echo Activating Battery Saver Mode...
-powercfg /setactive SCHEME_MAX
-pause
-goto power_optimize
-
-:power_consumption_monitoring
-echo Monitoring Power Consumption...
-powercfg /energy
-pause
-goto power_optimize
-
-:sleep_hibernate_settings
-echo Adjusting Sleep and Hibernate Settings...
-powercfg /change monitor-timeout-ac 5
-pause
-goto power_optimize
-
-:power_troubleshooter
-echo Running Power Troubleshooter...
-msdt.exe /id PowerDiagnostic
-pause
-goto power_optimize
-
-:usb_power_management
-echo Adjusting USB Power Management...
-powershell -Command "powercfg -devicequery wake_armed"
-echo Enter the name of the device to disable wake-up feature:
-set /p device_name=Device Name:
-powershell -Command "powercfg -devicedisablewake '%device_name%'"
-pause
-goto power_optimize
-
-:windows_update
-cls
-echo ============================================
-echo          Windows Update Menu
-echo ============================================
-echo [1] Enable Windows Update
-echo [2] Disable Windows Update
-echo [3] Check for Updates
-echo [4] View Update History
-echo [0] Back to Main Menu
-echo ============================================
-set /p update_choice=Select an option:
-
-if "%update_choice%"=="1" goto enable_windows_update
-if "%update_choice%"=="2" goto disable_windows_update
-if "%update_choice%"=="3" goto check_for_updates
-if "%update_choice%"=="4" goto view_update_history
-if "%update_choice%"=="0" goto menu
-
-goto windows_update
-
-:enable_windows_update
-echo Enabling Windows Update on Windows 11...
-
-sc config wuauserv start= auto
-sc start wuauserv
-
-sc config WaaSMedicSvc start= manual
-sc start WaaSMedicSvc
-
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 0 /f
-
-sc config UsoSvc start= manual
-sc start UsoSvc
-
-schtasks /Change /TN "\Microsoft\Windows\WindowsUpdate\Scheduled Start" /Enable
-schtasks /Change /TN "\Microsoft\Windows\WindowsUpdate\sih" /Enable
-schtasks /Change /TN "\Microsoft\Windows\WindowsUpdate\sihboot" /Enable
-
-echo Windows Update has been enabled.
-pause
-goto windows_update
-
-:disable_windows_update
-echo Disabling Windows Update on Windows 11...
-
-sc stop wuauserv
-sc config wuauserv start= disabled
-
-sc stop WaaSMedicSvc
-sc config WaaSMedicSvc start= disabled
-
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f
-
-sc stop UsoSvc
-sc config UsoSvc start= disabled
-
-schtasks /Change /TN "\Microsoft\Windows\WindowsUpdate\Scheduled Start" /Disable
-schtasks /Change /TN "\Microsoft\Windows\WindowsUpdate\sih" /Disable
-schtasks /Change /TN "\Microsoft\Windows\WindowsUpdate\sihboot" /Disable
-
-echo Windows Update has been disabled.
-pause
-goto windows_update
-
-:check_for_updates
-echo Checking for Windows Updates...
-powershell -Command "Install-Module PSWindowsUpdate -Force -SkipPublisherCheck; Get-WindowsUpdate; Install-WindowsUpdate -AcceptAll -AutoReboot"
-pause
-goto windows_update
-
-:view_update_history
-echo Viewing Update History...
-powershell -Command "Get-WindowsUpdateLog"
-pause
-goto windows_update
-
-:ram_optimize
-cls
-echo ============================================
-echo          RAM Optimize Menu
-echo ============================================
-echo [1] Memory Cleaner
-echo [2] Memory Usage Monitoring
-echo [3] Memory Compression
-echo [4] Increase Virtual Memory
-echo [0] Back to Main Menu
-echo ============================================
-set /p ram_choice=Select an option:
-
-if "%ram_choice%"=="1" goto memory_cleaner
-if "%ram_choice%"=="2" goto memory_usage_monitoring
-if "%ram_choice%"=="3" goto memory_compression
-if "%ram_choice%"=="4" goto increase_virtual_memory
-if "%ram_choice%"=="0" goto menu
-
-goto ram_optimize
-
-:memory_cleaner
-echo Cleaning RAM...
-powershell -Command "Clear-RecycleBin -Force"
-powershell -Command "& {Start-Process 'cleanmgr.exe' -ArgumentList '/sagerun:1' -NoNewWindow -Wait}"
-mdsched.exe
-echo RAM Cleaned.
-pause
-goto ram_optimize
-
-:memory_usage_monitoring
-echo Monitoring RAM Usage...
-tasklist /v
-pause
-goto ram_optimize
-
-:memory_compression
-echo Enabling Memory Compression...
-powershell -Command "Enable-MMAgent -mc"
-echo Memory Compression Enabled.
-pause
-goto ram_optimize
-
-:increase_virtual_memory
-echo Increasing Virtual Memory...
-echo Enter the initial size (MB):
-set /p initial_size=Initial Size:
-echo Enter the maximum size (MB):
-set /p max_size=Maximum Size:
-powershell -Command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name 'PagingFiles' -Value 'C:\pagefile.sys %initial_size% %max_size%'"
-echo Virtual Memory Increased.
-pause
-goto ram_optimize
-
-:firewall_defender
-cls
-echo ============================================
-echo          Firewall and Windows Defender Menu
-echo ============================================
-echo [1] Enable Windows Defender
-echo [2] Disable Windows Defender
-echo [3] Enable Firewall
-echo [4] Disable Firewall
-echo [5] Virus Scan
-echo [6] Firewall Rules Management
-echo [0] Back to Main Menu
-echo ============================================
-set /p fw_choice=Select an option:
-
-if "%fw_choice%"=="1" goto enable_windows_defender
-if "%fw_choice%"=="2" goto disable_windows_defender
-if "%fw_choice%"=="3" goto enable_firewall
-if "%fw_choice%"=="4" goto disable_firewall
-if "%fw_choice%"=="5" goto virus_scan
-if "%fw_choice%"=="6" goto firewall_rules
-if "%fw_choice%"=="0" goto menu
-
-goto firewall_defender
-
-:enable_windows_defender
-echo Enabling Windows Defender on Windows 11...
-
-sc config WinDefend start= auto
-sc start WinDefend
-
-powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false"
-
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" /Enable
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" /Enable
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup" /Enable
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Verification" /Enable
-
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /f
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiVirus /f
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /f
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /f
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /f
-
-echo Windows Defender has been enabled.
-pause
-goto firewall_defender
-
-:disable_windows_defender
-echo Disabling Windows Defender on Windows 11...
-
-sc stop WinDefend
-sc config WinDefend start= disabled
-
-powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true"
-
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" /Disable
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" /Disable
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup" /Disable
-schtasks /Change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Verification" /Disable
-
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
-
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f
-
-echo Windows Defender has been disabled.
-pause
-goto firewall_defender
-
-:enable_firewall
-echo Enabling Firewall...
-netsh advfirewall set allprofiles state on
-pause
-goto firewall_defender
-
-:disable_firewall
-echo Disabling Firewall...
-netsh advfirewall set allprofiles state off
-pause
-goto firewall_defender
-
-:virus_scan
-echo Enter the drive letter to scan (e.g., C) or type "All" to scan all drives:
-set /p drive=Drive:
-if /I "%drive%"=="All" (
-    echo Scanning all drives...
-    powershell -Command "Start-MpScan -ScanType FullScan"
-) else (
-    echo Scanning drive %drive%...
-    powershell -Command "Start-MpScan -ScanPath %drive%:\ -ScanType CustomScan"
-)
-pause
-goto firewall_defender
-
-:firewall_rules
-echo Managing Firewall Rules...
-start wf.msc
-pause
-goto firewall_defender
-
-:system_repair
-cls
-echo ============================================
-echo          System Repair and Fixes Menu
-echo ============================================
-echo [1] Check and Fix System Files
-echo [2] Check Disk for Errors
-echo [3] Remove User Password
-echo [4] Set User Password
-echo [5] System Restore
-echo [6] Driver Verification
-echo [0] Back to Main Menu
-echo ============================================
-set /p repair_choice=Select an option:
-
-if "%repair_choice%"=="1" goto sfc_scan
-if "%repair_choice%"=="2" goto chkdsk_scan
-if "%repair_choice%"=="3" goto remove_password
-if "%repair_choice%"=="4" goto set_password
-if "%repair_choice%"=="5" goto system_restore
-if "%repair_choice%"=="6" goto driver_verification
-if "%repair_choice%"=="0" goto menu
-
-goto system_repair
-
-:sfc_scan
-echo Checking and Fixing System Files...
-sfc /scannow
-pause
-goto system_repair
-
-:chkdsk_scan
-echo Enter the drive letter to check (e.g., C):
-set /p drive=Drive:
-echo Checking drive %drive% for errors...
-chkdsk %drive%: /f /r
-pause
-goto system_repair
-
-:remove_password
-echo Enter the username to remove the password:
-set /p username=Username:
-net user %username% ""
-echo Password removed for user %username%.
-pause
-goto system_repair
-
-:set_password
-echo Enter the username to set the password:
-set /p username=Username:
-echo Enter the new password:
-set /p password=Password:
-net user %username% %password%
-echo Password set for user %username%.
-pause
-goto system_repair
-
-:system_restore
-echo Restoring System...
-rstrui.exe
-pause
-goto system_repair
-
-:driver_verification
-echo Verifying Drivers...
-verifier
-pause
-goto system_repair
-
-:backup_restore
-cls
-echo ============================================
-echo          Backup and Restore Menu
-echo ============================================
-echo [1] Backup Files
-echo [2] Restore Files
-echo [3] Create System Image
-echo [4] Restore System Image
-echo [0] Back to Main Menu
-echo ============================================
-set /p backup_choice=Select an option:
-
-if "%backup_choice%"=="1" goto backup_files
-if "%backup_choice%"=="2" goto restore_files
-if "%backup_choice%"=="3" goto create_system_image
-if "%backup_choice%"=="4" goto restore_system_image
-if "%backup_choice%"=="0" goto menu
-
-goto backup_restore
-
-:backup_files
-echo Backing up Files...
-wbadmin start backup -backupTarget:E: -include:C: -quiet
-pause
-goto backup_restore
-
-:restore_files
-echo Restoring Files...
-wbadmin start recovery -version:03/10/2024-06:00 -itemType:File -items:C:\Users\YourUserName\Documents -recoveryTarget:C:\Users\YourUserName\Documents -quiet
-pause
-goto backup_restore
-
-:create_system_image
-echo Creating System Image...
-wbadmin start backup -backupTarget:E: -include:C: -allCritical -quiet
-pause
-goto backup_restore
-
-:restore_system_image
-echo Restoring System Image...
-wbadmin start recovery -version:03/10/2024-06:00 -recoveryTarget:C: -quiet
-pause
-goto backup_restore
+echo =============================================
+echo            Windows 11 Utility Tool
+echo =============================================
+echo 1. Disk Management
+echo 2. RAM Optimization
+echo 3. Internet Optimization
+echo 4. Toggle Dark Mode / Light Mode
+echo 5. System Configuration
+echo 6. CPU Optimization and Power Management
+echo 7. Animation Optimization
+echo 8. Antivirus Management
+echo 9. Windows Update Control
+echo 10. System Status Check
+echo 11. Advanced System Cleaning
+echo 12. Backup and Restore
+echo 13. Driver Management
+echo 14. User Account Management
+echo 15. Scheduled Task Management
+echo 16. Service Management
+echo 17. Network Diagnostics
+echo 18. Security Settings
+echo 19. Software Inventory
+echo 20. Hardware Inventory
+echo 0. Exit
+echo =============================================
+set /p choice="Enter your choice: "
+
+if %choice%==1 call :disk_management
+if %choice%==2 call :ram_optimization
+if %choice%==3 call :internet_optimization
+if %choice%==4 call :toggle_mode
+if %choice%==5 call :system_configuration
+if %choice%==6 call :cpu_optimization
+if %choice%==7 call :animation_optimization
+if %choice%==8 call :antivirus_management
+if %choice%==9 call :windows_update_control
+if %choice%==10 call :system_status_check
+if %choice%==11 call :advanced_system_cleaning
+if %choice%==12 call :backup_and_restore
+if %choice%==13 call :driver_management
+if %choice%==14 call :user_account_management
+if %choice%==15 call :scheduled_task_management
+if %choice%==16 call :service_management
+if %choice%==17 call :network_diagnostics
+if %choice%==18 call :security_settings
+if %choice%==19 call :software_inventory
+if %choice%==20 call :hardware_inventory
+if %choice%==0 goto :end
+
+goto :main_menu
 
 :disk_management
 cls
-echo ============================================
-echo          Disk Management Menu
-echo ============================================
-echo [1] Disk Cleanup
-echo [2] Disk Defragmentation
-echo [3] Create Partition
-echo [4] Delete Partition
-echo [5] Format Partition
-echo [6] Shrink Partition
-echo [7] Extend Partition
-echo [0] Back to Main Menu
-echo ============================================
-set /p disk_choice=Select an option:
+echo =============================================
+echo            Disk Management
+echo =============================================
+echo Running Disk Cleanup...
+echo Disk Management started on %date% at %time% >> %LOGFILE%
 
-if "%disk_choice%"=="1" goto disk_cleanup
-if "%disk_choice%"=="2" goto disk_defragmentation
-if "%disk_choice%"=="3" goto create_partition
-if "%disk_choice%"=="4" goto delete_partition
-if "%disk_choice%"=="5" goto format_partition
-if "%disk_choice%"=="6" goto shrink_partition
-if "%disk_choice%"=="7" goto extend_partition
-if "%disk_choice%"=="0" goto menu
+:: Run Disk Cleanup
+powershell -command "Start-Process cleanmgr -ArgumentList '/sagerun:1' -NoNewWindow -Wait"
 
-goto disk_management
-
-:disk_cleanup
-echo Cleaning Disk...
-cleanmgr /sagerun:1
-pause
-goto disk_management
-
-:disk_defragmentation
+:: Disk Defragmentation
 echo Defragmenting Disk...
-defrag C: /O
-pause
-goto disk_management
+powershell -command "Optimize-Volume -DriveLetter C -Defrag -Verbose"
 
-:create_partition
-echo Creating Partition...
-echo Enter the size of the partition in MB:
-set /p size=Size:
-echo select disk 0 > create_partition_script.txt
-echo create partition primary size=%size% >> create_partition_script.txt
-diskpart /s create_partition_script.txt
-del create_partition_script.txt
-echo Partition created.
-pause
-goto disk_management
+:: Check Disk and repair
+echo Checking Disk...
+powershell -command "Repair-Volume -DriveLetter C -OfflineScanAndFix"
 
-:delete_partition
-echo Deleting Partition...
-echo Enter the partition number to delete:
-set /p part_num=Partition Number:
-echo select disk 0 > delete_partition_script.txt
-echo select partition %part_num% >> delete_partition_script.txt
-echo delete partition >> delete_partition_script.txt
-diskpart /s delete_partition_script.txt
-del delete_partition_script.txt
-echo Partition deleted.
-pause
-goto disk_management
+:: Check Disk Health and Usage
+echo Checking Disk Health and Usage...
+powershell -command "
+$disk = Get-PhysicalDisk | Where-Object OperationalStatus -eq 'OK'
+$disk | Select-Object -Property DeviceId, MediaType, OperationalStatus, HealthStatus, Size, AllocatedSize
+Get-Volume | Select-Object -Property DriveLetter, FileSystemLabel, FileSystemType, SizeRemaining, Size
+Get-Partition | Select-Object -Property DiskNumber, PartitionNumber, DriveLetter, Size, Type"
 
-:format_partition
-echo Formatting Partition...
-echo Enter the partition number to format:
-set /p part_num=Partition Number:
-echo select disk 0 > format_partition_script.txt
-echo select partition %part_num% >> format_partition_script.txt
-echo format fs=ntfs quick >> format_partition_script.txt
-diskpart /s format_partition_script.txt
-del format_partition_script.txt
-echo Partition formatted.
-pause
-goto disk_management
+:: Check Disk Space
+echo Checking Disk Space...
+powershell -command "Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name='Used (GB)';Expression={[math]::round($_.Used/1GB,2)}}, @{Name='Free (GB)';Expression={[math]::round($_.Free/1GB,2)}}"
 
-:shrink_partition
-echo Shrinking Partition...
-echo Enter the partition number to shrink:
-set /p part_num=Partition Number:
-echo Enter the amount to shrink in MB:
-set /p amount=Amount:
-echo select disk 0 > shrink_partition_script.txt
-echo select partition %part_num% >> shrink_partition_script.txt
-echo shrink desired=%amount% >> shrink_partition_script.txt
-diskpart /s shrink_partition_script.txt
-del shrink_partition_script.txt
-echo Partition shrunk.
-pause
-goto disk_management
+:: Log completion status
+if %errorlevel% neq 0 (
+    echo Disk Management encountered an error.
+    echo Disk Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Disk Management completed.
+    echo Disk Management completed on %date% at %time% >> %LOGFILE%
+)
 
-:extend_partition
-echo Extending Partition...
-echo Enter the partition number to extend:
-set /p part_num=Partition Number:
-echo Enter the amount to extend in MB:
-set /p amount=Amount:
-echo select disk 0 > extend_partition_script.txt
-echo select partition %part_num% >> extend_partition_script.txt
-echo extend size=%amount% >> extend_partition_script.txt
-diskpart /s extend_partition_script.txt
-del extend_partition_script.txt
-echo Partition extended.
 pause
-goto disk_management
+goto :main_menu
 
-:exit_script
-endlocal
-exit /b
+
+:ram_optimization
+cls
+echo =============================================
+echo            RAM Optimization
+echo =============================================
+echo Optimizing RAM...
+echo RAM Optimization started on %date% at %time% >> %LOGFILE%
+:: Clear memory cache
+powershell -command "Remove-Item -Path C:\Windows\Temp\* -Recurse -Force"
+:: Increase virtual memory
+powershell -command "
+$sysInfo = Get-WmiObject -Class Win32_ComputerSystem
+$mem = $sysInfo.TotalPhysicalMemory / 1MB
+Set-WmiInstance -Class Win32_PageFileSetting -Arguments @{Name='C:\pagefile.sys'; InitialSize=$mem; MaximumSize=$mem*1.5}"
+if %errorlevel% neq 0 (
+    echo RAM Optimization encountered an error.
+    echo RAM Optimization error on %date% at %time% >> %LOGFILE%
+) else (
+    echo RAM Optimization completed.
+    echo RAM Optimization completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional RAM optimization tasks
+echo Performing additional RAM optimization tasks...
+powershell -command "Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 10 -Property ProcessName, WorkingSet"
+pause
+goto :main_menu
+
+:internet_optimization
+cls
+echo =============================================
+echo            Internet Optimization
+echo =============================================
+echo Optimizing Internet settings...
+echo Internet Optimization started on %date% at %time% >> %LOGFILE%
+
+:: Reset TCP/IP stack
+echo Resetting TCP/IP stack...
+netsh int ip reset
+
+:: Reset Winsock
+echo Resetting Winsock...
+netsh winsock reset
+
+:: Flush DNS
+echo Flushing DNS...
+ipconfig /flushdns
+
+:: Set TCP Window Autotuning
+echo Setting TCP Window Autotuning...
+netsh interface tcp set global autotuninglevel=normal
+
+:: Disable TCP Chimney Offload
+echo Disabling TCP Chimney Offload...
+netsh int tcp set global chimney=disabled
+
+:: Enable DNS Devolution
+echo Enabling DNS Devolution...
+netsh int ipv4 set global devolution=enabled
+
+:: Increase network performance
+echo Increasing network performance...
+netsh interface tcp set global rss=enabled
+netsh interface tcp set global autotuninglevel=highlyrestricted
+
+:: Check Internet speed (optional)
+echo Checking Internet speed...
+powershell -command "Invoke-WebRequest -Uri 'http://www.google.com' -Method Get"
+
+if %errorlevel% neq 0 (
+    echo Internet Optimization encountered an error.
+    echo Internet Optimization error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Internet Optimization completed.
+    echo Internet Optimization completed on %date% at %time% >> %LOGFILE%
+)
+
+:: Additional internet optimization tasks
+echo Performing additional Internet optimization tasks...
+powershell -command "Test-NetConnection"
+
+pause
+goto :main_menu
+
+:toggle_mode
+cls
+echo =============================================
+echo            Toggle Dark Mode / Light Mode
+echo =============================================
+echo Toggling Dark/Light Mode...
+echo Toggle Mode started on %date% at %time% >> %LOGFILE%
+
+:: Check current mode
+for /f "tokens=3" %%A in ('reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme') do set CurrentTheme=%%A
+
+:: Toggle between modes
+if %CurrentTheme%==0x0 (
+    echo Switching to Light Mode...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 1 /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 1 /f
+    echo Switched to Light Mode.
+    echo Switched to Light Mode on %date% at %time% >> %LOGFILE%
+) else (
+    echo Switching to Dark Mode...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+    echo Switched to Dark Mode.
+    echo Switched to Dark Mode on %date% at %time% >> %LOGFILE%
+)
+
+if %errorlevel% neq 0 (
+    echo Toggle Mode encountered an error.
+    echo Toggle Mode error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Toggle Mode completed on %date% at %time% >> %LOGFILE%
+)
+
+pause
+goto :main_menu
+
+
+:system_configuration
+cls
+echo =============================================
+echo            System Configuration
+echo =============================================
+echo Configuring System Settings...
+echo System Configuration started on %date% at %time% >> %LOGFILE%
+
+:: Adjust visual effects for best performance
+echo Adjusting visual effects for best performance...
+powershell -command "
+$performanceOptions = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects'
+Set-ItemProperty -Path $performanceOptions -Name VisualFXSetting -Value 2
+$regPath = 'HKCU:\Control Panel\Desktop'
+Set-ItemProperty -Path $regPath -Name AutoEndTasks -Value 1
+Set-ItemProperty -Path $regPath -Name WaitToKillAppTimeout -Value 2000
+Set-ItemProperty -Path $regPath -Name HungAppTimeout -Value 2000"
+
+:: Configure startup programs
+echo Configuring startup programs...
+powershell -command "
+$startup = Get-CimInstance -ClassName Win32_StartupCommand
+$startup | Select-Object Name, Command, Location"
+
+:: Disable unnecessary startup programs
+echo Disabling unnecessary startup programs...
+powershell -command "
+$startup = Get-CimInstance -Class Win32_StartupCommand
+$unnecessaryPrograms = $startup | Where-Object { $_.Name -like '*OneDrive*' -or $_.Name -like '*Skype*' }
+foreach ($program in $unnecessaryPrograms) {
+    Remove-Item -Path $program.Command -Force
+}"
+
+:: Disable hibernation to save disk space
+echo Disabling hibernation...
+powercfg /hibernate off
+
+:: Optimize paging file
+echo Optimizing paging file...
+powershell -command "
+$sysInfo = Get-WmiObject -Class Win32_ComputerSystem
+$mem = $sysInfo.TotalPhysicalMemory / 1MB
+Set-WmiInstance -Class Win32_PageFileSetting -Arguments @{Name='C:\pagefile.sys'; InitialSize=$mem; MaximumSize=$mem*1.5}"
+
+:: Configure system restore settings
+echo Configuring system restore settings...
+powershell -command "
+$drive = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -gt 10GB }
+Enable-ComputerRestore -Drive $drive.Name
+vssadmin resize shadowstorage /for=$drive.Name /on=$drive.Name /maxsize=15%"
+
+if %errorlevel% neq 0 (
+    echo System Configuration encountered an error.
+    echo System Configuration error on %date% at %time% >> %LOGFILE%
+) else (
+    echo System Configuration completed.
+    echo System Configuration completed on %date% at %time% >> %LOGFILE%
+)
+
+:: Additional system configuration tasks
+echo Performing additional system configuration tasks...
+powershell -command "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 -Property ProcessName, CPU"
+
+:: Ensure the screen stays on
+echo Preventing screen from turning off...
+powercfg -change -monitor-timeout-ac 0
+powercfg -change -monitor-timeout-dc 0
+
+:: Wait for 5 seconds to ensure all commands complete
+timeout /t 5 /nobreak >nul
+
+pause
+goto :main_menu
+
+
+
+:cpu_optimization
+cls
+echo =============================================
+echo            CPU Optimization and Power Management
+echo =============================================
+echo 1. Max Speed and Performance
+echo 2. Power Save Mode
+echo 0. Return to Main Menu
+echo =============================================
+set /p cpu_choice="Enter your choice: "
+
+if %cpu_choice%==1 goto :max_performance
+if %cpu_choice%==2 goto :power_save
+if %cpu_choice%==0 goto :main_menu
+
+goto :cpu_optimization
+
+:max_performance
+cls
+echo =============================================
+echo            Max Speed and Performance
+echo =============================================
+echo Setting Max Speed and Performance...
+echo CPU Optimization for Max Speed started on %date% at %time% >> %LOGFILE%
+
+:: Set power management settings for maximum performance
+echo Setting power management settings for maximum performance...
+powercfg -setactive SCHEME_MIN
+powercfg -setacvalueindex SCHEME_MIN SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg -setdcvalueindex SCHEME_MIN SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg -setacvalueindex SCHEME_MIN SUB_PROCESSOR PROCTHROTTLEMIN 100
+powercfg -setdcvalueindex SCHEME_MIN SUB_PROCESSOR PROCTHROTTLEMIN 100
+powercfg -setacvalueindex SCHEME_MIN SUB_PROCESSOR PERFINCTHRESHOLD 100
+powercfg -setdcvalueindex SCHEME_MIN SUB_PROCESSOR PERFINCTHRESHOLD 100
+
+:: Disable CPU idle states for performance
+echo Disabling CPU idle states...
+bcdedit /set disabledynamictick yes
+bcdedit /set useplatformclock true
+
+:: Configure power options for CPU performance
+echo Configuring power options for CPU performance...
+powercfg /change monitor-timeout-ac 0
+powercfg /change monitor-timeout-dc 0
+powercfg /change disk-timeout-ac 0
+powercfg /change disk-timeout-dc 0
+powercfg /change standby-timeout-ac 0
+powercfg /change standby-timeout-dc 0
+
+:: Adjust CPU frequency
+echo Adjusting CPU frequency...
+powershell -command "
+$processors = Get-WmiObject -Class Win32_Processor
+foreach ($processor in $processors) {
+    $processor.MaxClockSpeed = $processor.CurrentClockSpeed
+    Set-WmiInstance -InputObject $processor
+}"
+
+:: Set refresh rate to maximum supported
+echo Setting refresh rate to maximum supported...
+powershell -command "
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public class DisplayConfig {
+    [DllImport(""User32.dll"")]
+    public static extern int SetDisplayConfig(
+        uint numPathArrayElements,
+        IntPtr pathArray,
+        uint numModeInfoArrayElements,
+        IntPtr modeInfoArray,
+        uint flags
+    );
+}
+'@
+$maxRefreshRate = (Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorListedModes | Select-Object -ExpandProperty RefreshRate).Max()
+$targetRefreshRate = if ($maxRefreshRate -ge 240) { 240 } else { $maxRefreshRate }
+$success = $false
+try {
+    Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorListedModes | Where-Object { $_.RefreshRate -eq $targetRefreshRate } | ForEach-Object { $_.WmiSetDisplayMode() }
+    $success = $true
+} catch {
+    $success = $false
+}
+
+if (-not $success) {
+    $targetRefreshRate = [math]::Floor($maxRefreshRate / 2)
+    Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorListedModes | Where-Object { $_.RefreshRate -eq $targetRefreshRate } | ForEach-Object { $_.WmiSetDisplayMode() }
+}
+"
+
+:: Log completion status
+if %errorlevel% neq 0 (
+    echo CPU Optimization encountered an error.
+    echo CPU Optimization error on %date% at %time% >> %LOGFILE%
+) else (
+    echo CPU and Power Optimization for Max Speed completed.
+    echo CPU Optimization for Max Speed completed on %date% at %time% >> %LOGFILE%
+)
+
+:: Additional CPU optimization tasks
+echo Performing additional CPU optimization tasks...
+powershell -command "Get-WmiObject -Class Win32_Processor | Select-Object Name, LoadPercentage, CurrentClockSpeed"
+
+pause
+goto :main_menu
+
+:power_save
+cls
+echo =============================================
+echo            Power Save Mode
+echo =============================================
+echo Setting Power Save Mode...
+echo CPU Optimization for Power Save started on %date% at %time% >> %LOGFILE%
+
+:: Set power management settings for power saving
+echo Setting power management settings for power saving...
+powercfg -setactive SCHEME_BALANCED
+powercfg -setacvalueindex SCHEME_BALANCED SUB_PROCESSOR PROCTHROTTLEMAX 50
+powercfg -setdcvalueindex SCHEME_BALANCED SUB_PROCESSOR PROCTHROTTLEMAX 50
+powercfg -setacvalueindex SCHEME_BALANCED SUB_PROCESSOR PROCTHROTTLEMIN 5
+powercfg -setdcvalueindex SCHEME_BALANCED SUB_PROCESSOR PROCTHROTTLEMIN 5
+powercfg -setacvalueindex SCHEME_BALANCED SUB_PROCESSOR PERFINCTHRESHOLD 20
+powercfg -setdcvalueindex SCHEME_BALANCED SUB_PROCESSOR PERFINCTHRESHOLD 20
+
+:: Enable CPU idle states for power saving
+echo Enabling CPU idle states...
+bcdedit /set disabledynamictick no
+bcdedit /set useplatformclock false
+
+:: Configure power options for CPU power saving
+echo Configuring power options for CPU power saving...
+powercfg /change monitor-timeout-ac 10
+powercfg /change monitor-timeout-dc 5
+powercfg /change disk-timeout-ac 20
+powercfg /change disk-timeout-dc 10
+powercfg /change standby-timeout-ac 30
+powercfg /change standby-timeout-dc 15
+
+:: Set refresh rate to half of maximum supported
+echo Setting refresh rate to half of maximum supported...
+powershell -command "
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public class DisplayConfig {
+    [DllImport(""User32.dll"")]
+    public static extern int SetDisplayConfig(
+        uint numPathArrayElements,
+        IntPtr pathArray,
+        uint numModeInfoArrayElements,
+        IntPtr modeInfoArray,
+        uint flags
+    );
+}
+'@
+$maxRefreshRate = (Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorListedModes | Select-Object -ExpandProperty RefreshRate).Max()
+$targetRefreshRate = [math]::Floor($maxRefreshRate / 2)
+Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorListedModes | Where-Object { $_.RefreshRate -eq $targetRefreshRate } | ForEach-Object { $_.WmiSetDisplayMode() }
+"
+
+:: Log completion status
+if %errorlevel% neq 0 (
+    echo CPU Optimization encountered an error.
+    echo CPU Optimization error on %date% at %time% >> %LOGFILE%
+) else (
+    echo CPU and Power Optimization for Power Save completed.
+    echo CPU Optimization for Power Save completed on %date% at %time% >> %LOGFILE%
+)
+
+:: Additional CPU power save tasks
+echo Performing additional CPU power save tasks...
+powershell -command "Get-WmiObject -Class Win32_Processor | Select-Object Name, LoadPercentage, CurrentClockSpeed"
+
+pause
+goto :main_menu
+
+
+
+
+:animation_optimization
+cls
+echo =============================================
+echo            Animation Optimization
+echo =============================================
+echo Optimizing Animations...
+echo Animation Optimization started on %date% at %time% >> %LOGFILE%
+powershell -command "
+Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name 'MinAnimate' -Value 0
+Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name 'MenuShowDelay' -Value 20"
+if %errorlevel% neq 0 (
+    echo Animation Optimization encountered an error.
+    echo Animation Optimization error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Animation Optimization completed.
+    echo Animation Optimization completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional animation optimization tasks
+echo Performing additional animation optimization tasks...
+powershell -command "Get-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name 'MinAnimate', 'MenuShowDelay'"
+pause
+goto :main_menu
+
+:antivirus_management
+cls
+echo =============================================
+echo            Antivirus Management
+echo =============================================
+echo Managing Antivirus...
+echo Antivirus Management started on %date% at %time% >> %LOGFILE%
+set /p av_choice="Enter 'enable' to enable or 'disable' to disable Windows Defender: "
+
+if %av_choice%==enable (
+    echo Enabling Windows Defender...
+    powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
+    powershell -command "Set-MpPreference -DisableBehaviorMonitoring $false"
+    powershell -command "Set-MpPreference -DisableBlockAtFirstSeen $false"
+    powershell -command "Set-MpPreference -DisableIOAVProtection $false"
+    powershell -command "Set-MpPreference -DisablePrivacyMode $false"
+    powershell -command "Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $false"
+    powershell -command "Set-MpPreference -DisableArchiveScanning $false"
+    powershell -command "Set-MpPreference -DisableIntrusionPreventionSystem $false"
+    powershell -command "Set-MpPreference -DisableScriptScanning $false"
+    powershell -command "Set-MpPreference -SubmitSamplesConsent 1"
+    powershell -command "Set-MpPreference -MAPSReporting 2"
+    powershell -command "Set-MpPreference -HighThreatDefaultAction 0 -ModerateThreatDefaultAction 0 -LowThreatDefaultAction 0 -SevereThreatDefaultAction 0"
+    powershell -command "Set-Service -Name windefend -StartupType Automatic"
+    powershell -command "Start-Service -Name windefend"
+    if %errorlevel% neq 0 (
+        echo Antivirus Management encountered an error.
+        echo Antivirus Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Windows Defender enabled.
+        echo Windows Defender enabled on %date% at %time% >> %LOGFILE%
+    )
+) else if %av_choice%==disable (
+    echo Disabling Windows Defender...
+    powershell -command "Set-MpPreference -DisableRealtimeMonitoring $true"
+    powershell -command "Set-MpPreference -DisableBehaviorMonitoring $true"
+    powershell -command "Set-MpPreference -DisableBlockAtFirstSeen $true"
+    powershell -command "Set-MpPreference -DisableIOAVProtection $true"
+    powershell -command "Set-MpPreference -DisablePrivacyMode $true"
+    powershell -command "Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $true"
+    powershell -command "Set-MpPreference -DisableArchiveScanning $true"
+    powershell -command "Set-MpPreference -DisableIntrusionPreventionSystem $true"
+    powershell -command "Set-MpPreference -DisableScriptScanning $true"
+    powershell -command "Set-MpPreference -SubmitSamplesConsent 2"
+    powershell -command "Set-MpPreference -MAPSReporting 0"
+    powershell -command "Set-MpPreference -HighThreatDefaultAction 6 -ModerateThreatDefaultAction 6 -LowThreatDefaultAction 6 -SevereThreatDefaultAction 6"
+    powershell -command "Set-Service -Name windefend -StartupType Disabled"
+    powershell -command "Stop-Service -Name windefend"
+    if %errorlevel% neq 0 (
+        echo Antivirus Management encountered an error.
+        echo Antivirus Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Windows Defender disabled.
+        echo Windows Defender disabled on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo Invalid choice.
+    echo Invalid choice on %date% at %time% >> %LOGFILE%
+)
+:: Update antivirus definitions
+powershell -command "Update-MpSignature"
+if %errorlevel% neq 0 (
+    echo Antivirus Update encountered an error.
+    echo Antivirus Update error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Antivirus Update completed.
+    echo Antivirus Update completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional antivirus management tasks
+echo Performing additional antivirus management tasks...
+powershell -command "Get-MpComputerStatus"
+pause
+goto :main_menu
+
+
+:windows_update_control
+cls
+echo =============================================
+echo            Windows Update Control
+echo =============================================
+echo Managing Windows Update...
+echo Windows Update Control started on %date% at %time% >> %LOGFILE%
+set /p wu_choice="Enter 'enable' to enable or 'disable' to disable Windows Update: "
+
+if %wu_choice%==enable (
+    echo Enabling Windows Update...
+    powershell -command "Start-Service wuauserv"
+    powershell -command "Set-Service -Name wuauserv -StartupType Automatic"
+    powershell -command "Start-Service bits"
+    powershell -command "Set-Service -Name bits -StartupType Automatic"
+    powershell -command "Start-Service cryptsvc"
+    powershell -command "Set-Service -Name cryptsvc -StartupType Automatic"
+    if %errorlevel% neq 0 (
+        echo Windows Update Control encountered an error.
+        echo Windows Update Control error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Windows Update services enabled.
+        echo Windows Update services enabled on %date% at %time% >> %LOGFILE%
+    )
+) else if %wu_choice%==disable (
+    echo Disabling Windows Update...
+    powershell -command "Stop-Service wuauserv"
+    powershell -command "Set-Service -Name wuauserv -StartupType Disabled"
+    powershell -command "Stop-Service bits"
+    powershell -command "Set-Service -Name bits -StartupType Disabled"
+    powershell -command "Stop-Service cryptsvc"
+    powershell -command "Set-Service -Name cryptsvc -StartupType Disabled"
+    if %errorlevel% neq 0 (
+        echo Windows Update Control encountered an error.
+        echo Windows Update Control error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Windows Update services disabled.
+        echo Windows Update services disabled on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo Invalid choice.
+    echo Invalid choice on %date% at %time% >> %LOGFILE%
+)
+:: Check Windows Update status
+echo Checking Windows Update status...
+powershell -command "Get-Service -Name wuauserv, bits, cryptsvc | Select-Object Name, Status, StartType"
+if %errorlevel% neq 0 (
+    echo Failed to check Windows Update status.
+    echo Failed to check Windows Update status on %date% at %time% >> %LOGFILE%
+) else (
+    echo Windows Update status checked.
+    echo Windows Update status checked on %date% at %time% >> %LOGFILE%
+)
+:: Install available updates
+set /p install_updates="Would you like to install available updates now? (y/n): "
+if /I "%install_updates%"=="y" (
+    echo Installing updates...
+    powershell -command "Install-WindowsUpdate -AcceptAll -AutoReboot"
+    if %errorlevel% neq 0 (
+        echo Update installation encountered an error.
+        echo Update installation error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Updates installed successfully.
+        echo Updates installed on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo Update installation skipped.
+    echo Update installation skipped on %date% at %time% >> %LOGFILE%
+)
+:: Additional Windows update control tasks
+echo Performing additional Windows update control tasks...
+powershell -command "Get-WindowsUpdateLog"
+pause
+goto :main_menu
+
+
+:system_status_check
+cls
+echo =============================================
+echo            System Status Check
+echo =============================================
+echo Checking System Status...
+echo System Status Check started on %date% at %time% >> %LOGFILE%
+:: Check disk space
+echo Disk Space:
+powershell -command "Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name='Used (GB)';Expression={[math]::round($_.Used/1GB,2)}}, @{Name='Free (GB)';Expression={[math]::round($_.Free/1GB,2)}}"
+:: Check RAM usage
+echo RAM Usage:
+powershell -command "Get-Process | Measure-Object -Property WorkingSet -Sum | Select-Object @{Name='Total RAM Used (MB)';Expression={[math]::round($_.Sum/1MB,2)}}"
+:: Check CPU usage
+echo CPU Usage:
+powershell -command "Get-Counter '\Processor(_Total)\% Processor Time' | Select-Object -ExpandProperty CounterSamples | Select-Object -ExpandProperty CookedValue"
+:: Check antivirus status
+echo Antivirus Status:
+powershell -command "Get-MpComputerStatus | Select-Object AMServiceEnabled, AntispywareEnabled, AntivirusEnabled"
+if %errorlevel% neq 0 (
+    echo System Status Check encountered an error.
+    echo System Status Check error on %date% at %time% >> %LOGFILE%
+) else (
+    echo System Status Check completed.
+    echo System Status Check completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional system status check tasks
+echo Performing additional system status check tasks...
+powershell -command "Get-EventLog -LogName System -Newest 10"
+pause
+goto :main_menu
+
+:advanced_system_cleaning
+cls
+echo =============================================
+echo            Advanced System Cleaning
+echo =============================================
+echo Running Advanced System Cleaning...
+echo Advanced System Cleaning started on %date% at %time% >> %LOGFILE%
+:: Clean up system files
+powershell -command "Start-Process cleanmgr -ArgumentList '/sagerun:1' -NoNewWindow -Wait"
+:: Clean up temporary files
+powershell -command "Remove-Item -Path $env:TEMP\* -Recurse -Force"
+:: Clean up recycle bin
+powershell -command "Clear-RecycleBin -Force"
+if %errorlevel% neq 0 (
+    echo Advanced System Cleaning encountered an error.
+    echo Advanced System Cleaning error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Advanced System Cleaning completed.
+    echo Advanced System Cleaning completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional advanced system cleaning tasks
+echo Performing additional advanced system cleaning tasks...
+powershell -command "Get-ChildItem -Path 'C:\Windows\Temp' -Recurse"
+pause
+goto :main_menu
+
+:backup_and_restore
+cls
+echo =============================================
+echo            Backup and Restore
+echo =============================================
+echo Running Backup and Restore...
+echo Backup and Restore started on %date% at %time% >> %LOGFILE%
+:: Create a system restore point
+powershell -command "Checkpoint-Computer -Description 'Utility Tool Backup' -RestorePointType 'MODIFY_SETTINGS'"
+:: Create a backup using File History
+powershell -command "Start-Process -FilePath 'control.exe' -ArgumentList 'start filehistory' -NoNewWindow -Wait"
+if %errorlevel% neq 0 (
+    echo Backup and Restore encountered an error.
+    echo Backup and Restore error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Backup and Restore completed.
+    echo Backup and Restore completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional backup and restore tasks
+echo Performing additional backup and restore tasks...
+powershell -command "Get-Command -Module Microsoft.PowerShell.Utility"
+pause
+goto :main_menu
+
+:driver_management
+cls
+echo =============================================
+echo            Driver Management
+echo =============================================
+echo Managing Drivers...
+echo Driver Management started on %date% at %time% >> %LOGFILE%
+
+:: User choice for driver management
+echo 1. Backup Current Drivers
+echo 2. Update Drivers
+echo 3. Install Driver from a Specified Path
+echo 0. Return to Main Menu
+echo =============================================
+set /p driver_choice="Enter your choice: "
+
+if %driver_choice%==1 goto :backup_drivers
+if %driver_choice%==2 goto :update_drivers
+if %driver_choice%==3 goto :install_driver
+if %driver_choice%==0 goto :main_menu
+
+@echo off
+:backup_drivers
+cls
+echo =============================================
+echo            Backup Current Drivers
+echo =============================================
+echo Backing up current drivers...
+set LOGFILE=%~dp0driver_backup.log
+echo Driver Backup started on %date% at %time% >> %LOGFILE%
+
+set backup_dir=%~dp0driver_backup
+mkdir "%backup_dir%" 2>nul
+
+powershell -Command ^
+" $backupDir = '%backup_dir%'; ^
+  $drivers = Get-WmiObject Win32_PnPSignedDriver | Select-Object DeviceName, DriverVersion, InfName, DriverProviderName, DriverDate; ^
+  foreach ($driver in $drivers) { ^
+      $safeDeviceName = $driver.DeviceName -replace '[\\/:*?""<>|]', '_'; ^
+      $dest = Join-Path -Path $backupDir -ChildPath $safeDeviceName; ^
+      if (-not (Test-Path -Path $dest)) { ^
+          New-Item -Path $dest -ItemType Directory | Out-Null; ^
+      } ^
+      $infPath = $driver.InfName; ^
+      $systemDriverPath = Join-Path -Path $env:SystemRoot -ChildPath 'INF'; ^
+      $infFilePath = Join-Path -Path $systemDriverPath -ChildPath $infPath; ^
+      if (Test-Path -Path $infFilePath) { ^
+          Copy-Item -Path $infFilePath -Destination $dest -Force -ErrorAction SilentlyContinue; ^
+      } else { ^
+          Write-Output 'Driver path not found: ' $infFilePath; ^
+      } ^
+  }"
+
+if %errorlevel% neq 0 (
+    echo Driver Backup encountered an error.
+    echo Driver Backup error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Driver Backup completed.
+    echo Driver Backup completed on %date% at %time% >> %LOGFILE%
+)
+
+pause
+goto :driver_management
+
+
+
+
+:: Update drivers
+:update_drivers
+cls
+echo =============================================
+echo            Update Drivers
+echo =============================================
+echo Checking for driver updates...
+echo Driver Update started on %date% at %time% >> %LOGFILE%
+powershell -command "Get-WindowsUpdateLog"
+powershell -command "Install-WindowsUpdate -AcceptAll -AutoReboot"
+if %errorlevel% neq 0 (
+    echo Driver Update encountered an error.
+    echo Driver Update error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Driver Update completed.
+    echo Driver Update completed on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :driver_management
+
+:: Install driver from a specified path
+:install_driver
+cls
+echo =============================================
+echo            Install Driver from Specified Path
+echo =============================================
+set /p driver_path="Enter the full path to the driver: "
+if not exist "%driver_path%" (
+    echo The specified path does not exist.
+    pause
+    goto :driver_management
+)
+echo Installing driver from %driver_path%...
+echo Driver Installation started on %date% at %time% >> %LOGFILE%
+pnputil /add-driver "%driver_path%" /install
+if %errorlevel% neq 0 (
+    echo Driver Installation encountered an error.
+    echo Driver Installation error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Driver Installation completed.
+    echo Driver Installation completed on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :driver_management
+
+
+:user_account_management
+cls
+echo =============================================
+echo            User Account Management
+echo =============================================
+echo Managing User Accounts...
+echo User Account Management started on %date% at %time% >> %LOGFILE%
+
+echo 1. Add a New User
+echo 2. Remove an Existing User
+echo 3. List All Users
+echo 4. Enable a User Account
+echo 5. Disable a User Account
+echo 6. Change User Password
+echo 7. Delete User Password
+echo 8. Create User Password
+echo 9. Change User Role (Admin/User)
+echo 0. Return to Main Menu
+echo =============================================
+net user
+echo =============================================
+set /p user_choice="Enter your choice: "
+
+if %user_choice%==1 goto :add_user
+if %user_choice%==2 goto :remove_user
+if %user_choice%==3 goto :list_users
+if %user_choice%==4 goto :enable_user
+if %user_choice%==5 goto :disable_user
+if %user_choice%==6 goto :change_password
+if %user_choice%==7 goto :delete_password
+if %user_choice%==8 goto :create_password
+if %user_choice%==9 goto :change_role
+if %user_choice%==0 goto :main_menu
+
+goto :user_account_management
+
+:add_user
+cls
+echo =============================================
+echo            Add a New User
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username for the new user: "
+set /p password="Enter the password for the new user: "
+net user %username% %password% /add
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo User %username% added successfully.
+    echo User %username% added on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:remove_user
+cls
+echo =============================================
+echo            Remove an Existing User
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username to remove: "
+net user %username% /delete
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo User %username% removed successfully.
+    echo User %username% removed on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:list_users
+cls
+echo =============================================
+echo            List All Users
+echo =============================================
+net user
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Listed all users successfully.
+    echo Listed all users on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:enable_user
+cls
+echo =============================================
+echo            Enable a User Account
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username to enable: "
+net user %username% /active:yes
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo User %username% enabled successfully.
+    echo User %username% enabled on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:disable_user
+cls
+echo =============================================
+echo            Disable a User Account
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username to disable: "
+net user %username% /active:no
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo User %username% disabled successfully.
+    echo User %username% disabled on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:change_password
+cls
+echo =============================================
+echo            Change User Password
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username to change password for: "
+set /p password="Enter the new password: "
+net user %username% %password%
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Password for user %username% changed successfully.
+    echo Password for user %username% changed on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:delete_password
+cls
+echo =============================================
+echo            Delete User Password
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username to delete password for: "
+net user %username% ""
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Password for user %username% deleted successfully.
+    echo Password for user %username% deleted on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:create_password
+cls
+echo =============================================
+echo            Create User Password
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username to create password for: "
+set /p password="Enter the new password: "
+net user %username% %password%
+if %errorlevel% neq 0 (
+    echo User Account Management encountered an error.
+    echo User Account Management error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Password for user %username% created successfully.
+    echo Password for user %username% created on %date% at %time% >> %LOGFILE%
+)
+pause
+goto :user_account_management
+
+:change_role
+cls
+echo =============================================
+echo            Change User Role (Admin/User)
+echo =============================================
+net user
+echo =============================================
+set /p username="Enter the username to change role for: "
+echo 1. Make User an Administrator
+echo 2. Make User a Standard User
+set /p role_choice="Enter your choice: "
+
+if %role_choice%==1 (
+    net localgroup Administrators %username% /add
+    if %errorlevel% neq 0 (
+        echo User Account Management encountered an error.
+        echo User Account Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo User %username% added to Administrators.
+        echo User %username% added to Administrators on %date% at %time% >> %LOGFILE%
+    )
+) else if %role_choice%==2 (
+    net localgroup Administrators %username% /delete
+    if %errorlevel% neq 0 (
+        echo User Account Management encountered an error.
+        echo User Account Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo User %username% removed from Administrators.
+        echo User %username% removed from Administrators on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo Invalid choice.
+    echo Invalid choice on %date% at %time% >> %LOGFILE%
+)
+
+pause
+goto :user_account_management
+
+
+
+:scheduled_task_management
+cls
+echo =============================================
+echo            Scheduled Task Management
+echo =============================================
+echo Managing Scheduled Tasks...
+echo Scheduled Task Management started on %date% at %time% >> %LOGFILE%
+:: List all scheduled tasks
+powershell -command "Get-ScheduledTask | Select-Object TaskName, State"
+:: Enable or disable a scheduled task
+set /p task_action="Enter 'enable' to enable or 'disable' to disable a scheduled task: "
+set /p task_name="Enter the name of the scheduled task: "
+if %task_action%==enable (
+    powershell -command "Enable-ScheduledTask -TaskName '%task_name%'"
+    if %errorlevel% neq 0 (
+        echo Scheduled Task Management encountered an error.
+        echo Scheduled Task Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Task %task_name% enabled successfully.
+        echo Task %task_name% enabled on %date% at %time% >> %LOGFILE%
+    )
+) else if %task_action%==disable (
+    powershell -command "Disable-ScheduledTask -TaskName '%task_name%'"
+    if %errorlevel% neq 0 (
+        echo Scheduled Task Management encountered an error.
+        echo Scheduled Task Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Task %task_name% disabled successfully.
+        echo Task %task_name% disabled on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo Invalid choice.
+    echo Invalid choice on %date% at %time% >> %LOGFILE%
+)
+:: Additional scheduled task management tasks
+echo Performing additional scheduled task management tasks...
+powershell -command "Get-ScheduledTask -TaskName '%task_name%'"
+pause
+goto :main_menu
+
+:service_management
+cls
+echo =============================================
+echo            Service Management
+echo =============================================
+echo Managing Services...
+echo Service Management started on %date% at %time% >> %LOGFILE%
+:: List all services
+powershell -command "Get-Service | Select-Object Name, Status"
+:: Start or stop a service
+set /p service_action="Enter 'start' to start or 'stop' to stop a service: "
+set /p service_name="Enter the name of the service: "
+if %service_action%==start (
+    powershell -command "Start-Service -Name '%service_name%'"
+    if %errorlevel% neq 0 (
+        echo Service Management encountered an error.
+        echo Service Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Service %service_name% started successfully.
+        echo Service %service_name% started on %date% at %time% >> %LOGFILE%
+    )
+) else if %service_action%==stop (
+    powershell -command "Stop-Service -Name '%service_name%'"
+    if %errorlevel% neq 0 (
+        echo Service Management encountered an error.
+        echo Service Management error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo Service %service_name% stopped successfully.
+        echo Service %service_name% stopped on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo Invalid choice.
+    echo Invalid choice on %date% at %time% >> %LOGFILE%
+)
+:: Additional service management tasks
+echo Performing additional service management tasks...
+powershell -command "Get-Service -Name '%service_name%'"
+pause
+goto :main_menu
+
+:network_diagnostics
+cls
+echo =============================================
+echo            Network Diagnostics
+echo =============================================
+echo Running Network Diagnostics...
+echo Network Diagnostics started on %date% at %time% >> %LOGFILE%
+
+:: Perform basic network diagnostics
+echo Testing network connectivity...
+powershell -command "Test-NetConnection"
+
+if %errorlevel% neq 0 (
+    echo Network Diagnostics encountered an error.
+    echo Network Diagnostics error on %date% at %time% >> %LOGFILE%
+    goto :fix_network_issues
+) else (
+    echo Network Diagnostics completed.
+    echo Network Diagnostics completed on %date% at %time% >> %LOGFILE%
+)
+
+:fix_network_issues
+echo Attempting to fix network issues...
+echo Fixing Network Issues started on %date% at %time% >> %LOGFILE%
+
+:: Reset TCP/IP stack
+echo Resetting TCP/IP stack...
+netsh int ip reset
+
+:: Reset Winsock
+echo Resetting Winsock...
+netsh winsock reset
+
+:: Flush DNS
+echo Flushing DNS...
+ipconfig /flushdns
+
+:: Restart network adapter
+echo Restarting network adapter...
+powershell -command "
+$adapter = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
+Disable-NetAdapter -Name $adapter.Name -Confirm:$false
+Start-Sleep -Seconds 5
+Enable-NetAdapter -Name $adapter.Name -Confirm:$false"
+
+:: DNS Benchmark
+echo Running DNS Benchmark...
+powershell -Command "
+$dnsServers = @('8.8.8.8', '8.8.4.4', '1.1.1.1', '1.0.0.1', '9.9.9.9', '149.112.112.112')
+$fastestDns = $null
+$shortestTime = [System.Double]::MaxValue
+foreach ($dns in $dnsServers) {
+    $start = Get-Date
+    try {
+        Resolve-DnsName -Server $dns -Name www.google.com -ErrorAction Stop | Out-Null
+        $time = (Get-Date) - $start
+        if ($time.TotalMilliseconds -lt $shortestTime) {
+            $shortestTime = $time.TotalMilliseconds
+            $fastestDns = $dns
+        }
+    } catch {
+        Write-Output "DNS Server $dns failed to respond."
+    }
+}
+if ($fastestDns -ne $null) {
+    Write-Output "Fastest DNS Server: $fastestDns"
+    Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses $fastestDns
+    Write-Output "DNS Server set to $fastestDns"
+} else {
+    Write-Output "No DNS Server responded."
+}"
+
+:: Check Internet connection
+echo Checking Internet connection...
+powershell -command "Test-NetConnection"
+
+if %errorlevel% neq 0 (
+    echo Network issues could not be resolved automatically.
+    echo Network issues not resolved on %date% at %time% >> %LOGFILE%
+) else (
+    echo Network issues resolved.
+    echo Network issues resolved on %date% at %time% >> %LOGFILE%
+)
+
+:: Adjust WiFi signal strength
+echo Adjusting WiFi signal strength...
+powershell -Command "
+$wifiProfiles = netsh wlan show profiles
+$wifiProfileName = $wifiProfiles -match 'All User Profile.*: (.*)' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
+if ($wifiProfileName -ne $null) {
+    netsh wlan set profileparameter name=$wifiProfileName connectionmode=manual
+    netsh wlan set profileparameter name=$wifiProfileName wirelessmode=6
+    netsh wlan set profileparameter name=$wifiProfileName autoroconnect=yes
+    Write-Output 'WiFi signal strength adjusted.'
+} else {
+    Write-Output 'No WiFi profiles found to adjust.'
+}"
+
+pause
+goto :main_menu
+
+
+:security_settings
+cls
+echo =============================================
+echo            Security Settings
+echo =============================================
+echo Managing Security Settings...
+echo Security Settings started on %date% at %time% >> %LOGFILE%
+
+:: Check and set PowerShell execution policy
+echo Checking and setting PowerShell execution policy...
+powershell -command "Get-ExecutionPolicy"
+powershell -command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force"
+if %errorlevel% neq 0 (
+    echo Failed to set PowerShell execution policy.
+    echo Security Settings error on %date% at %time% >> %LOGFILE%
+) else (
+    echo PowerShell execution policy set to RemoteSigned.
+    echo PowerShell execution policy set on %date% at %time% >> %LOGFILE%
+)
+
+:: Enable Windows Firewall
+echo Enabling Windows Firewall...
+powershell -command "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True"
+if %errorlevel% neq 0 (
+    echo Failed to enable Windows Firewall.
+    echo Security Settings error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Windows Firewall enabled.
+    echo Windows Firewall enabled on %date% at %time% >> %LOGFILE%
+)
+
+:: Enable User Account Control (UAC)
+echo Enabling User Account Control (UAC)...
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 1 /f
+if %errorlevel% neq 0 (
+    echo Failed to enable UAC.
+    echo Security Settings error on %date% at %time% >> %LOGFILE%
+) else (
+    echo UAC enabled.
+    echo UAC enabled on %date% at %time% >> %LOGFILE%
+)
+
+:: Enable BitLocker (if available)
+echo Checking for BitLocker support...
+powershell -command "Get-BitLockerVolume -MountPoint C:"
+if %errorlevel%==0 (
+    echo Enabling BitLocker on drive C:...
+    powershell -command "Enable-BitLocker -MountPoint 'C:' -EncryptionMethod XtsAes256 -UsedSpaceOnlyEncryption"
+    if %errorlevel% neq 0 (
+        echo Failed to enable BitLocker.
+        echo Security Settings error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo BitLocker enabled on drive C:.
+        echo BitLocker enabled on drive C: on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo BitLocker not supported or already enabled.
+    echo BitLocker status checked on %date% at %time% >> %LOGFILE%
+)
+
+:: Disable BitLocker (if enabled)
+echo Checking for BitLocker status on drive C:...
+powershell -command "Get-BitLockerVolume -MountPoint C:"
+if %errorlevel%==0 (
+    echo Disabling BitLocker on drive C:...
+    powershell -command "Disable-BitLocker -MountPoint 'C:'"
+    if %errorlevel% neq 0 (
+        echo Failed to disable BitLocker.
+        echo Security Settings error on %date% at %time% >> %LOGFILE%
+    ) else (
+        echo BitLocker disabled on drive C:.
+        echo BitLocker disabled on drive C: on %date% at %time% >> %LOGFILE%
+    )
+) else (
+    echo BitLocker not enabled or already disabled.
+    echo BitLocker status checked on %date% at %time% >> %LOGFILE%
+)
+
+:: Set account lockout policy
+echo Setting account lockout policy...
+net accounts /lockoutthreshold:5 /lockoutduration:30 /lockoutwindow:30
+if %errorlevel% neq 0 (
+    echo Failed to set account lockout policy.
+    echo Security Settings error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Account lockout policy set.
+    echo Account lockout policy set on %date% at %time% >> %LOGFILE%
+)
+
+:: Set password policy
+echo Setting password policy...
+net accounts /minpwlen:8 /maxpwage:30 /minpwage:1 /uniquepw:5
+if %errorlevel% neq 0 (
+    echo Failed to set password policy.
+    echo Security Settings error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Password policy set.
+    echo Password policy set on %date% at %time% >> %LOGFILE%
+)
+
+:: Enable Windows Defender Real-time Protection
+echo Enabling Windows Defender Real-time Protection...
+powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
+if %errorlevel% neq 0 (
+    echo Failed to enable Windows Defender Real-time Protection.
+    echo Security Settings error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Windows Defender Real-time Protection enabled.
+    echo Windows Defender Real-time Protection enabled on %date% at %time% >> %LOGFILE%
+)
+
+:: Configure Windows Defender scheduled scans
+echo Configuring Windows Defender scheduled scans...
+powershell -command "Set-MpPreference -ScanScheduleDay Everyday -ScanScheduleTime 02:00"
+if %errorlevel% neq 0 (
+    echo Failed to configure Windows Defender scheduled scans.
+    echo Security Settings error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Windows Defender scheduled scans configured.
+    echo Windows Defender scheduled scans configured on %date% at %time% >> %LOGFILE%
+)
+
+:: Additional security settings tasks
+echo Performing additional security settings tasks...
+powershell -command "Get-LocalGroup"
+pause
+goto :main_menu
+
+
+:software_inventory
+cls
+echo =============================================
+echo            Software Inventory
+echo =============================================
+echo Running Software Inventory...
+echo Software Inventory started on %date% at %time% >> %LOGFILE%
+:: List installed software
+powershell -command "Get-WmiObject -Class Win32_Product | Select-Object Name, Version"
+if %errorlevel% neq 0 (
+    echo Software Inventory encountered an error.
+    echo Software Inventory error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Software Inventory completed.
+    echo Software Inventory completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional software inventory tasks
+echo Performing additional software inventory tasks...
+powershell -command "Get-Package"
+pause
+goto :main_menu
+
+:hardware_inventory
+cls
+echo =============================================
+echo            Hardware Inventory
+echo =============================================
+echo Running Hardware Inventory...
+echo Hardware Inventory started on %date% at %time% >> %LOGFILE%
+:: List hardware components
+powershell -command "Get-WmiObject -Class Win32_ComputerSystem"
+powershell -command "Get-WmiObject -Class Win32_Processor"
+powershell -command "Get-WmiObject -Class Win32_PhysicalMemory"
+if %errorlevel% neq 0 (
+    echo Hardware Inventory encountered an error.
+    echo Hardware Inventory error on %date% at %time% >> %LOGFILE%
+) else (
+    echo Hardware Inventory completed.
+    echo Hardware Inventory completed on %date% at %time% >> %LOGFILE%
+)
+:: Additional hardware inventory tasks
+echo Performing additional hardware inventory tasks...
+powershell -command "Get-WmiObject -Class Win32_DiskDrive"
+pause
+goto :main_menu
