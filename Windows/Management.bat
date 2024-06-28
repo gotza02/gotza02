@@ -14,9 +14,11 @@ echo 7. Configure Windows Update
 echo 8. Enable Auto-login
 echo 9. Clear Cache
 echo 10. Optimize Disk
-echo 11. Exit
+echo 11. Check and Repair System Files
+echo 12. Activate Windows 10-11
+echo 13. Exit
 echo ==================================================
-set /p choice=Please select an option (1-11): 
+set /p choice=Please select an option (1-12): 
 
 if %choice%==1 goto optimize_display
 if %choice%==2 goto disable_defender
@@ -28,7 +30,24 @@ if %choice%==7 goto windows_update
 if %choice%==8 goto auto_login
 if %choice%==9 goto clear_cache
 if %choice%==10 goto optimize_disk
-if %choice%==11 goto end
+if %choice%==11 goto check_repair
+if %choice%==12 goto windows_activate
+if %choice%==13 goto end
+goto menu
+
+
+:windows_activate
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Requesting administrative privileges...
+    powershell -Command "Start-Process '%~0' -Verb RunAs"
+    exit /B
+)
+
+:: Run your PowerShell command
+powershell -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/gotza02/gotza02/main/Windows/activate' | Invoke-Expression"
+
+pause
 goto menu
 
 :optimize_display
@@ -182,6 +201,19 @@ pause >nul
 goto :menu
 
 :windows_update
+echo ================================
+echo       Windows Update Menu
+echo ================================
+echo 1. Enable Windows Update
+echo 2. Disable Windows Update
+echo ================================
+set /p choice=Please enter your choice (1 or 2): 
+
+if %choice%==1 goto :enable_windows_update
+if %choice%==2 goto :disable_windows_update
+goto :menu
+
+:enable_windows_update
 echo Configuring Windows Update...
 
 REM Set Windows Update to automatically download and install updates
@@ -222,6 +254,44 @@ wuauclt /detectnow
 wuauclt /updatenow
 
 echo Windows Update configuration completed successfully.
+goto :update_end
+
+:disable_windows_update
+echo Disabling Windows Update...
+
+REM Disable Windows Update service
+sc config wuauserv start= disabled
+if %errorlevel% neq 0 echo Failed to disable Windows Update service. & goto :update_error
+
+sc stop wuauserv
+if %errorlevel% neq 0 echo Failed to stop Windows Update service. & goto :update_error
+
+REM Disable Windows Update service dependencies
+sc config bits start= disabled
+if %errorlevel% neq 0 echo Failed to disable Background Intelligent Transfer Service. & goto :update_error
+
+sc stop bits
+if %errorlevel% neq 0 echo Failed to stop Background Intelligent Transfer Service. & goto :update_error
+
+sc config dosvc start= disabled
+if %errorlevel% neq 0 echo Failed to disable Delivery Optimization Service. & goto :update_error
+
+sc stop dosvc
+if %errorlevel% neq 0 echo Failed to stop Delivery Optimization Service. & goto :update_error
+
+REM Disable automatic updates in registry
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f
+if %errorlevel% neq 0 echo Failed to disable automatic updates. & goto :update_error
+
+REM Disable delivery optimization
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f
+if %errorlevel% neq 0 echo Failed to disable delivery optimization. & goto :update_error
+
+REM Prevent Windows from automatically restarting after updates
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoRebootWithLoggedOnUsers /t REG_DWORD /d 1 /f
+if %errorlevel% neq 0 echo Failed to disable auto-restart after updates. & goto :update_error
+
+echo Windows Update has been disabled.
 goto :update_end
 
 :update_error
@@ -335,6 +405,32 @@ pause
 exit /b 1
 
 :disk_end
+echo Press any key to return to menu...
+pause >nul
+goto :menu
+
+:check_repair
+echo Checking and repairing system files...
+
+REM Run System File Checker
+sfc /scannow
+if %errorlevel% neq 0 echo System File Checker encountered errors. & goto :repair_error
+
+REM Run DISM to repair Windows Image
+DISM /Online /Cleanup-Image /CheckHealth
+DISM /Online /Cleanup-Image /ScanHealth
+DISM /Online /Cleanup-Image /RestoreHealth
+if %errorlevel% neq 0 echo DISM encountered errors. & goto :repair_error
+
+echo System file check and repair completed successfully.
+goto :repair_end
+
+:repair_error
+echo An error occurred during system file check and repair.
+pause
+exit /b 1
+
+:repair_end
 echo Press any key to return to menu...
 pause >nul
 goto :menu
