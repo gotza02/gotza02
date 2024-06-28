@@ -18,7 +18,7 @@ echo 11. Check and Repair System Files
 echo 12. Activate Windows 10-11
 echo 13. Exit
 echo ==================================================
-set /p choice=Please select an option (1-12): 
+set /p choice=Please select an option (1-13): 
 
 if %choice%==1 goto optimize_display
 if %choice%==2 goto disable_defender
@@ -32,7 +32,7 @@ if %choice%==9 goto clear_cache
 if %choice%==10 goto optimize_disk
 if %choice%==11 goto check_repair
 if %choice%==12 goto windows_activate
-if %choice%==13 goto end
+if %choice%==13 goto endexit
 goto menu
 
 
@@ -435,7 +435,7 @@ echo Press any key to return to menu...
 pause >nul
 goto :menu
 
-:end
+:endexit
 echo Thank you for using this script!
 pause
 exit
