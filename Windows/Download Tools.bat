@@ -18,6 +18,9 @@ set FILE_7ZIP=7z2407-x64.exe
 REM รหัสผ่าน
 set PASSWORD=kekkaishi
 
+REM โฟลเดอร์ปลายทางที่จะแตกไฟล์ zip บน Desktop ของผู้ใช้ปัจจุบัน
+set DEST_DIR=%USERPROFILE%\Desktop\unzipped_files
+
 REM ตรวจสอบว่ามีการติดตั้ง 7-Zip หรือยัง
 if exist "C:\Program Files\7-Zip\7z.exe" (
     echo 7-Zip is already installed.
@@ -69,9 +72,13 @@ if %ERRORLEVEL% neq 0 (
 
 echo Download complete.
 
-REM แตกไฟล์ zip ไปยังโฟลเดอร์เดียวกันกับไฟล์ .bat
-echo Unzipping file to current directory...
-"C:\Program Files\7-Zip\7z.exe" x %FILE1% -p%PASSWORD%
+REM สร้างโฟลเดอร์ปลายทางบน Desktop ของผู้ใช้ปัจจุบัน
+echo Creating destination directory %DEST_DIR%...
+mkdir %DEST_DIR%
+
+REM แตกไฟล์ zip ไปยังโฟลเดอร์ปลายทางบน Desktop ของผู้ใช้ปัจจุบัน
+echo Unzipping file to %DEST_DIR%...
+"C:\Program Files\7-Zip\7z.exe" x %FILE1% -p%PASSWORD% -o%DEST_DIR%
 
 REM ตรวจสอบว่าการแตกไฟล์สำเร็จหรือไม่
 if %ERRORLEVEL% neq 0 (
