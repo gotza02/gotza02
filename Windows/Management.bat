@@ -37,16 +37,18 @@ goto menu
 
 
 :windows_activate
+:: Check if the script is running with administrator privileges
 net session >nul 2>&1
-if %errorLevel% neq 0 (
-    echo Requesting administrative privileges...
-    powershell -Command "Start-Process '%~0' -Verb RunAs"
-    exit /B
+if %errorLevel% == 0 (
+    :: If running as administrator, execute the PowerShell command
+    powershell -command "irm https://get.activated.win | iex"
+) else (
+    :: If not running as administrator, relaunch the script as administrator
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "cmd.exe", "/c %~s0", "", "runas", 1 >> "%temp%\getadmin.vbs"
+    "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
 )
-
-:: Run your PowerShell command
-powershell -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/gotza02/gotza02/main/Windows/activate' | Invoke-Expression"
-
 pause
 goto menu
 
