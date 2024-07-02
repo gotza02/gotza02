@@ -241,6 +241,101 @@ echo Full scan initiated. This may take a while. You can check the progress in W
 pause
 goto manage_defender
 
+:manage_defender
+cls
+echo ==================================================
+echo Windows Defender Management
+echo ==================================================
+echo 1. Check Windows Defender status
+echo 2. Enable Windows Defender
+echo 3. Disable Windows Defender (Not recommended)
+echo 4. Update Windows Defender
+echo 5. Run quick scan
+echo 6. Run full scan
+echo 7. Manage real-time protection
+echo 8. Manage cloud-delivered protection
+echo 9. Return to main menu
+echo ==================================================
+set /p def_choice=Enter your choice (1-9): 
+
+if "%def_choice%"=="1" goto check_defender
+if "%def_choice%"=="2" goto enable_defender
+if "%def_choice%"=="3" goto disable_defender
+if "%def_choice%"=="4" goto update_defender
+if "%def_choice%"=="5" goto quick_scan
+if "%def_choice%"=="6" goto full_scan
+if "%def_choice%"=="7" goto manage_realtime
+if "%def_choice%"=="8" goto manage_cloud
+if "%def_choice%"=="9" goto menu
+echo Invalid choice. Please try again.
+pause
+goto manage_defender
+
+:check_defender
+echo Checking Windows Defender status...
+powershell -Command "Get-MpComputerStatus | Select-Object AntivirusEnabled, RealTimeProtectionEnabled, IoavProtectionEnabled, AntispywareEnabled | Format-List"
+pause
+goto manage_defender
+
+:enable_defender
+echo Enabling Windows Defender...
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /f
+powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false"
+echo Windows Defender enabled successfully.
+pause
+goto manage_defender
+
+:disable_defender
+echo WARNING: Disabling Windows Defender may leave your system vulnerable.
+set /p confirm=Are you sure you want to disable Windows Defender? (Y/N): 
+if /i "%confirm%"=="Y" (
+    echo Disabling Windows Defender...
+    rem Disable Windows Defender and Real-Time Protection
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 2 /f
+    echo Windows Defender disabled. It is strongly recommended to enable it again or use alternative antivirus software.
+) else (
+    echo Operation cancelled.
+)
+pause
+goto manage_defender
+
+:update_defender
+echo Updating Windows Defender...
+powershell -Command "Update-MpSignature"
+if %errorlevel% neq 0 (
+    echo Failed to update Windows Defender. Please check your internet connection.
+) else (
+    echo Windows Defender updated successfully.
+)
+pause
+goto manage_defender
+
+:quick_scan
+echo Running quick scan...
+powershell -Command "Start-MpScan -ScanType QuickScan"
+echo Quick scan initiated. Please wait for it to complete.
+pause
+goto manage_defender
+
+:full_scan
+echo Running full scan...
+powershell -Command "Start-MpScan -ScanType FullScan"
+echo Full scan initiated. This may take a while. You can check the progress in Windows Security.
+pause
+goto manage_defender
+
 :manage_realtime
 echo Current real-time protection status:
 powershell -Command "Get-MpPreference | Select-Object DisableRealtimeMonitoring | Format-List"
