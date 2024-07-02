@@ -1104,6 +1104,84 @@ sc stop %service_name%
 timeout /t 2 >nul
 sc start %service_name%
 if %errorlevel% neq 0 (
+:manage_services
+cls
+echo ==================================================
+echo Windows Services Management
+echo ==================================================
+echo 1. List all services
+echo 2. List running services
+echo 3. List stopped services
+echo 4. Start a service
+echo 5. Stop a service
+echo 6. Restart a service
+echo 7. Change service startup type
+echo 8. Search for a service
+echo 9. View service details
+echo 10. Return to main menu
+echo ==================================================
+set /p service_choice=Enter your choice (1-10): 
+
+if "%service_choice%"=="1" goto list_all_services
+if "%service_choice%"=="2" goto list_running_services
+if "%service_choice%"=="3" goto list_stopped_services
+if "%service_choice%"=="4" goto start_service
+if "%service_choice%"=="5" goto stop_service
+if "%service_choice%"=="6" goto restart_service
+if "%service_choice%"=="7" goto change_startup_type
+if "%service_choice%"=="8" goto search_service
+if "%service_choice%"=="9" goto view_service_details
+if "%service_choice%"=="10" goto menu
+echo Invalid choice. Please try again.
+pause
+goto manage_services
+
+:list_all_services
+echo Listing all services...
+sc query type= service state= all
+pause
+goto manage_services
+
+:list_running_services
+echo Listing running services...
+sc query type= service state= running
+pause
+goto manage_services
+
+:list_stopped_services
+echo Listing stopped services...
+sc query type= service state= stopped
+pause
+goto manage_services
+
+:start_service
+set /p service_name=Enter the name of the service to start: 
+sc start "%service_name%"
+if %errorlevel% neq 0 (
+    echo Failed to start the service. Please check the service name and your permissions.
+) else (
+    echo Service start attempted. Please check the status.
+)
+pause
+goto manage_services
+
+:stop_service
+set /p service_name=Enter the name of the service to stop: 
+sc stop "%service_name%"
+if %errorlevel% neq 0 (
+    echo Failed to stop the service. Please check the service name and your permissions.
+) else (
+    echo Service stop attempted. Please check the status.
+)
+pause
+goto manage_services
+
+:restart_service
+set /p service_name=Enter the name of the service to restart: 
+sc stop "%service_name%"
+timeout /t 2 >nul
+sc start "%service_name%"
+if %errorlevel% neq 0 (
     echo Failed to restart the service. Please check the service name and your permissions.
 ) else (
     echo Service restart attempted. Please check the status.
@@ -1115,15 +1193,18 @@ goto manage_services
 set /p service_name=Enter the name of the service: 
 echo Select startup type:
 echo 1. Automatic
-echo 2. Manual
-echo 3. Disabled
-set /p startup_choice=Enter your choice (1-3): 
+echo 2. Automatic (Delayed Start)
+echo 3. Manual
+echo 4. Disabled
+set /p startup_choice=Enter your choice (1-4): 
 if "%startup_choice%"=="1" (
-    sc config %service_name% start= auto
+    sc config "%service_name%" start= auto
 ) else if "%startup_choice%"=="2" (
-    sc config %service_name% start= demand
+    sc config "%service_name%" start= delayed-auto
 ) else if "%startup_choice%"=="3" (
-    sc config %service_name% start= disabled
+    sc config "%service_name%" start= demand
+) else if "%startup_choice%"=="4" (
+    sc config "%service_name%" start= disabled
 ) else (
     echo Invalid choice.
     pause
@@ -1145,7 +1226,10 @@ goto manage_services
 
 :view_service_details
 set /p service_name=Enter the name of the service to view details: 
-sc qc %service_name%
+sc qc "%service_name%"
+echo.
+echo Current Status:
+sc query "%service_name%"
 pause
 goto manage_services
 
