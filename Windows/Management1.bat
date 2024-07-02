@@ -81,61 +81,126 @@ pause
 goto menu
 
 :manage_defender
+cls
+echo ==================================================
 echo Windows Defender Management
+echo ==================================================
 echo 1. Disable Windows Defender
 echo 2. Enable Windows Defender
-echo 3. Update Windows Defender
-echo 4. Run quick scan
-set /p def_choice=Enter your choice (1-4): 
+echo 3. Disable Real-Time Protection
+echo 4. Enable Real-Time Protection
+echo 5. Disable Cloud-Delivered Protection
+echo 6. Enable Cloud-Delivered Protection
+echo 7. Disable Automatic Sample Submission
+echo 8. Enable Automatic Sample Submission
+echo 9. Update Windows Defender
+echo 10. Run quick scan
+echo 11. Return to main menu
+echo ==================================================
+set /p def_choice=Enter your choice (1-11): 
+
 if "%def_choice%"=="1" goto disable_defender
 if "%def_choice%"=="2" goto enable_defender
-if "%def_choice%"=="3" goto update_defender
-if "%def_choice%"=="4" goto quick_scan
-goto menu
+if "%def_choice%"=="3" goto disable_realtime
+if "%def_choice%"=="4" goto enable_realtime
+if "%def_choice%"=="5" goto disable_cloud
+if "%def_choice%"=="6" goto enable_cloud
+if "%def_choice%"=="7" goto disable_samples
+if "%def_choice%"=="8" goto enable_samples
+if "%def_choice%"=="9" goto update_defender
+if "%def_choice%"=="10" goto quick_scan
+if "%def_choice%"=="11" goto menu
+echo Invalid choice. Please try again.
+pause
+goto manage_defender
 
 :disable_defender
 echo Disabling Windows Defender...
-powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true" 2>nul
-if %errorlevel% neq 0 (
-    echo Failed to disable Windows Defender. Please check your permissions.
-) else (
-    echo Windows Defender disabled.
-)
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
+net stop WinDefend
+sc config WinDefend start= disabled
+echo Windows Defender disabled. Restart may be required for full effect.
 pause
-goto menu
+goto manage_defender
 
 :enable_defender
 echo Enabling Windows Defender...
-powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false" 2>nul
-if %errorlevel% neq 0 (
-    echo Failed to enable Windows Defender. Please check your permissions.
-) else (
-    echo Windows Defender enabled.
-)
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f
+sc config WinDefend start= auto
+net start WinDefend
+echo Windows Defender enabled.
 pause
-goto menu
+goto manage_defender
+
+:disable_realtime
+echo Disabling Real-Time Protection...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
+powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true"
+echo Real-Time Protection disabled.
+pause
+goto manage_defender
+
+:enable_realtime
+echo Enabling Real-Time Protection...
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f
+powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false"
+echo Real-Time Protection enabled.
+pause
+goto manage_defender
+
+:disable_cloud
+echo Disabling Cloud-Delivered Protection...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 2 /f
+powershell -Command "Set-MpPreference -MAPSReporting 0"
+echo Cloud-Delivered Protection disabled.
+pause
+goto manage_defender
+
+:enable_cloud
+echo Enabling Cloud-Delivered Protection...
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /f
+powershell -Command "Set-MpPreference -MAPSReporting 2"
+echo Cloud-Delivered Protection enabled.
+pause
+goto manage_defender
+
+:disable_samples
+echo Disabling Automatic Sample Submission...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 0 /f
+powershell -Command "Set-MpPreference -SubmitSamplesConsent 0"
+echo Automatic Sample Submission disabled.
+pause
+goto manage_defender
+
+:enable_samples
+echo Enabling Automatic Sample Submission...
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /f
+powershell -Command "Set-MpPreference -SubmitSamplesConsent 1"
+echo Automatic Sample Submission enabled.
+pause
+goto manage_defender
 
 :update_defender
 echo Updating Windows Defender...
-powershell -Command "Update-MpSignature" 2>nul
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
 if %errorlevel% neq 0 (
     echo Failed to update Windows Defender. Please check your internet connection.
 ) else (
-    echo Windows Defender updated.
+    echo Windows Defender updated successfully.
 )
 pause
-goto menu
+goto manage_defender
 
 :quick_scan
 echo Running quick scan...
-powershell -Command "Start-MpScan -ScanType QuickScan" 2>nul
-if %errorlevel% neq 0 (
-    echo Failed to start quick scan. Please check your permissions.
-) else (
-    echo Quick scan initiated. Please wait for it to complete.
-)
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
+echo Quick scan completed.
 pause
-goto menu
+goto manage_defender
 
 :optimize_features
 echo Optimizing system features...
