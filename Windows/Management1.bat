@@ -540,16 +540,123 @@ sc qc %service_name%
 pause
 goto manage_services
 
-network_optimization
-echo Optimizing network settings...
+:network_optimization
+cls
+echo ==================================================
+echo Network Optimization
+echo ==================================================
+echo 1. Optimize TCP settings
+echo 2. Reset Windows Sockets
+echo 3. Clear DNS cache
+echo 4. Optimize network adapter settings
+echo 5. Disable IPv6 (caution)
+echo 6. Enable QoS packet scheduler
+echo 7. Set static DNS servers
+echo 8. Reset all network settings
+echo 9. Return to main menu
+echo ==================================================
+set /p net_choice=Enter your choice (1-9): 
+
+if "%net_choice%"=="1" goto optimize_tcp
+if "%net_choice%"=="2" goto reset_winsock
+if "%net_choice%"=="3" goto clear_dns
+if "%net_choice%"=="4" goto optimize_adapter
+if "%net_choice%"=="5" goto disable_ipv6
+if "%net_choice%"=="6" goto enable_qos
+if "%net_choice%"=="7" goto set_static_dns
+if "%net_choice%"=="8" goto reset_network
+if "%net_choice%"=="9" goto menu
+echo Invalid choice. Please try again.
+pause
+goto network_optimization
+
+:optimize_tcp
+echo Optimizing TCP settings...
+netsh int tcp set global autotuninglevel=normal
 netsh int tcp set global congestionprovider=ctcp
 netsh int tcp set global ecncapability=enabled
+netsh int tcp set heuristics disabled
 netsh int tcp set global rss=enabled
-netsh int tcp set global dca=enabled
-netsh int tcp set global netdma=enabled
-echo Network settings optimized.
+netsh int tcp set global fastopen=enabled
+netsh int tcp set global timestamps=disabled
+netsh int tcp set global initialRto=2000
+netsh int tcp set global nonsackrttresiliency=disabled
+echo TCP settings optimized.
 pause
-goto menu
+goto network_optimization
+
+:reset_winsock
+echo Resetting Windows Sockets...
+netsh winsock reset
+echo Windows Sockets reset. Please restart your computer for changes to take effect.
+pause
+goto network_optimization
+
+:clear_dns
+echo Clearing DNS cache...
+ipconfig /flushdns
+echo DNS cache cleared.
+pause
+goto network_optimization
+
+:optimize_adapter
+echo Optimizing network adapter settings...
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    netsh int ip set interface "%%j" dadtransmits=0 store=persistent
+    netsh int ip set interface "%%j" routerdiscovery=disabled store=persistent
+    netsh int tcp set security mpp=disabled
+    netsh int tcp set security profiles=disabled
+)
+echo Network adapter settings optimized.
+pause
+goto network_optimization
+
+:disable_ipv6
+echo WARNING: Disabling IPv6 may cause issues with some networks.
+set /p confirm=Are you sure you want to disable IPv6? (Y/N): 
+if /i "%confirm%"=="Y" (
+    netsh interface ipv6 set global randomizeidentifiers=disabled
+    netsh interface ipv6 set privacy state=disabled
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d 255 /f
+    echo IPv6 disabled. Please restart your computer for changes to take effect.
+) else (
+    echo Operation cancelled.
+)
+pause
+goto network_optimization
+
+:enable_qos
+echo Enabling QoS packet scheduler...
+netsh int tcp set global packetcoalescinginbound=disabled
+sc config "Qwave" start= auto
+net start Qwave
+echo QoS packet scheduler enabled.
+pause
+goto network_optimization
+
+:set_static_dns
+echo Setting static DNS servers...
+set /p primary_dns=Enter primary DNS server (e.g., 8.8.8.8): 
+set /p secondary_dns=Enter secondary DNS server (e.g., 8.8.4.4): 
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    netsh interface ip set dns "%%j" static %primary_dns% primary
+    netsh interface ip add dns "%%j" %secondary_dns% index=2
+)
+echo Static DNS servers set.
+pause
+goto network_optimization
+
+:reset_network
+echo Resetting all network settings...
+netsh winsock reset
+netsh int ip reset
+netsh advfirewall reset
+ipconfig /release
+ipconfig /renew
+ipconfig /flushdns
+echo All network settings reset. Please restart your computer for changes to take effect.
+pause
+goto network_optimization
 
 :endexit
 echo Thank you for using the Windows Optimization Script!
