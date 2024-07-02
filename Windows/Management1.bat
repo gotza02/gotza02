@@ -254,17 +254,6 @@ pause
 goto manage_defender
 
 :view_history
-echo Viewing threat history...
-powershell -Command "
-$threats = Get-MpThreatDetection
-if ($threats) {
-    $threats | Format-Table ThreatID, Resources, DetectionTime -AutoSize
-} else {
-    Write-Host 'No threats detected in the history.'
-}
-"
-pause
-goto manage_defender
 
 
 :optimize_features
