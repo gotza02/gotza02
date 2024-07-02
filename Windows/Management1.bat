@@ -707,18 +707,20 @@ pause
 goto windows_activate
 
 :kms_activate
-echo Activating Windows using KMS...
-echo Detecting Windows version...
-for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION=%%i.%%j
-if "%version%"=="10.0" set "key=W269N-WFGWX-YVC9B-4J6C9-T83GX"
-if "%version%"=="6.3" set "key=NPPR9-FWDCX-D2C8J-H872K-2YT43"
-if "%version%"=="6.2" set "key=W3GGN-FT8W3-Y4M27-J84CP-Q3VJ9"
-if "%version%"=="6.1" set "key=FJ82H-XT6CR-J8D7P-XQJJ2-GPDD4"
-if "%key%"=="" (
-    echo Unsupported Windows version detected.
-    pause
-    goto windows_activate
+:: Check if the script is running with administrator privileges
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    :: If running as administrator, execute the PowerShell command
+    powershell -command "irm https://get.activated.win | iex"
+) else (
+    :: If not running as administrator, relaunch the script as administrator
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "cmd.exe", "/c %~s0", "", "runas", 1 >> "%temp%\getadmin.vbs"
+    "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
 )
+pause
+goto windows_activate
 
 slmgr /ipk %key%
 if %errorlevel% neq 0 (
