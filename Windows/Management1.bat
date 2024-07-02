@@ -575,49 +575,270 @@ pause
 goto check_repair
 
 :windows_activate
-echo Activating Windows...
-slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
-slmgr /skms kms8.msguides.com
-slmgr /ato
-echo Windows activation attempted.
+cls
+echo ==================================================
+echo Windows Activation
+echo ==================================================
+echo 1. Check activation status
+echo 2. Activate using KMS (for Volume License versions)
+echo 3. Activate using digital license
+echo 4. Input a product key manually
+echo 5. Remove product key
+echo 6. Return to main menu
+echo ==================================================
+set /p activate_choice=Enter your choice (1-6): 
+
+if "%activate_choice%"=="1" goto check_activation
+if "%activate_choice%"=="2" goto kms_activate
+if "%activate_choice%"=="3" goto digital_activate
+if "%activate_choice%"=="4" goto manual_key
+if "%activate_choice%"=="5" goto remove_key
+if "%activate_choice%"=="6" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto windows_activate
+
+:check_activation
+echo Checking Windows activation status...
+slmgr /xpr
+pause
+goto windows_activate
+
+:kms_activate
+echo Activating Windows using KMS...
+echo Detecting Windows version...
+for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION=%%i.%%j
+if "%version%"=="10.0" set "key=W269N-WFGWX-YVC9B-4J6C9-T83GX"
+if "%version%"=="6.3" set "key=NPPR9-FWDCX-D2C8J-H872K-2YT43"
+if "%version%"=="6.2" set "key=W3GGN-FT8W3-Y4M27-J84CP-Q3VJ9"
+if "%version%"=="6.1" set "key=FJ82H-XT6CR-J8D7P-XQJJ2-GPDD4"
+if "%key%"=="" (
+    echo Unsupported Windows version detected.
+    pause
+    goto windows_activate
+)
+
+slmgr /ipk %key%
+if %errorlevel% neq 0 (
+    echo Failed to install product key.
+    pause
+    goto windows_activate
+)
+
+set kms_servers[0]=kms8.msguides.com
+set kms_servers[1]=kms.digiboy.ir
+set kms_servers[2]=kms.cangshui.net
+
+for /L %%i in (0,1,2) do (
+    echo Attempting to set KMS server: !kms_servers[%%i]!
+    slmgr /skms !kms_servers[%%i]!
+    if %errorlevel% equ 0 (
+        echo KMS server set successfully.
+        goto activate_kms
+    ) else (
+        echo Failed to set KMS server: !kms_servers[%%i]!
+    )
+)
+
+echo All KMS servers failed. Please check your internet connection or try again later.
+pause
+goto windows_activate
+
+:activate_kms
+slmgr /ato
+if %errorlevel% neq 0 (
+    echo Activation failed. Please try another method or check your Windows version.
+) else (
+    echo Windows activation attempted. Please check the activation status.
+)
+pause
+goto windows_activate
+
+:digital_activate
+echo Attempting to activate Windows using digital license...
+slmgr /ato
+if %errorlevel% neq 0 (
+    echo Digital license activation failed. Your PC may not have a digital license.
+) else (
+    echo Digital license activation attempted. Please check the activation status.
+)
+pause
+goto windows_activate
+
+:manual_key
+set /p product_key=Enter your 25-character product key (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX): 
+echo Installing product key...
+slmgr /ipk %product_key%
+if %errorlevel% neq 0 (
+    echo Failed to install product key. The key may be invalid or not applicable to your Windows version.
+) else (
+    echo Product key installed. Attempting activation...
+    slmgr /ato
+    if %errorlevel% neq 0 (
+        echo Activation failed. Please check your product key and try again.
+    ) else (
+        echo Windows activation attempted. Please check the activation status.
+    )
+)
+pause
+goto windows_activate
+
+:remove_key
+echo Removing current product key...
+slmgr /upk
+if %errorlevel% neq 0 (
+    echo Failed to remove product key. You may not have permission or there's no key to remove.
+) else (
+    echo Product key removed successfully.
+)
+pause
+goto windows_activate
 
 :manage_power
+cls
+echo ==================================================
 echo Power Settings Management
-echo 1. Disable Sleep and Hibernate
-echo 2. Enable Sleep and Hibernate
-echo 3. Set power plan to High Performance
-set /p power_choice=Enter your choice (1-3): 
-if "%power_choice%"=="1" goto disable_sleep
-if "%power_choice%"=="2" goto enable_sleep
-if "%power_choice%"=="3" goto high_performance
-goto menu
+echo ==================================================
+echo 1. List all power plans
+echo 2. Set power plan
+echo 3. Create custom power plan
+echo 4. Delete power plan
+echo 5. Adjust sleep settings
+echo 6. Configure hibernation
+echo 7. Adjust display and sleep timeouts
+echo 8. Configure lid close action
+echo 9. Configure power button action
+echo 10. Return to main menu
+echo ==================================================
+set /p power_choice=Enter your choice (1-10): 
 
-:disable_sleep
-echo Disabling Sleep and Hibernate...
-powercfg -h off
-powercfg -change -monitor-timeout-ac 0
-powercfg -change -standby-timeout-ac 0
-echo Sleep and Hibernate disabled.
+if "%power_choice%"=="1" goto list_power_plans
+if "%power_choice%"=="2" goto set_power_plan
+if "%power_choice%"=="3" goto create_power_plan
+if "%power_choice%"=="4" goto delete_power_plan
+if "%power_choice%"=="5" goto adjust_sleep
+if "%power_choice%"=="6" goto configure_hibernate
+if "%power_choice%"=="7" goto adjust_timeouts
+if "%power_choice%"=="8" goto lid_action
+if "%power_choice%"=="9" goto power_button_action
+if "%power_choice%"=="10" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto manage_power
 
-:enable_sleep
-echo Enabling Sleep and Hibernate...
-powercfg -h on
-powercfg -change -monitor-timeout-ac 10
-powercfg -change -standby-timeout-ac 30
-echo Sleep and Hibernate enabled.
+:list_power_plans
+echo Listing all power plans...
+powercfg /list
 pause
-goto menu
+goto manage_power
 
-:high_performance
-echo Setting power plan to High Performance...
-powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-echo Power plan set to High Performance.
+:set_power_plan
+echo Available power plans:
+powercfg /list
+set /p plan_guid=Enter the GUID of the power plan you want to set: 
+powercfg /setactive %plan_guid%
+if %errorlevel% neq 0 (
+    echo Failed to set power plan. Please check the GUID and try again.
+) else (
+    echo Power plan set successfully.
+)
 pause
-goto menu
+goto manage_power
+
+:create_power_plan
+set /p plan_name=Enter a name for the new power plan: 
+powercfg /duplicatescheme scheme_balanced %plan_name%
+if %errorlevel% neq 0 (
+    echo Failed to create power plan.
+) else (
+    echo Power plan created successfully.
+)
+pause
+goto manage_power
+
+:delete_power_plan
+echo Available power plans:
+powercfg /list
+set /p del_guid=Enter the GUID of the power plan you want to delete: 
+powercfg /delete %del_guid%
+if %errorlevel% neq 0 (
+    echo Failed to delete power plan. Please check the GUID and try again.
+) else (
+    echo Power plan deleted successfully.
+)
+pause
+goto manage_power
+
+:adjust_sleep
+set /p sleep_time=Enter the number of minutes before the system goes to sleep (0 to never sleep): 
+powercfg /change standby-timeout-ac %sleep_time%
+powercfg /change standby-timeout-dc %sleep_time%
+echo Sleep settings adjusted.
+pause
+goto manage_power
+
+:configure_hibernate
+echo 1. Enable hibernation
+echo 2. Disable hibernation
+set /p hib_choice=Enter your choice (1-2): 
+if "%hib_choice%"=="1" (
+    powercfg /hibernate on
+    echo Hibernation enabled.
+) else if "%hib_choice%"=="2" (
+    powercfg /hibernate off
+    echo Hibernation disabled.
+) else (
+    echo Invalid choice.
+)
+pause
+goto manage_power
+
+:adjust_timeouts
+set /p display_ac=Enter minutes before turning off the display (AC power): 
+set /p display_dc=Enter minutes before turning off the display (battery): 
+set /p sleep_ac=Enter minutes before sleep (AC power): 
+set /p sleep_dc=Enter minutes before sleep (battery): 
+powercfg /change monitor-timeout-ac %display_ac%
+powercfg /change monitor-timeout-dc %display_dc%
+powercfg /change standby-timeout-ac %sleep_ac%
+powercfg /change standby-timeout-dc %sleep_dc%
+echo Display and sleep timeouts adjusted.
+pause
+goto manage_power
+
+:lid_action
+echo 1. Do nothing
+echo 2. Sleep
+echo 3. Hibernate
+echo 4. Shut down
+set /p lid_choice=Enter your choice for lid close action (1-4): 
+if "%lid_choice%"=="1" set action=0
+if "%lid_choice%"=="2" set action=1
+if "%lid_choice%"=="3" set action=2
+if "%lid_choice%"=="4" set action=3
+powercfg /setacvalueindex scheme_current sub_buttons lidaction %action%
+powercfg /setdcvalueindex scheme_current sub_buttons lidaction %action%
+powercfg /setactive scheme_current
+echo Lid close action configured.
+pause
+goto manage_power
+
+:power_button_action
+echo 1. Do nothing
+echo 2. Sleep
+echo 3. Hibernate
+echo 4. Shut down
+set /p button_choice=Enter your choice for power button action (1-4): 
+if "%button_choice%"=="1" set action=0
+if "%button_choice%"=="2" set action=1
+if "%button_choice%"=="3" set action=2
+if "%button_choice%"=="4" set action=3
+powercfg /setacvalueindex scheme_current sub_buttons pbuttonaction %action%
+powercfg /setdcvalueindex scheme_current sub_buttons pbuttonaction %action%
+powercfg /setactive scheme_current
+echo Power button action configured.
+pause
+goto manage_power
 
 :enable_dark_mode
 echo Enabling Dark Mode...
