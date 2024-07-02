@@ -251,7 +251,31 @@ pause
 goto optimize_cpu
 
 :optimize_internet
-echo Optimizing Internet performance...
+cls
+echo ==================================================
+echo Internet Performance Optimization
+echo ==================================================
+echo 1. Basic optimizations
+echo 2. Advanced TCP optimizations
+echo 3. DNS optimization
+echo 4. Network adapter tuning
+echo 5. Clear network cache
+echo 6. Return to main menu
+echo ==================================================
+set /p net_choice=Enter your choice (1-6): 
+
+if "%net_choice%"=="1" goto basic_optimizations
+if "%net_choice%"=="2" goto advanced_tcp
+if "%net_choice%"=="3" goto dns_optimization
+if "%net_choice%"=="4" goto adapter_tuning
+if "%net_choice%"=="5" goto clear_network_cache
+if "%net_choice%"=="6" goto menu
+echo Invalid choice. Please try again.
+pause
+goto optimize_internet
+
+:basic_optimizations
+echo Performing basic Internet optimizations...
 netsh int tcp set global autotuninglevel=normal
 netsh int tcp set global chimney=enabled
 netsh int tcp set global dca=enabled
@@ -259,10 +283,59 @@ netsh int tcp set global netdma=enabled
 netsh int tcp set global ecncapability=enabled
 netsh int tcp set global timestamps=disabled
 netsh int tcp set global rss=enabled
-ipconfig /flushdns
-echo Internet performance optimized.
+echo Basic optimizations completed.
 pause
-goto menu
+goto optimize_internet
+
+:advanced_tcp
+echo Performing advanced TCP optimizations...
+netsh int tcp set global congestionprovider=ctcp
+netsh int tcp set global ecncapability=enabled
+netsh int tcp set heuristics disabled
+netsh int tcp set global rss=enabled
+netsh int tcp set global fastopen=enabled
+netsh int tcp set global hystart=disabled
+netsh int tcp set global pacingprofile=off
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v "TCPNoDelay" /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v "TCPDelAckTicks" /t REG_DWORD /d 0 /f
+echo Advanced TCP optimizations completed.
+pause
+goto optimize_internet
+
+:dns_optimization
+echo Optimizing DNS settings...
+ipconfig /flushdns
+netsh int ip set dns "Local Area Connection" static 8.8.8.8
+netsh int ip add dns "Local Area Connection" 8.8.4.4 index=2
+echo DNS optimized. Primary: 8.8.8.8, Secondary: 8.8.4.4
+pause
+goto optimize_internet
+
+:adapter_tuning
+echo Tuning network adapter...
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr "Connected"') do (
+    netsh int ip set interface "%%j" dadtransmits=0 store=persistent
+    netsh int ip set interface "%%j" routerdiscovery=disabled store=persistent
+    powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*FlowControl' -RegistryValue 0"
+    powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*InterruptModeration' -RegistryValue 0"
+    powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*PriorityVLANTag' -RegistryValue 3"
+    powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*SpeedDuplex' -RegistryValue 0"
+)
+echo Network adapter tuned for optimal performance.
+pause
+goto optimize_internet
+
+:clear_network_cache
+echo Clearing network cache...
+ipconfig /flushdns
+arp -d *
+nbtstat -R
+nbtstat -RR
+netsh int ip reset
+netsh winsock reset
+echo Network cache cleared.
+pause
+goto optimize_internet
 
 :windows_update
 echo Windows Update Management
