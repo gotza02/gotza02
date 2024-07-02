@@ -147,13 +147,108 @@ pause
 goto menu
 
 :optimize_cpu
-echo Optimizing CPU performance...
-powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMIN 100
-powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
-powercfg -setactive scheme_current
-echo CPU performance optimized.
+cls
+echo ==================================================
+echo CPU Optimization
+echo ==================================================
+echo 1. Set High Performance power plan
+echo 2. Disable CPU throttling
+echo 3. Optimize processor scheduling
+echo 4. Disable CPU core parking
+echo 5. Adjust processor power management
+echo 6. Enable hardware-accelerated GPU scheduling
+echo 7. Disable unnecessary system services
+echo 8. Adjust visual effects for performance
+echo 9. Return to main menu
+echo ==================================================
+set /p cpu_choice=Enter your choice (1-9): 
+
+if "%cpu_choice%"=="1" goto set_high_performance
+if "%cpu_choice%"=="2" goto disable_throttling
+if "%cpu_choice%"=="3" goto optimize_scheduling
+if "%cpu_choice%"=="4" goto disable_core_parking
+if "%cpu_choice%"=="5" goto adjust_power_management
+if "%cpu_choice%"=="6" goto enable_gpu_scheduling
+if "%cpu_choice%"=="7" goto disable_services
+if "%cpu_choice%"=="8" goto adjust_visual_effects
+if "%cpu_choice%"=="9" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto optimize_cpu
+
+:set_high_performance
+echo Setting High Performance power plan...
+powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+if %errorlevel% neq 0 (
+    echo Failed to set High Performance power plan. Creating a new one...
+    powercfg -duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+    for /f "tokens=4" %%i in ('powercfg -list ^| findstr /i "High performance"') do set hp_guid=%%i
+    powercfg -setactive %hp_guid%
+)
+echo High Performance power plan set.
+pause
+goto optimize_cpu
+
+:disable_throttling
+echo Disabling CPU throttling...
+powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
+powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMIN 100
+powercfg -setactive scheme_current
+echo CPU throttling disabled.
+pause
+goto optimize_cpu
+
+:optimize_scheduling
+echo Optimizing processor scheduling...
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+echo Processor scheduling optimized for best performance of programs.
+pause
+goto optimize_cpu
+
+:disable_core_parking
+echo Disabling CPU core parking...
+powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100
+powercfg -setactive scheme_current
+echo CPU core parking disabled.
+pause
+goto optimize_cpu
+
+:adjust_power_management
+echo Adjusting processor power management...
+powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTMODE 2
+powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTPOL 100
+powercfg -setacvalueindex scheme_current sub_processor PERFINCPOL 2
+powercfg -setacvalueindex scheme_current sub_processor PERFDECPOL 1
+powercfg -setactive scheme_current
+echo Processor power management adjusted for maximum performance.
+pause
+goto optimize_cpu
+
+:enable_gpu_scheduling
+echo Enabling hardware-accelerated GPU scheduling...
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f
+echo Hardware-accelerated GPU scheduling enabled. Please restart your computer for changes to take effect.
+pause
+goto optimize_cpu
+
+:disable_services
+echo Disabling unnecessary system services...
+sc config "SysMain" start= disabled
+sc stop "SysMain"
+sc config "DiagTrack" start= disabled
+sc stop "DiagTrack"
+sc config "WSearch" start= disabled
+sc stop "WSearch"
+echo Unnecessary system services disabled.
+pause
+goto optimize_cpu
+
+:adjust_visual_effects
+echo Adjusting visual effects for best performance...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+echo Visual effects adjusted for best performance.
+pause
+goto optimize_cpu
 
 :optimize_internet
 echo Optimizing Internet performance...
