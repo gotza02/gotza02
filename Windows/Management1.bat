@@ -464,19 +464,115 @@ pause
 goto menu
 
 :optimize_disk
-echo Optimizing disk...
-defrag C: /O
-echo Disk optimized.
+cls
+echo ==================================================
+echo Disk Optimization
+echo ==================================================
+echo 1. Analyze disk
+echo 2. Optimize/Defragment disk
+echo 3. Check disk for errors
+echo 4. Trim SSD
+echo 5. Clean up system files
+echo 6. Return to main menu
+echo ==================================================
+set /p disk_choice=Enter your choice (1-6): 
+
+if "%disk_choice%"=="1" goto analyze_disk
+if "%disk_choice%"=="2" goto optimize_defrag
+if "%disk_choice%"=="3" goto check_disk
+if "%disk_choice%"=="4" goto trim_ssd
+if "%disk_choice%"=="5" goto cleanup_system
+if "%disk_choice%"=="6" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto optimize_disk
+
+:analyze_disk
+echo Analyzing disk...
+defrag C: /A
+echo Disk analysis completed.
+pause
+goto optimize_disk
+
+:optimize_defrag
+echo Optimizing/Defragmenting disk...
+defrag C: /O
+echo Disk optimization completed.
+pause
+goto optimize_disk
+
+:check_disk
+echo Checking disk for errors...
+echo This process will schedule a disk check on the next system restart.
+chkdsk C: /F /R /X
+echo Disk check scheduled. Please restart your computer to perform the check.
+pause
+goto optimize_disk
+
+:trim_ssd
+echo Trimming SSD...
+fsutil behavior set disabledeletenotify 0
+defrag C: /L
+echo SSD trim completed.
+pause
+goto optimize_disk
+
+:cleanup_system
+echo Cleaning up system files...
+cleanmgr /sagerun:1
+echo System file cleanup completed.
+pause
+goto optimize_disk
 
 :check_repair
-echo Checking and repairing system files...
-sfc /scannow
-DISM /Online /Cleanup-Image /RestoreHealth
-echo System file check and repair completed.
+cls
+echo ==================================================
+echo Check and Repair System Files
+echo ==================================================
+echo 1. Run SFC (System File Checker)
+echo 2. Run DISM (Deployment Image Servicing and Management)
+echo 3. Check disk health
+echo 4. Verify system files
+echo 5. Return to main menu
+echo ==================================================
+set /p repair_choice=Enter your choice (1-5): 
+
+if "%repair_choice%"=="1" goto run_sfc
+if "%repair_choice%"=="2" goto run_dism
+if "%repair_choice%"=="3" goto check_disk_health
+if "%repair_choice%"=="4" goto verify_files
+if "%repair_choice%"=="5" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto check_repair
+
+:run_sfc
+echo Running System File Checker...
+sfc /scannow
+echo SFC scan completed.
+pause
+goto check_repair
+
+:run_dism
+echo Running DISM...
+DISM /Online /Cleanup-Image /RestoreHealth
+echo DISM repair completed.
+pause
+goto check_repair
+
+:check_disk_health
+echo Checking disk health...
+wmic diskdrive get status
+echo Disk health check completed.
+pause
+goto check_repair
+
+:verify_files
+echo Verifying system files...
+Findstr /c:"[SR]" %windir%\Logs\CBS\CBS.log >"%userprofile%\Desktop\sfcdetails.txt"
+echo Verification completed. Results saved to sfcdetails.txt on your desktop.
+pause
+goto check_repair
 
 :windows_activate
 echo Activating Windows...
