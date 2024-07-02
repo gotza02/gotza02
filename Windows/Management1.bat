@@ -116,32 +116,21 @@ goto manage_defender
 
 :check_defender
 echo Checking Windows Defender status...
-powershell -Command "Get-MpComputerStatus | Select-Object AntivirusEnabled, RealTimeProtectionEnabled, IoavProtectionEnabled, AntispywareEnabled, AntivirusSignatureLastUpdated | Format-List"
+sc query windefend
 pause
 goto manage_defender
 
 :enable_defender
 echo Enabling Windows Defender...
-powershell -Command "
-$changes = @(
-    @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'; Name='DisableAntiSpyware'; Action='Delete'},
-    @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableRealtimeMonitoring'; Action='Delete'},
-    @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableBehaviorMonitoring'; Action='Delete'},
-    @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableOnAccessProtection'; Action='Delete'},
-    @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableScanOnRealtimeEnable'; Action='Delete'},
-    @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet'; Name='SpynetReporting'; Action='Delete'},
-    @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet'; Name='SubmitSamplesConsent'; Action='Delete'}
-)
-foreach ($change in $changes) {
-    if (Test-Path $change.Path) {
-        if (Get-ItemProperty -Path $change.Path -Name $change.Name -ErrorAction SilentlyContinue) {
-            Remove-ItemProperty -Path $change.Path -Name $change.Name -Force
-            Write-Host ('Removed {0} from {1}' -f $change.Name, $change.Path)
-        }
-    }
-}
-Set-MpPreference -DisableRealtimeMonitoring $false
-"
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /f
+sc config windefend start= auto
+sc start windefend
 echo Windows Defender enabled successfully.
 pause
 goto manage_defender
@@ -151,24 +140,15 @@ echo WARNING: Disabling Windows Defender may leave your system vulnerable.
 set /p confirm=Are you sure you want to disable Windows Defender? (Y/N): 
 if /i "%confirm%"=="Y" (
     echo Disabling Windows Defender...
-    powershell -Command "
-    $changes = @(
-        @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'; Name='DisableAntiSpyware'; Value=1},
-        @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableRealtimeMonitoring'; Value=1},
-        @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableBehaviorMonitoring'; Value=1},
-        @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableOnAccessProtection'; Value=1},
-        @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'; Name='DisableScanOnRealtimeEnable'; Value=1},
-        @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet'; Name='SpynetReporting'; Value=0},
-        @{Path='HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet'; Name='SubmitSamplesConsent'; Value=2}
-    )
-    foreach ($change in $changes) {
-        if (-not (Test-Path $change.Path)) {
-            New-Item -Path $change.Path -Force | Out-Null
-        }
-        Set-ItemProperty -Path $change.Path -Name $change.Name -Value $change.Value -Type DWord -Force
-        Write-Host ('Set {0} to {1} in {2}' -f $change.Name, $change.Value, $change.Path)
-    }
-    "
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 2 /f
+    sc stop windefend
+    sc config windefend start= disabled
     echo Windows Defender disabled. It is strongly recommended to enable it again or use alternative antivirus software.
 ) else (
     echo Operation cancelled.
@@ -178,22 +158,18 @@ goto manage_defender
 
 :update_defender
 echo Updating Windows Defender...
-powershell -Command "
-$result = Update-MpSignature
-if ($result.UpdatedSignatureVersion) {
-    Write-Host ('Successfully updated to version: ' + $result.UpdatedSignatureVersion)
-} else {
-    Write-Host 'Failed to update Windows Defender. Please check your internet connection.'
-}
-"
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
+if %errorlevel% equ 0 (
+    echo Windows Defender updated successfully.
+) else (
+    echo Failed to update Windows Defender. Please check your internet connection.
+)
 pause
 goto manage_defender
 
 :quick_scan
 echo Running quick scan...
-powershell -Command "
-Start-MpScan -ScanType QuickScan -AsJob | Wait-Job | Receive-Job
-"
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
 echo Quick scan completed.
 pause
 goto manage_defender
@@ -201,19 +177,19 @@ goto manage_defender
 :full_scan
 echo Running full scan...
 echo This may take a while. You can check the progress in Windows Security.
-powershell -Command "Start-MpScan -ScanType FullScan"
+start "" "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 2
 pause
 goto manage_defender
 
 :manage_realtime
 echo Current real-time protection status:
-powershell -Command "Get-MpPreference | Select-Object DisableRealtimeMonitoring | Format-List"
+reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring
 set /p rtp_choice=Do you want to enable (E) or disable (D) real-time protection? (E/D): 
 if /i "%rtp_choice%"=="E" (
-    powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false"
+    reg delete "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f
     echo Real-time protection enabled.
 ) else if /i "%rtp_choice%"=="D" (
-    powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true"
+    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
     echo Real-time protection disabled. It is recommended to keep it enabled.
 ) else (
     echo Invalid choice.
@@ -223,13 +199,13 @@ goto manage_defender
 
 :manage_cloud
 echo Current cloud-delivered protection status:
-powershell -Command "Get-MpPreference | Select-Object MAPSReporting | Format-List"
+reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SpynetReporting
 set /p cloud_choice=Do you want to enable (E) or disable (D) cloud-delivered protection? (E/D): 
 if /i "%cloud_choice%"=="E" (
-    powershell -Command "Set-MpPreference -MAPSReporting Advanced"
+    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SpynetReporting /t REG_DWORD /d 2 /f
     echo Cloud-delivered protection enabled.
 ) else if /i "%cloud_choice%"=="D" (
-    powershell -Command "Set-MpPreference -MAPSReporting Disabled"
+    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SpynetReporting /t REG_DWORD /d 0 /f
     echo Cloud-delivered protection disabled. It is recommended to keep it enabled for better protection.
 ) else (
     echo Invalid choice.
@@ -239,13 +215,13 @@ goto manage_defender
 
 :manage_samples
 echo Current automatic sample submission status:
-powershell -Command "Get-MpPreference | Select-Object SubmitSamplesConsent | Format-List"
+reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent
 set /p sample_choice=Do you want to enable (E) or disable (D) automatic sample submission? (E/D): 
 if /i "%sample_choice%"=="E" (
-    powershell -Command "Set-MpPreference -SubmitSamplesConsent Always"
+    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 1 /f
     echo Automatic sample submission enabled.
 ) else if /i "%sample_choice%"=="D" (
-    powershell -Command "Set-MpPreference -SubmitSamplesConsent Never"
+    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 0 /f
     echo Automatic sample submission disabled.
 ) else (
     echo Invalid choice.
@@ -254,7 +230,11 @@ pause
 goto manage_defender
 
 :view_history
-
+echo Viewing threat history...
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -GetFiles
+echo Threat history displayed above. Check the output for details.
+pause
+goto manage_defender
 
 :optimize_features
 echo Optimizing system features...
