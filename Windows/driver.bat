@@ -1,7 +1,16 @@
 # Requires -RunAsAdministrator
+# Requires -Modules PSWindowsUpdate
 
 # Script for comprehensive driver analysis, update, and installation on Windows 11
-# Version 3.0
+# Version 4.0
+
+# Check if PSWindowsUpdate module is installed, if not, install it
+if (!(Get-Module -ListAvailable -Name PSWindowsUpdate)) {
+    Write-Host "PSWindowsUpdate module not found. Installing..."
+    Install-Module -Name PSWindowsUpdate -Force -AllowClobber
+}
+
+Import-Module PSWindowsUpdate
 
 # Function to write formatted log messages
 function Write-Log {
@@ -45,104 +54,47 @@ $drivers = Get-WmiObject Win32_PnPSignedDriver | Select-Object DeviceName, Manuf
 $drivers | Export-Csv -Path $csvFile -NoTypeInformation
 Write-Log "Driver information exported to $csvFile"
 
-# Function to check for driver updates
-function Check-DriverUpdate {
-    param([string]$DeviceName, [string]$Manufacturer, [string]$CurrentVersion)
-    
-    # This is a placeholder for actual driver update check logic
-    # You would need to implement a proper method to check for updates
-    # This could involve querying Windows Update, manufacturer websites, or a driver database
-    
-    $updateAvailable = $false
-    $newVersion = $null
-    $downloadUrl = $null
-
-    # Simulating an update check (replace with actual check)
+# Function to check for driver updates using Windows Update
+function Get-DriverUpdates {
+    Write-Log "Checking for driver updates via Windows Update..."
     try {
-        $response = Invoke-RestMethod -Uri "https://example.com/api/drivercheck?name=$DeviceName&manufacturer=$Manufacturer&version=$CurrentVersion" -ErrorAction Stop
-        $updateAvailable = $response.updateAvailable
-        $newVersion = $response.newVersion
-        $downloadUrl = $response.downloadUrl
+        $updates = Get-WindowsUpdate -Driver -AcceptAll
+        return $updates
     }
     catch {
-        Write-Log "Driver check failed for $DeviceName: $_"
-    }
-
-    return @{
-        UpdateAvailable = $updateAvailable
-        NewVersion = $newVersion
-        DownloadUrl = $downloadUrl
+        Write-Log "Error checking for driver updates: $_"
+        return $null
     }
 }
 
-# Function to download and install driver
-function Update-Driver {
-    param(
-        [string]$DeviceName,
-        [string]$DownloadUrl,
-        [string]$DeviceID
-    )
+# Function to install driver updates
+function Install-DriverUpdates {
+    param($Updates)
+    
+    if ($null -eq $Updates -or $Updates.Count -eq 0) {
+        Write-Log "No driver updates available."
+        return $false
+    }
 
-    $downloadPath = Join-Path $tempDir "$DeviceName.zip"
-    $extractPath = Join-Path $tempDir $DeviceName
-
+    Write-Log "Installing driver updates..."
     try {
-        # Download driver
-        Write-Log "Downloading driver for $DeviceName"
-        Invoke-WebRequest -Uri $DownloadUrl -OutFile $downloadPath
-
-        # Extract driver
-        Write-Log "Extracting driver package"
-        Expand-Archive -Path $downloadPath -DestinationPath $extractPath -Force
-
-        # Install driver
-        Write-Log "Installing driver for $DeviceName"
-        $result = pnputil /add-driver "$extractPath\*.inf" /install /subdirs
-        
-        if ($LASTEXITCODE -eq 0) {
-            Write-Log "Driver installed successfully: $DeviceName"
-            
-            # Attempt to update the specific device
-            $updateAttempt = Update-PnpDevice -InstanceId $DeviceID -Confirm:$false
-            if ($updateAttempt) {
-                Write-Log "Device updated: $DeviceName"
-            }
-            else {
-                Write-Log "Device update may require a restart: $DeviceName"
-            }
-        }
-        else {
-            Write-Log "Failed to install driver: $DeviceName. Error: $result"
-        }
+        Install-WindowsUpdate -AcceptAll -IgnoreReboot -Install -Driver
+        Write-Log "Driver updates installed successfully."
+        return $true
     }
     catch {
-        Write-Log "Error updating driver for $DeviceName: $_"
-    }
-    finally {
-        # Clean up
-        Remove-Item -Path $downloadPath -Force -ErrorAction SilentlyContinue
-        Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Log "Error installing driver updates: $_"
+        return $false
     }
 }
 
 # Main update process
-$updateRequired = $false
-foreach ($driver in $drivers) {
-    $updateCheck = Check-DriverUpdate -DeviceName $driver.DeviceName -Manufacturer $driver.Manufacturer -CurrentVersion $driver.DriverVersion
-    
-    if ($updateCheck.UpdateAvailable) {
-        $updateRequired = $true
-        Write-Log "Update available for $($driver.DeviceName): Current version $($driver.DriverVersion), New version $($updateCheck.NewVersion)"
-        Update-Driver -DeviceName $driver.DeviceName -DownloadUrl $updateCheck.DownloadUrl -DeviceID $driver.DeviceID
-    }
-    else {
-        Write-Log "No update available for $($driver.DeviceName)"
-    }
-}
+$driverUpdates = Get-DriverUpdates
+$updateInstalled = Install-DriverUpdates -Updates $driverUpdates
 
 # Final steps
-if ($updateRequired) {
-    Write-Log "Some drivers were updated. A system restart is recommended."
+if ($updateInstalled) {
+    Write-Log "Driver updates were installed. A system restart is recommended."
     $restartChoice = Read-Host "Do you want to restart the system now? (Y/N)"
     if ($restartChoice -eq "Y") {
         Write-Log "Initiating system restart..."
@@ -153,7 +105,7 @@ if ($updateRequired) {
     }
 }
 else {
-    Write-Log "No driver updates were required."
+    Write-Log "No driver updates were required or installation failed."
 }
 
 Write-Log "Driver update process completed."
