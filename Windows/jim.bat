@@ -1,83 +1,33 @@
-@echo off
-echo Windows Update Fix Script
-echo.
-echo This script will attempt to fix Windows Update issues.
-echo Please run this script as an administrator.
-echo.
-pause
+# ต้องรันด้วยสิทธิ์ผู้ดูแลระบบ
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))  
+{  
+  $arguments = "& '" + $myinvocation.mycommand.definition + "'"
+  Start-Process powershell -Verb runAs -ArgumentList $arguments
+  Break
+}
 
-echo Stopping Windows Update related services...
-net stop wuauserv
-net stop cryptSvc
-net stop bits
-net stop msiserver
+# ตรวจสอบว่าเป็น Windows 11 หรือไม่
+$osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
+if ($osInfo.Caption -notlike "*Windows 11*") {
+    Write-Host "This script is intended for Windows 11. Your current OS is: $($osInfo.Caption)"
+    Exit
+}
 
-echo Renaming SoftwareDistribution and Catroot2 folders...
-ren C:\Windows\SoftwareDistribution SoftwareDistribution.old
-ren C:\Windows\System32\catroot2 catroot2.old
+# อัปเดต PSWindowsUpdate module
+Install-Module -Name PSWindowsUpdate -Force -AllowClobber
 
-echo Resetting Windows Update components...
-sc sdset bits D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWLOCRRC;;;AU)(A;;CCLCSWRPWPDTLOCRRC;;;PU)
-sc sdset wuauserv D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWLOCRRC;;;AU)(A;;CCLCSWRPWPDTLOCRRC;;;PU)
+# นำเข้า module
+Import-Module PSWindowsUpdate
 
-echo Registering Windows Update related DLLs...
-regsvr32.exe /s atl.dll
-regsvr32.exe /s urlmon.dll
-regsvr32.exe /s mshtml.dll
-regsvr32.exe /s shdocvw.dll
-regsvr32.exe /s browseui.dll
-regsvr32.exe /s jscript.dll
-regsvr32.exe /s vbscript.dll
-regsvr32.exe /s scrrun.dll
-regsvr32.exe /s msxml.dll
-regsvr32.exe /s msxml3.dll
-regsvr32.exe /s msxml6.dll
-regsvr32.exe /s actxprxy.dll
-regsvr32.exe /s softpub.dll
-regsvr32.exe /s wintrust.dll
-regsvr32.exe /s dssenh.dll
-regsvr32.exe /s rsaenh.dll
-regsvr32.exe /s gpkcsp.dll
-regsvr32.exe /s sccbase.dll
-regsvr32.exe /s slbcsp.dll
-regsvr32.exe /s cryptdlg.dll
-regsvr32.exe /s oleaut32.dll
-regsvr32.exe /s ole32.dll
-regsvr32.exe /s shell32.dll
-regsvr32.exe /s initpki.dll
-regsvr32.exe /s wuapi.dll
-regsvr32.exe /s wuaueng.dll
-regsvr32.exe /s wuaueng1.dll
-regsvr32.exe /s wucltui.dll
-regsvr32.exe /s wups.dll
-regsvr32.exe /s wups2.dll
-regsvr32.exe /s wuweb.dll
-regsvr32.exe /s qmgr.dll
-regsvr32.exe /s qmgrprxy.dll
-regsvr32.exe /s wucltux.dll
-regsvr32.exe /s muweb.dll
-regsvr32.exe /s wuwebv.dll
+# ตรวจสอบการอัปเดตที่มี
+Write-Host "Checking for updates..."
+$updates = Get-WindowsUpdate
 
-echo Resetting Winsock and WinHTTP proxy...
-netsh winsock reset
-netsh winhttp reset proxy
-
-echo Resetting Windows Update policies...
-gpupdate /force
-
-echo Starting Windows Update related services...
-net start bits
-net start wuauserv
-net start appidsvc
-net start cryptSvc
-
-echo Clearing Windows Update cache...
-del /s /q /f "%ALLUSERSPROFILE%\Application Data\Microsoft\Network\Downloader\qmgr*.dat"
-del /s /q /f "%ALLUSERSPROFILE%\Microsoft\Network\Downloader\qmgr*.dat"
-
-echo Running Windows Update troubleshooter...
-msdt.exe /id WindowsUpdateDiagnostic
-
-echo Script execution completed.
-echo Please restart your computer and try running Windows Update again.
-pause
+if ($updates.Count -eq 0) {
+    Write-Host "No updates available. Your system is up to date."
+} else {
+    Write-Host "Found $($updates.Count) update(s). Installing..."
+    
+    # ติดตั้งการอัปเดตทั้งหมดและรีบูตถ้าจำเป็น
+    Install-WindowsUpdate -AcceptAll -AutoReboot
+}
