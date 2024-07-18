@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# ฟังก์ชันสำหรับการเชื่อมต่อ
+connect() {
+    while true; do
+        clear
+        echo "กำลังเชื่อมต่อไปยัง $HOST:$PORT..."
+
+        # สร้าง Payload
+        PAYLOAD="GET / HTTP/1.1\r\nHost: $HOST:$PORT\r\nUpgrade: Websocket\r\nConnection: Keep-Alive\r\nConnection: Keep-Alive\r\nUpgrade: websocket\r\n\r\n"
+
+        # ใช้ echo เพื่อส่ง Payload และ nc เพื่อเชื่อมต่อ
+        (echo -e "$PAYLOAD"; sleep 1) | nc $HOST $PORT &
+        PID=$!
+
+        while kill -0 $PID 2>/dev/null; do
+            clear
+            echo "สถานะการเชื่อมต่อ: เชื่อมต่ออยู่"
+            echo "เชื่อมต่อกับ: $HOST:$PORT"
+            echo "PID ของการเชื่อมต่อ: $PID"
+            echo "เวลาที่เชื่อมต่อ: $(date)"
+            echo "Payload ที่ใช้:"
+            echo "$PAYLOAD"
+            sleep 5
+        done
+
+        clear
+        echo "การเชื่อมต่อหลุด กำลังเชื่อมต่อใหม่..."
+        sleep 2
+    done
+}
+
+# รับ input จาก user
+read -p "กรุณาป้อนชื่อโฮสต์หรือ IP: " HOST
+read -p "กรุณาป้อนพอร์ต: " PORT
+
+# เริ่มการเชื่อมต่อ
+connect
