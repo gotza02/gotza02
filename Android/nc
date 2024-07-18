@@ -1,10 +1,17 @@
 #!/bin/bash
 
+# ตัวแปรสำหรับนับจำนวนการเชื่อมต่อและการหลุดการเชื่อมต่อ
+CONNECT_COUNT=0
+DISCONNECT_COUNT=0
+
 # ฟังก์ชันสำหรับการเชื่อมต่อ
 connect() {
     while true; do
         clear
         echo "กำลังเชื่อมต่อไปยัง $HOST:$PORT..."
+
+        # เพิ่มจำนวนการเชื่อมต่อ
+        ((CONNECT_COUNT++))
 
         # สร้าง Payload
         PAYLOAD="GET / HTTP/1.1\r\nHost: $HOST:$PORT\r\nUpgrade: Websocket\r\nConnection: Keep-Alive\r\nConnection: Keep-Alive\r\nUpgrade: websocket\r\n\r\n"
@@ -21,11 +28,17 @@ connect() {
             echo "เวลาที่เชื่อมต่อ: $(date)"
             echo "Payload ที่ใช้:"
             echo "$PAYLOAD"
+            echo "จำนวนครั้งที่เชื่อมต่อ: $CONNECT_COUNT"
+            echo "จำนวนครั้งที่หลุดการเชื่อมต่อ: $DISCONNECT_COUNT"
             sleep 5
         done
 
         clear
         echo "การเชื่อมต่อหลุด กำลังเชื่อมต่อใหม่..."
+        
+        # เพิ่มจำนวนการหลุดการเชื่อมต่อ
+        ((DISCONNECT_COUNT++))
+        
         sleep 2
     done
 }
