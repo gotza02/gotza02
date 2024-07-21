@@ -11,7 +11,7 @@ readonly CYAN='\033[0;36m'
 readonly RESET='\033[0m'
 
 # Check if required tools are installed
-for tool in ping nc curl host; do
+for tool in ping nc curl; do
     if ! command -v $tool &> /dev/null; then
         echo -e "${RED}Error: $tool is not installed. Please install it and try again.${RESET}"
         exit 1
