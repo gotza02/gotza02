@@ -552,9 +552,25 @@ call :log_action "Disk health check completed"
 pause
 goto check_repair
 
-:windows_activate
-:: Activation code remains unchanged as per your request
-:: [Activate Windows code here]
+        echo Activation failed. Please check your product key and try again.
+    ) else (
+        echo Windows activation attempted. Please check the activation status.
+    )
+)
+pause
+goto windows_activate
+
+:remove_key
+echo Removing current product key...
+slmgr /upk
+if %errorlevel% neq 0 (
+    echo Failed to remove product key. You may not have permission or there's no key to remove.
+) else (
+    echo Product key removed successfully.
+)
+pause
+goto windows_activate
+
 
 :manage_power
 cls
