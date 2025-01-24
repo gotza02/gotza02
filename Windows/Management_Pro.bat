@@ -2157,126 +2157,287 @@ goto manage_services
 :option_21
 :network_optimization
 cls
-echo ==================================================
-echo Network Optimization
-echo ==================================================
-echo 1. Optimize TCP settings
-echo 2. Reset Windows Sockets
-echo 3. Clear DNS cache
-echo 4. Optimize network adapter settings
-echo 5. Disable IPv6 (caution)
-echo 6. Enable QoS packet scheduler
-echo 7. Set static DNS servers
-echo 8. Reset all network settings
-echo 9. Return to main menu
-echo ==================================================
-set /p net_choice=Enter your choice (1-9):
+echo ======================================================
+echo              Network Optimization - Advanced
+echo ======================================================
+echo 1. Optimize TCP Settings (General Performance)
+echo 2. Reset Windows Sockets (Winsock Reset)
+echo 3. Flush DNS Resolver Cache (Clear DNS Cache)
+echo 4. Optimize Network Adapter Settings (Advanced Tuning)
+echo 5. Disable IPv6 (Caution: Compatibility Issues Possible)
+echo 6. Enable QoS Packet Scheduler (Prioritize Network Traffic)
+echo 7. Set Static DNS Servers (Custom DNS)
+echo 8. Reset All Network Settings (Comprehensive Reset - Requires Restart)
+echo 9. Release and Renew IP Address (DHCP Refresh)
+echo 10. Test Internet Connection (Ping Test)
+echo 11. Revert All Network Optimizations (Undo Changes)
+echo 12. Return to Main Menu
+echo ======================================================
+set /p net_choice=Enter your choice (1-12):
 
 if "%net_choice%"=="1" goto optimize_tcp
 if "%net_choice%"=="2" goto reset_winsock
-if "%net_choice%"=="3" goto clear_dns
+if "%net_choice%"=="3" goto flush_dns_cache
 if "%net_choice%"=="4" goto optimize_adapter
 if "%net_choice%"=="5" goto disable_ipv6
 if "%net_choice%"=="6" goto enable_qos
 if "%net_choice%"=="7" goto set_static_dns
-if "%net_choice%"=="8" goto reset_network
-if "%net_choice%"=="9" goto menu
+if "%net_choice%"=="8" goto reset_network_comprehensive
+if "%net_choice%"=="9" goto renew_ip_address
+if "%net_choice%"=="10" goto test_internet_connection
+if "%net_choice%"=="11" goto revert_net_optimizations
+if "%net_choice%"=="12" goto menu
 echo Invalid choice. Please try again.
 pause
 goto network_optimization
 
 :optimize_tcp
-echo Optimizing TCP settings...
+echo Optimizing TCP Settings (General Performance)...
 netsh int tcp set global autotuninglevel=normal
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set global congestionprovider=ctcp
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set global ecncapability=enabled
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set heuristics disabled
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set global rss=enabled
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set global fastopen=enabled
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set global timestamps=disabled
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set global initialRto=2000
+if %errorlevel% neq 0 goto netsh_error
 netsh int tcp set global nonsackrttresiliency=disabled
-echo TCP settings optimized.
+if %errorlevel% neq 0 goto netsh_error
+echo TCP Settings Optimized for General Performance.
 pause
 goto network_optimization
 
 :reset_winsock
-echo Resetting Windows Sockets...
+echo Resetting Windows Sockets (Winsock Reset)...
+echo This will reset Winsock catalog to default configuration.
 netsh winsock reset
-echo Windows Sockets reset. Please restart your computer for changes to take effect.
+if %errorlevel% equ 0 (
+    echo Windows Sockets Reset Completed Successfully.
+    echo Please restart your computer for changes to take effect.
+) else (
+    echo Error: Failed to Reset Windows Sockets. Error Code: %errorlevel%
+    echo Please check your permissions and system logs.
+)
 pause
 goto network_optimization
 
-:clear_dns
-echo Clearing DNS cache...
+:flush_dns_cache
+echo Flushing DNS Resolver Cache (Clear DNS Cache)...
 ipconfig /flushdns
-echo DNS cache cleared.
+if %errorlevel% equ 0 (
+    echo DNS Resolver Cache Flushed Successfully.
+) else (
+    echo Error: Failed to Flush DNS Resolver Cache. Error Code: %errorlevel%
+)
 pause
 goto network_optimization
 
 :optimize_adapter
-echo Optimizing network adapter settings...
+echo Optimizing Network Adapter Settings (Advanced Tuning)...
+echo Applying advanced tuning parameters to connected network adapters...
 for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    echo Tuning adapter: "%%j"
     netsh int ip set interface "%%j" dadtransmits=0 store=persistent
+    if %errorlevel% neq 0 goto netsh_error
     netsh int ip set interface "%%j" routerdiscovery=disabled store=persistent
-    netsh int tcp set security mpp=disabled
-    netsh int tcp set security profiles=disabled
+    if %errorlevel% neq 0 goto netsh_error
+    powershell -Command "Get-NetAdapterAdvancedProperty -Name '%%j' | Where-Object {$_.DisplayName -in ('*FlowControl', '*InterruptModeration', '*PriorityVLANTag', '*SpeedDuplex', '*ReceiveSideScaling') } | ForEach-Object {Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword $_.RegistryKeyword -RegistryValue 0}"
+    if %errorlevel% neq 0 goto powershell_error
+    powershell -Command "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*PriorityVLANTag' -RegistryValue 3"
+    if %errorlevel% neq 0 goto powershell_error
+    powershell -Command "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*SpeedDuplex' -RegistryValue 0"
+    if %errorlevel% neq 0 goto powershell_error
 )
-echo Network adapter settings optimized.
+echo Network Adapter Settings Optimized (Advanced Tuning).
 pause
 goto network_optimization
 
 :disable_ipv6
-echo WARNING: Disabling IPv6 may cause issues with some networks.
-set /p confirm=Are you sure you want to disable IPv6? (Y/N):
-if /i "%confirm%"=="Y" (
+echo ==================================================================================
+echo  !!! WARNING: DISABLING IPv6 MAY CAUSE CONNECTIVITY ISSUES ON SOME NETWORKS !!!
+echo  IPv6 is increasingly important for modern internet functionality.
+echo  Disable IPv6 ONLY if you are certain it is not needed in your network environment.
+echo  Proceeding may limit compatibility with some websites and services.
+echo ==================================================================================
+echo.
+set /p ipv6_confirm=Are you sure you want to DISABLE IPv6? (Type YES to confirm - POTENTIAL ISSUES):
+if /i "%ipv6_confirm%"=="YES" (
+    echo Disabling IPv6...
     netsh interface ipv6 set global randomizeidentifiers=disabled
+    if %errorlevel% neq 0 goto netsh_error
     netsh interface ipv6 set privacy state=disabled
+    if %errorlevel% neq 0 goto netsh_error
     reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d 255 /f
-    echo IPv6 disabled. Please restart your computer for changes to take effect.
+    if %errorlevel% neq 0 goto registry_error
+    echo IPv6 Disabled.
+    echo Please restart your computer for changes to take effect.
 ) else (
-    echo Operation cancelled.
+    echo IPv6 Disabling Cancelled. IPv6 remains enabled.
 )
 pause
 goto network_optimization
 
 :enable_qos
-echo Enabling QoS packet scheduler...
+echo Enabling QoS Packet Scheduler (Prioritize Network Traffic)...
 netsh int tcp set global packetcoalescinginbound=disabled
+if %errorlevel% neq 0 goto netsh_error
 sc config "Qwave" start= auto
+if %errorlevel% neq 0 goto sc_config_error
 sc start Qwave
-echo QoS packet scheduler enabled.
+if %errorlevel% neq 0 goto sc_start_error
+echo QoS Packet Scheduler Enabled.
 pause
 goto network_optimization
 
 :set_static_dns
-echo Setting static DNS servers...
-set /p primary_dns=Enter primary DNS server (e.g., 8.8.8.8):
-set /p secondary_dns=Enter secondary DNS server (e.g., 8.8.4.4):
+echo Setting Static DNS Servers (Custom DNS)...
+set /p primary_dns=Enter Primary DNS Server Address (e.g., 8.8.8.8):
+set /p secondary_dns=Enter Secondary DNS Server Address (e.g., 8.8.4.4 - Optional, press Enter to skip):
 for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
-    netsh interface ip set dns "%%j" static %primary_dns% primary
-    netsh interface ip add dns "%%j" %secondary_dns% index=2
+    echo Setting DNS for interface: "%%j"
+    netsh interface ip set dns name="%%j" source=static address="%primary_dns%"
+    if %errorlevel% neq 0 goto netsh_error
+    if not "%secondary_dns%"=="" (
+        netsh interface ip add dns name="%%j" address="%secondary_dns%" index=2
+        if %errorlevel% neq 0 goto netsh_error
+    )
 )
-echo Static DNS servers set.
+echo Static DNS Servers Set.
 pause
 goto network_optimization
 
-:reset_network
-echo Resetting all network settings...
+:reset_network_comprehensive
+echo Resetting All Network Settings (Comprehensive Reset - Requires Restart)...
+echo This will reset Winsock, IP configuration, Firewall, Routing, and flush DNS.
+echo Please wait, this may take a moment...
 netsh winsock reset
-netsh int ip reset
+if %errorlevel% neq 0 goto netsh_error
+netsh int ip reset all
+if %errorlevel% neq 0 goto netsh_error
 netsh advfirewall reset
-ipconfig /release
-ipconfig /renew
+if %errorlevel% neq 0 goto netsh_error
+route -f
+ipconfig /release *
+ipconfig /renew *
 ipconfig /flushdns
-echo All network settings reset. Please restart your computer for changes to take effect.
+echo Comprehensive Network Settings Reset Completed.
+echo Please restart your computer for changes to fully take effect.
+pause
+goto network_optimization
+
+:renew_ip_address
+echo Releasing and Renewing IP Address (DHCP Refresh)...
+echo Releasing current IP configuration...
+ipconfig /release
+echo Renewing IP configuration from DHCP server...
+ipconfig /renew
+if %errorlevel% equ 0 (
+    echo IP Address Released and Renewed Successfully.
+    echo Check the output above for new IP configuration details.
+) else (
+    echo Error: Failed to Release and Renew IP Address. Error Code: %errorlevel%
+    echo Please check your network connection and DHCP server availability.
+)
+pause
+goto network_optimization
+
+:test_internet_connection
+echo Testing Internet Connection (Ping Test)...
+echo Pinging google.com to test internet connectivity and latency...
+ping -n 3 google.com
+echo.
+echo Ping test completed. Check the output above for latency and connectivity status.
+echo If ping fails, check your internet connection and DNS settings.
+pause
+goto network_optimization
+
+:revert_net_optimizations
+echo Reverting All Network Optimizations (Undo Changes)...
+echo Restoring default network settings...
+netsh int tcp set global autotuninglevel=normal
+if %errorlevel% neq 0 goto netsh_error
+netsh int tcp set global congestionprovider=default
+if %errorlevel% neq 0 goto netsh_error
+netsh int tcp set global ecncapability=default
+if %errorlevel% neq 0 goto netsh_error
+netsh int tcp set global timestamps=default
+if %errorlevel% neq 0 goto netsh_error
+netsh int tcp set global rss=default
+if %errorlevel% neq 0 goto netsh_error
+netsh int tcp set global fastopen=default
+if %errorlevel% neq 0 goto netsh_error
+netsh int tcp set heuristics enabled
+if %errorlevel% neq 0 goto netsh_error
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" "TCPNoDelay" "REG_DWORD" /d 0 /f
+if %errorlevel% neq 0 goto registry_error
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" "TCPDelAckTicks" "REG_DWORD" /d 2 /f
+if %errorlevel% neq 0 goto registry_error
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    echo Restoring adapter settings for: "%%j"
+    netsh int ip set interface "%%j" dadtransmits=3 store=persistent
+    if %errorlevel% neq 0 goto netsh_error
+    netsh int ip set interface "%%j" routerdiscovery=enabled store=persistent
+    if %errorlevel% neq 0 goto netsh_error
+    powershell -Command "Get-NetAdapterAdvancedProperty -Name '%%j' | Where-Object {$_.DisplayName -in ('*FlowControl', '*InterruptModeration', '*PriorityVLANTag', '*SpeedDuplex', '*ReceiveSideScaling', '*JumboPacket') } | ForEach-Object {Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword $_.RegistryKeyword -RegistryValue \$null}"
+    if %errorlevel% neq 0 goto powershell_error
+    powershell -Command "Set-NetAdapterPowerManagement -Name '%%j' -AllowComputerToTurnOffDevice \$true"
+    if %errorlevel% neq 0 goto powershell_error
+    netsh interface ip set dns name="%%j" source=dhcp
+    if %errorlevel% neq 0 goto netsh_error
+)
+echo Network Optimizations Reverted to Default Settings.
+echo Please restart your computer for changes to fully take effect.
+pause
+goto network_optimization
+
+:netsh_error
+echo.
+echo !!! ERROR: Failed to execute NETSH command. Error Code: %errorlevel% !!!
+echo Please ensure you are running this script as an Administrator and network services are functioning.
+pause
+goto network_optimization
+
+:registry_error
+echo.
+echo !!! ERROR: Failed to modify Registry. Error Code: %errorlevel% !!!
+echo Please ensure you are running this script as an Administrator.
+echo Registry modification is required for this operation.
+pause
+goto network_optimization
+
+:powershell_error
+echo.
+echo !!! ERROR: Failed to execute PowerShell command. Error Code: %errorlevel% !!!
+echo Please ensure PowerShell is installed and functioning correctly.
+pause
+goto network_optimization
+
+:sc_config_error
+echo.
+echo !!! ERROR: Failed to configure service using SC CONFIG. Error Code: %errorlevel% !!!
+echo Please ensure you are running this script as an Administrator and the service name is correct.
+pause
+goto network_optimization
+
+:sc_start_error
+echo.
+echo !!! ERROR: Failed to start service using SC START. Error Code: %errorlevel% !!!
+echo Please ensure you are running this script as an Administrator and the service name is correct.
 pause
 goto network_optimization
 
 :option_22
 :endexit
 echo Thank you for using the Windows Optimization Script!
-echo Script developed by [Your Name/Organization]
+echo Script developed by [GT Singtaro]
 echo Version 3.0 - Advanced Edition
 pause
 exit
