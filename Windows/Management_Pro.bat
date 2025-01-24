@@ -14,6 +14,22 @@ if %errorlevel% neq 0 (
 :menu
 cls
 @echo off
+color 0a
+
+echo =======================================================================
+echo.
+echo       ___  ____     ____  __  __ _   ___  ____  __   ____   __  
+echo      / __)(_  _)  / ___)(  )(  ( \ / __)(_  _)/ _\ (  _ \ /  \ 
+echo     ( (_ \  )(    \___ \ )( /    /( (_ \  )( /    \ )   /(  O )
+echo      \___/ (__)   (____/(__)\_)__) \___/ (__)\_/\_/(__\_) \__/ 
+echo.
+echo =======================================================================
+echo.
+echo         Windows Optimization Script v3.0 - Advanced Edition
+echo.
+echo =======================================================================
+
+timeout /t 5 /nobreak > nul
 title Windows Optimization Script v3.0 - Advanced Edition
 
 echo ====================================
