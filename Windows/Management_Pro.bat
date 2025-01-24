@@ -6,24 +6,24 @@ setlocal enabledelayedexpansion
 ::                      Efficiency & Speed - Enhanced Edition - Optimized
 :: -------------------------------------------------------------------------
 
-:: ** คำเตือน ** : Script นี้ปรับให้เหมาะสมสำหรับ Windows 11.
-:: Windows 10 หรือเก่ากว่าอาจมีปัญหาความเข้ากันได้.
+:: ** WARNING ** : This script is optimized for Windows 11.
+:: Windows 10 or older may have compatibility issues.
 
 ver | findstr /i "Version 10.0." >nul 2>&1
 if %errorlevel% equ 0 (
     echo.
     echo [!] ======================================================================= [!]
-    echo [!] **คำเตือน:** Script นี้ปรับให้เหมาะสมสำหรับ Windows 11. Windows 10    [!]
-    echo [!] หรือเก่ากว่าอาจมีปัญหาความเข้ากันได้.                                  [!]
+    echo [!] **WARNING:** This script is optimized for Windows 11. Windows 10    [!]
+    echo [!] or older may have compatibility issues.                                  [!]
     echo [!] ======================================================================= [!]
     echo.
     pause
 )
 
-:: ตรวจสอบสิทธิ์ผู้ดูแลระบบ (ฟังก์ชัน)
+:: Check Administrator Rights (Function)
 call :checkAdmin
 
-:: ฟังก์ชันดึงข้อมูลสถานะระบบ (ปรับปรุงให้มีประสิทธิภาพ)
+:: Function to Retrieve System Status (Improved Efficiency)
 call :getSystemStatus
 
 :mainMenu
@@ -42,32 +42,32 @@ echo.
 echo  ╔══════════════════════════════════════════════════════════════════╗
 echo  ║             Windows Optimization Script v3.5 - Enhanced Edition             ║
 echo  ╠══════════════════════════════════════════════════════════════════╣
-echo  ║ กรุณาเลือกตัวเลือก:                                                         ║
+echo  ║ Please select an option:                                                  ║
 echo  ║                                                                          ║
-echo  ║  [1] ปรับแต่งประสิทธิภาพการแสดงผล       [11] เปิดใช้งาน Windows (KMS - **เสี่ยง!**)  [21] ปรับแต่งเครือข่าย    ║
-echo  ║  [2] จัดการ Windows Defender             [12] จัดการการตั้งค่าพลังงาน                [22] ออกจากโปรแกรม        ║
-echo  ║  [3] ปรับแต่งคุณสมบัติระบบ                [13] เปิดใช้งาน Dark Mode                     [23] ปิดใช้งานเอฟเฟกต์โปร่งใส   ║
-echo  ║  [4] ปรับแต่งประสิทธิภาพ CPU               [14] จัดการพาร์ติชัน (**เสี่ยงข้อมูลหาย!**)    [24] ปิดใช้งาน Animation พิเศษ   ║
-echo  ║  [5] ปรับแต่งประสิทธิภาพอินเทอร์เน็ต        [15] ล้างไฟล์ขยะใน Disk                    [25] ปรับแต่ง Storage Sense     ║
-echo  ║  [6] จัดการ Windows Update                [16] จัดการโปรแกรม Startup                 [26] ปิดเสียง Startup          ║
-echo  ║  [7] ตั้งค่า Auto-login (**เสี่ยงด้านความปลอดภัย!**) [17] สำรองและกู้คืนการตั้งค่า         [27] ปรับแต่ง Paging File (**ขั้นสูง!**) ║
-echo  ║  [8] ล้าง System Cache                   [18] ข้อมูลระบบ                              [28] ปิด Widget Features (Win11) ║
-echo  ║  [9] ปรับแต่ง Disk                        [19] ปรับแต่งการตั้งค่าความเป็นส่วนตัว       [29] ปรับแต่ง Game Mode Settings  ║
-echo  ║  [10] ตรวจสอบและซ่อมแซม System Files      [20] จัดการ Windows Services               [30] กลับสู่เมนูหลัก          ║
+echo  ║  [1] Optimize Display Performance      [11] Activate Windows (KMS - **RISKY!**)  [21] Optimize Network       ║
+echo  ║  [2] Manage Windows Defender            [12] Manage Power Settings                 [22] Exit Program           ║
+echo  ║  [3] Optimize System Features           [13] Enable Dark Mode                      [23] Disable Transparency Effects ║
+echo  ║  [4] Optimize CPU Performance          [14] Manage Partitions (**Data Loss Risk!**)  [24] Disable Extra Animations   ║
+echo  ║  [5] Optimize Internet Performance     [15] Clean Up Disk Junk Files              [25] Optimize Storage Sense     ║
+echo  ║  [6] Manage Windows Update              [16] Manage Startup Programs              [26] Disable Startup Sound      ║
+echo  ║  [7] Set Auto-login (**Security Risk!**) [17] Backup & Restore Settings          [27] Optimize Paging File (**Advanced!**)║
+echo  ║  [8] Clear System Cache                 [18] System Information                  [28] Disable Widget Features (Win11)║
+echo  ║  [9] Optimize Disk                      [19] Optimize Privacy Settings             [29] Optimize Game Mode Settings  ║
+echo  ║  [10] Check and Repair System Files     [20] Manage Windows Services               [30] Return to Main Menu        ║
 echo  ║                                                                          ║
-echo  ║ **คำเตือน**:                                                                ║
-echo  ║  - ตัวเลือก [11] KMS Activation:  **มีความเสี่ยงด้านความปลอดภัยและกฎหมายสูง!**   ║
-echo  ║  - ตัวเลือก [14] จัดการพาร์ติชัน: **มีความเสี่ยงสูงที่จะสูญเสียข้อมูลถาวร! สำรองข้อมูลก่อน!** ║
-echo  ║  - ตัวเลือก [7, 27, 4, 20, 21] เป็นตัวเลือกขั้นสูง, ใช้ด้วยความระมัดระวัง.         ║
+echo  ║ **WARNINGS**:                                                               ║
+echo  ║  - Option [11] KMS Activation:  **High security and legal risk!**           ║
+echo  ║  - Option [14] Manage Partitions: **High risk of permanent data loss! Backup data first!** ║
+echo  ║  - Options [7, 27, 4, 20, 21] are advanced options, use with caution.        ║
 echo  ╚══════════════════════════════════════════════════════════════════╝
 echo.
 
-set /p choice=  กรุณาเลือกตัวเลือก (1-30):
+set /p choice=  Please select an option (1-30):
 
-:: ตรวจสอบการป้อนข้อมูลของผู้ใช้ (ปรับปรุง)
+:: Check User Input (Improved)
 if not defined choice (
     echo.
-    echo [!] **ข้อผิดพลาด:** กรุณาป้อนตัวเลือก.
+    echo [!] **Error:** Please enter an option.
     echo.
     pause
     goto mainMenu
@@ -82,7 +82,7 @@ if %choice% GEQ 1 AND %choice% LEQ 30 (
     goto option_%choice%
 ) else (
     echo.
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง. กรุณาลองอีกครั้ง.
+    echo [!] **Error:** Invalid option. Please try again.
     echo.
     pause
     goto mainMenu
@@ -125,7 +125,7 @@ if %choice% GEQ 1 AND %choice% LEQ 30 (
 net session >nul 2>&1
 if %errorlevel% neq 0 (
     echo.
-    echo [!] **ข้อผิดพลาด:** จำเป็นต้องมีสิทธิ์ผู้ดูแลระบบ. กรุณา Run as administrator.
+    echo [!] **Error:** Administrator rights are required. Please Run as administrator.
     echo.
     pause
     exit /b 1
@@ -133,7 +133,7 @@ if %errorlevel% neq 0 (
 exit /b 0
 
 :getSystemStatus
-:: ดึงข้อมูลสถานะทั้งหมดในครั้งเดียวเพื่อประสิทธิภาพ
+:: Retrieve all status information at once for efficiency
 (
     :: Windows Defender Status
     call :getDefenderStatusInternal
@@ -200,7 +200,7 @@ exit /b 0
 
 :optimizeDisplay
 echo.
-echo [>] กำลังปรับแต่งการแสดงผล...
+echo [>] Optimizing display...
 call :modifyRegistry "HKCU\Control Panel\Desktop" "UserPreferencesMask" "REG_BINARY" "9012078010000000"
 call :modifyRegistry "HKCU\Control Panel\Desktop" "MenuShowDelay" "REG_SZ" "0"
 call :modifyRegistry "HKCU\Control Panel\Desktop\WindowMetrics" "MinAnimate" "REG_SZ" "0"
@@ -208,7 +208,7 @@ call :modifyRegistry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersio
 call :modifyRegistry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ListviewShadow" "REG_DWORD" "0"
 call :modifyRegistry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "TaskbarAnimations" "REG_DWORD" "0"
 call :modifyRegistry "HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM" "EnableAeroPeek" "REG_DWORD" "0"
-echo [>] การแสดงผลได้รับการปรับแต่งแล้ว.
+echo [>] Display optimized.
 echo.
 pause
 goto mainMenu
@@ -219,13 +219,13 @@ cls
 echo.
 echo  ╔════════════════════════ Windows Defender Management ══════════════════════╗
 echo  ║                                                                              ║
-echo  ║  [1] ตรวจสอบสถานะ         [4] อัปเดต Defender         [7] จัดการ Real-time Protection  [10] ดูประวัติภัยคุกคาม ║
-echo  ║  [2] เปิดใช้งาน             [5] สแกนด่วน                [8] จัดการ Cloud Protection      [11] กลับสู่เมนูหลัก        ║
-echo  ║  [3] ปิดใช้งาน (**ไม่แนะนำ**) [6] สแกนเต็มรูปแบบ          [9] จัดการ Sample Submission                               ║
+echo  ║  [1] Check Status           [4] Update Defender         [7] Manage Real-time Protection  [10] View Threat History ║
+echo  ║  [2] Enable               [5] Quick Scan              [8] Manage Cloud Protection      [11] Return to Main Menu        ║
+echo  ║  [3] Disable (**Not Recommended**) [6] Full Scan             [9] Manage Sample Submission                               ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
-set /p def_choice=  กรุณาเลือกตัวเลือก (1-11):
+set /p def_choice=  Please select an option (1-11):
 echo.
 
 if "%def_choice%"=="1" ( call :checkDefenderStatus ) else
@@ -239,74 +239,74 @@ if "%def_choice%"=="8" ( call :manageCloudProtection ) else
 if "%def_choice%"=="9" ( call :manageSampleSubmission ) else
 if "%def_choice%"=="10" ( call :viewThreatHistory ) else
 if "%def_choice%"=="11" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto manageDefenderMenu
 )
 goto manageDefenderMenu
 
 :checkDefenderStatus
-echo [>] กำลังตรวจสอบสถานะ Defender...
+echo [>] Checking Defender status...
 sc query windefend
 echo.
 pause
 goto mainMenu
 
 :enableDefender
-echo [>] กำลังเปิดใช้งาน Defender...
+echo [>] Enabling Defender...
 call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" "DisableAntiSpyware" "REG_DWORD" "0"
 call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "Disable*" "REG_DWORD" "0"
 call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SpynetReporting" "REG_DWORD" "1"
 call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SubmitSamplesConsent" "REG_DWORD" "1"
-echo [>] Defender เปิดใช้งานแล้ว.
+echo [>] Defender enabled.
 echo.
 pause
 goto mainMenu
 
 :disableDefender
 echo.
-echo [!] **คำเตือน:** การปิดใช้งาน Defender จะลดความปลอดภัยของระบบ.
-set /p confirm_disable=  คุณต้องการดำเนินการต่อหรือไม่? (Y/N):
+echo [!] **Warning:** Disabling Defender will reduce system security.
+set /p confirm_disable=  Do you want to continue? (Y/N):
 if /i "%confirm_disable%"=="Y" (
-    echo [>] กำลังปิดใช้งาน Defender...
+    echo [>] Disabling Defender...
     call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" "DisableAntiSpyware" "REG_DWORD" "1"
     call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "Disable*" "REG_DWORD" "1"
     call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SpynetReporting" "REG_DWORD" "0"
     call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SubmitSamplesConsent" "REG_DWORD" "2"
-    echo [>] Defender ถูกปิดใช้งานแล้ว. **มีความเสี่ยงด้านความปลอดภัย!**
+    echo [>] Defender disabled. **Security risk!**
     echo.
     pause
 ) else (
-    echo [>] การปิดใช้งาน Defender ถูกยกเลิก.
+    echo [>] Disabling Defender cancelled.
     echo.
     pause
 )
 goto mainMenu
 
 :updateDefender
-echo [>] กำลังอัปเดต Defender...
+echo [>] Updating Defender...
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
 if %errorlevel% equ 0 (
-    echo [>] Defender อัปเดตแล้ว.
+    echo [>] Defender updated.
 ) else (
-    echo [!] **ข้อผิดพลาด:** การอัปเดตล้มเหลว. กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต.
+    echo [!] **Error:** Update failed. Please check internet connection.
 )
 echo.
 pause
 goto mainMenu
 
 :quickScanDefender
-echo [>] กำลังทำการสแกนด่วน...
+echo [>] Performing quick scan...
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
-echo [>] การสแกนด่วนเสร็จสมบูรณ์.
+echo [>] Quick scan completed.
 echo.
 pause
 goto mainMenu
 
 :fullScanDefender
-echo [>] กำลังทำการสแกนเต็มรูปแบบ (อาจใช้เวลานาน)...
+echo [>] Performing full scan (may take a long time)...
 start "" "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 2
-echo [>] การสแกนเต็มรูปแบบเริ่มทำงานในพื้นหลังแล้ว. กรุณาตรวจสอบ Windows Security สำหรับความคืบหน้า.
+echo [>] Full scan started in the background. Please check Windows Security for progress.
 echo.
 pause
 goto mainMenu
@@ -315,26 +315,26 @@ goto mainMenu
 :manageCloudProtection    & call :toggleDefenderFeature "Cloud-delivered Protection" "SpynetReporting" & goto manageDefenderMenu
 :manageSampleSubmission & call :toggleDefenderFeature "Automatic Sample Submission" "SubmitSamplesConsent" & goto manageDefenderMenu
 :viewThreatHistory
-echo [>] กำลังดูประวัติภัยคุกคาม...
+echo [>] Viewing threat history...
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -GetFiles
-echo [>] ประวัติภัยคุกคามแสดงแล้ว.
+echo [>] Threat history displayed.
 echo.
 pause
 goto mainMenu
 
 :toggleDefenderFeature
 echo.
-echo [>] สถานะปัจจุบันของ %~1:
+echo [>] Current status of %~1:
 reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v %~2 2>nul || reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v %~2
-set /p choice=  คุณต้องการเปิดใช้งาน (E) หรือปิดใช้งาน (D) %~1? (E/D):
+set /p choice=  Do you want to Enable (E) or Disable (D) %~1? (E/D):
 if /i "%choice%"=="E" (
     reg delete "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v %~2 /f 2>nul || reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v %~2 /t REG_DWORD /d "2" /f
-    echo [>] %~1 เปิดใช้งานแล้ว.
+    echo [>] %~1 Enabled.
 ) else if /i "%choice%"=="D" (
     call :modifyRegistry "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" %~2 "REG_DWORD" "1" || call :modifyRegistry "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" %~2 "REG_DWORD" "0"
-    echo [>] %~1 ปิดใช้งานแล้ว.
+    echo [>] %~1 Disabled.
 ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
 )
 echo.
 pause
@@ -342,16 +342,16 @@ goto manageDefenderMenu
 
 :optimizeFeatures
 echo.
-echo [>] กำลังปรับแต่งคุณสมบัติระบบ...
-call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" "EnableActivityFeed" "REG_DWORD" "0" & echo [>] - Activity Feed ปิดใช้งานแล้ว.
-call :modifyRegistry "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" "GlobalUserDisabled" "REG_DWORD" "1" & echo [>] - Background apps ปิดใช้งานแล้ว.
-call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" "0" & echo [>] - Cortana ปิดใช้งานแล้ว.
-call :disableGameDVRBar  & echo [>] - Game DVR และ Game Bar ปิดใช้งานแล้ว.
-call :modifyRegistry "HKCU\Control Panel\Accessibility\StickyKeys" "Flags" "REG_SZ" "506" & echo [>] - Sticky Keys prompt ปิดใช้งานแล้ว.
-call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableSoftLanding" "REG_DWORD" "1" & echo [>] - Windows Tips ปิดใช้งานแล้ว.
-call :modifyRegistry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SystemPaneSuggestionsEnabled" "REG_DWORD" "0" & echo [>] - Start Menu suggestions ปิดใช้งานแล้ว.
-call :modifyRegistry "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" "HiberbootEnabled" "REG_DWORD" "1" & echo [>] - Fast Startup เปิดใช้งานแล้ว.
-echo [>] คุณสมบัติระบบได้รับการปรับแต่งแล้ว.
+echo [>] Optimizing system features...
+call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" "EnableActivityFeed" "REG_DWORD" "0" & echo [>] - Activity Feed disabled.
+call :modifyRegistry "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" "GlobalUserDisabled" "REG_DWORD" "1" & echo [>] - Background apps disabled.
+call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" "0" & echo [>] - Cortana disabled.
+call :disableGameDVRBar  & echo [>] - Game DVR and Game Bar disabled.
+call :modifyRegistry "HKCU\Control Panel\Accessibility\StickyKeys" "Flags" "REG_SZ" "506" & echo [>] - Sticky Keys prompt disabled.
+call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableSoftLanding" "REG_DWORD" "1" & echo [>] - Windows Tips disabled.
+call :modifyRegistry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SystemPaneSuggestionsEnabled" "REG_DWORD" "0" & echo [>] - Start Menu suggestions disabled.
+call :modifyRegistry "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" "HiberbootEnabled" "REG_DWORD" "1" & echo [>] - Fast Startup enabled.
+echo [>] System features optimized.
 echo.
 pause
 goto mainMenu
@@ -369,11 +369,11 @@ echo  ╔═══════════════════════�
 echo  ║                                                                              ║
 echo  ║  [1] High Performance Plan       [4] Disable Core Parking    [7] Disable Services (**Advanced**) ║
 echo  ║  [2] Disable Throttling          [5] Adjust Power Mgmt       [8] Adjust Visual Effects         ║
-echo  ║  [3] Optimize Scheduling         [6] Enable GPU Scheduling   [9] กลับสู่เมนูหลัก                ║
+echo  ║  [3] Optimize Scheduling         [6] Enable GPU Scheduling   [9] Return to Main Menu                ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
-set /p cpu_choice=  กรุณาเลือกตัวเลือก (1-9):
+set /p cpu_choice=  Please select an option (1-9):
 echo.
 
 if "%cpu_choice%"=="1" ( call :setHighPerformancePlan ) else
@@ -385,75 +385,75 @@ if "%cpu_choice%"=="6" ( call :enableGPUScheduling ) else
 if "%cpu_choice%"=="7" ( call :disableServicesMenu ) else
 if "%cpu_choice%"=="8" ( call :adjustVisualEffects ) else
 if "%cpu_choice%"=="9" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto optimizeCPUMenu
 )
 goto optimizeCPUMenu
 
 :setHighPerformancePlan
-echo [>] กำลังตั้งค่าแผน High Performance...
+echo [>] Setting High Performance plan...
 powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** ล้มเหลวในการตั้งค่า. กำลังสร้างแผนใหม่...
+    echo [!] **Error:** Failed to set. Creating new plan...
     powercfg -duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
     for /f "tokens=4" %%i in ('powercfg -list ^| findstr /i "High performance"') do set hp_guid=%%i
     if defined hp_guid powercfg -setactive %hp_guid%
 )
-echo [>] แผน High Performance ถูกตั้งค่าแล้ว.
+echo [>] High Performance plan set.
 echo.
 pause
 goto mainMenu
 
 :disableCPUThrottling
-echo [>] กำลังปิดใช้งาน CPU throttling...
+echo [>] Disabling CPU throttling...
 powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
 powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMIN 100
 powercfg -setactive scheme_current
-echo [>] CPU throttling ถูกปิดใช้งานแล้ว.
+echo [>] CPU throttling disabled.
 echo.
 pause
 goto mainMenu
 
 :optimizeScheduling
-echo [>] กำลังปรับแต่ง processor scheduling...
+echo [>] Optimizing processor scheduling...
 call :modifyRegistry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "38"
-echo [>] Processor scheduling ถูกปรับแต่งแล้ว.
+echo [>] Processor scheduling optimized.
 echo.
 pause
 goto mainMenu
 
 :disableCoreParking
-echo [>] กำลังปิดใช้งาน CPU core parking...
+echo [>] Disabling CPU core parking...
 powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100
 powercfg -setactive scheme_current
-echo [>] CPU core parking ถูกปิดใช้งานแล้ว.
+echo [>] CPU core parking disabled.
 echo.
 pause
 goto mainMenu
 
 :adjustPowerManagement
-echo [>] กำลังปรับแต่ง power management...
+echo [>] Adjusting power management...
 powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTMODE 2
 powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTPOL 100
 powercfg -setacvalueindex scheme_current sub_processor PERFINCPOL 2
 powercfg -setacvalueindex scheme_current sub_processor PERFDECPOL 1
 powercfg -setactive scheme_current
-echo [>] Power management ถูกปรับแต่งแล้ว.
+echo [>] Power management adjusted.
 echo.
 pause
 goto mainMenu
 
 :enableGPUScheduling
-echo [>] กำลังเปิดใช้งาน GPU scheduling...
+echo [>] Enabling GPU scheduling...
 ver | findstr /i "Version 10.0.19041" >nul 2>&1
 if %errorlevel% equ 0 (
     call :modifyRegistry "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "REG_DWORD" "2"
-    echo [>] GPU scheduling เปิดใช้งานแล้ว. จำเป็นต้อง Restart.
+    echo [>] GPU scheduling enabled. Restart required.
     echo.
     pause
 ) else (
-    echo [!] **ข้อผิดพลาด:** GPU scheduling ไม่รองรับใน Windows version นี้.
+    echo [!] **Error:** GPU scheduling not supported on this Windows version.
     echo.
     pause
 )
@@ -465,15 +465,15 @@ cls
 echo.
 echo  ╔══════════ Disable System Services (Advanced) ══════════╗
 echo  ║                                                          ║
-echo  ║ **คำเตือน:** การปิดใช้งาน services อาจทำให้ระบบไม่เสถียร. ║
-echo  ║ โปรดดำเนินการด้วยความระมัดระวัง!                       ║
+echo  ║ **Warning:** Disabling services may cause system instability. ║
+echo  ║ Please proceed with caution!                             ║
 echo  ║                                                          ║
-echo  ║  [1] Disable SysMain (Superfetch)    [3] Disable WSearch (Windows Search)  [5] กลับสู่เมนู CPU ║
+echo  ║  [1] Disable SysMain (Superfetch)    [3] Disable WSearch (Windows Search)  [5] Return to CPU Menu ║
 echo  ║  [2] Disable DiagTrack (Diagnostics) [4] Disable ALL above (Aggressive)      ║
 echo  ║                                                          ║
 echo  ╚══════════════════════════════════════════════╝
 echo.
-set /p svc_choice=  กรุณาเลือกตัวเลือก (1-5):
+set /p svc_choice=  Please select an option (1-5):
 echo.
 
 if "%svc_choice%"=="1" ( call :disableService "SysMain" "Superfetch" ) else
@@ -481,35 +481,35 @@ if "%svc_choice%"=="2" ( call :disableService "DiagTrack" "Diagnostic Tracking" 
 if "%svc_choice%"=="3" ( call :disableService "WSearch" "Windows Search" ) else
 if "%svc_choice%"=="4" ( call :disableMultipleServices ) else
 if "%svc_choice%"=="5" ( goto optimizeCPUMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto disableServicesSubMenu
 )
 goto disableServicesSubMenu
 
 :disableService
-echo [>] กำลังปิดใช้งาน %~2 (%~1)...
+echo [>] Disabling %~2 (%~1)...
 sc config "%~1" start= disabled
 sc stop "%~1" 2>nul
-echo [>] %~2 ปิดใช้งานแล้ว.
+echo [>] %~2 disabled.
 echo.
 pause
 goto disableServicesMenu
 
 :disableMultipleServices
-echo [>] กำลังปิดใช้งาน SysMain, DiagTrack, WSearch...
+echo [>] Disabling SysMain, DiagTrack, WSearch...
 call :disableService "SysMain" "Superfetch"
 call :disableService "DiagTrack" "Diagnostic Tracking"
 call :disableService "WSearch" "Windows Search"
-echo [>] Services หลายรายการถูกปิดใช้งานแล้ว. **กรุณาตรวจสอบระบบหลัง Restart!**
+echo [>] Multiple services disabled. **Please check system after restart!**
 echo.
 pause
 goto disableServicesMenu
 
 :adjustVisualEffects
-echo [>] กำลังปรับแต่ง visual effects เพื่อประสิทธิภาพ...
+echo [>] Adjusting visual effects for performance...
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" "VisualFXSetting" "REG_DWORD" "2"
-echo [>] Visual effects ถูกปรับแต่งเพื่อประสิทธิภาพแล้ว.
+echo [>] Visual effects adjusted for performance.
 echo.
 pause
 goto mainMenu
@@ -522,11 +522,11 @@ echo  ╔═══════════════════════�
 echo  ║                                                                              ║
 echo  ║  [1] Basic Optimizations          [4] Network Adapter Tuning (**Advanced**)      ║
 echo  ║  [2] Advanced TCP Optimizations     [5] Clear Network Cache                     ║
-echo  ║  [3] DNS Optimization             [6] กลับสู่เมนูหลัก                            ║
+echo  ║  [3] DNS Optimization             [6] Return to Main Menu                            ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
-set /p net_choice=  กรุณาเลือกตัวเลือก (1-6):
+set /p net_choice=  Please select an option (1-6):
 echo.
 
 if "%net_choice%"=="1" ( call :basicInternetOptimizations ) else
@@ -535,34 +535,34 @@ if "%net_choice%"=="3" ( call :dnsOptimization ) else
 if "%net_choice%"=="4" ( call :adapterTuning ) else
 if "%net_choice%"=="5" ( call :clearNetworkCache ) else
 if "%net_choice%"=="6" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto optimizeInternetMenu
 )
 goto optimizeInternetMenu
 
 :basicInternetOptimizations
-echo [>] กำลังดำเนินการ basic optimizations...
+echo [>] Performing basic optimizations...
 netsh int tcp set global autotuninglevel=normal & netsh int tcp set global chimney=enabled & netsh int tcp set global dca=enabled
 netsh int tcp set global netdma=enabled & netsh int tcp set global ecncapability=enabled & netsh int tcp set global timestamps=disabled & netsh int tcp set global rss=enabled
-echo [>] Basic optimizations เสร็จสมบูรณ์.
+echo [>] Basic optimizations completed.
 echo.
 pause
 goto mainMenu
 
 :advancedTCPOptimizations
-echo [>] กำลังดำเนินการ advanced TCP optimizations (**ผู้ใช้ขั้นสูง**)...
+echo [>] Performing advanced TCP optimizations (**Advanced User**)...
 netsh int tcp set global congestionprovider=ctcp & netsh int tcp set global ecncapability=enabled & netsh int tcp set heuristics disabled
 netsh int tcp set global rss=enabled & netsh int tcp set global fastopen=enabled & netsh int tcp set global hystart=disabled & netsh int tcp set global pacingprofile=off
 call :modifyRegistry "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" "TCPNoDelay" "REG_DWORD" "1"
 call :modifyRegistry "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" "TCPDelAckTicks" "REG_DWORD" "0"
-echo [>] Advanced TCP optimizations เสร็จสมบูรณ์.
+echo [>] Advanced TCP optimizations completed.
 echo.
 pause
 goto mainMenu
 
 :dnsOptimization
-echo [>] กำลังปรับแต่ง DNS settings...
+echo [>] Optimizing DNS settings...
 ipconfig /flushdns
 for /f "tokens=3*" %%a in ('netsh int show interface ^| findstr /i "Connected"') do set "interface_name=%%b"
 if defined interface_name (
@@ -570,31 +570,31 @@ if defined interface_name (
     netsh int ip add dns name="%interface_name%" address=8.8.4.4 index=2
     echo [>] DNS optimized (8.8.8.8, 8.8.4.4).
 ) else (
-    echo [!] **ข้อผิดพลาด:** ไม่พบ interface ที่ใช้งานอยู่. DNS ล้มเหลว.
+    echo [!] **Error:** No active interface found. DNS optimization failed.
 )
 echo.
 pause
 goto mainMenu
 
 :adapterTuning
-echo [>] กำลังปรับแต่ง network adapter (**ขั้นสูง - อาจต้องปรับแต่งเพิ่มเติม**)...
+echo [>] Tuning network adapter (**Advanced - May require further tuning**)...
 for /f "tokens=3*" %%a in ('netsh int show interface ^| findstr /i "Connected"') do set "interface_name=%%b"
 if defined interface_name (
     netsh int ip set interface name="%interface_name%" dadtransmits=0 store=persistent
     netsh int ip set interface name="%interface_name%" routerdiscovery=disabled store=persistent
     powershell -Command "Get-NetAdapter -Name '%interface_name%' | Set-NetAdapterAdvancedProperty -RegistryKeyword '*FlowControl' -RegistryValue 0; Set-NetAdapterAdvancedProperty -RegistryKeyword '*InterruptModeration' -RegistryValue 0; Set-NetAdapterAdvancedProperty -RegistryKeyword '*PriorityVLANTag' -RegistryValue 3; Set-NetAdapterAdvancedProperty -RegistryKeyword '*SpeedDuplex' -RegistryValue 0"
-    echo [>] Adapter tuned. **อาจต้องปรับแต่งเพิ่มเติมใน Device Manager.**
+    echo [>] Adapter tuned. **May require further tuning in Device Manager.**
 ) else (
-    echo [!] **ข้อผิดพลาด:** ไม่พบ interface ที่ใช้งานอยู่. Adapter tuning ล้มเหลว.
+    echo [!] **Error:** No active interface found. Adapter tuning failed.
 )
 echo.
 pause
 goto mainMenu
 
 :clearNetworkCache
-echo [>] กำลังล้าง network cache...
+echo [>] Clearing network cache...
 ipconfig /flushdns & arp -d * & nbtstat -R & nbtstat -RR & netsh int ip reset & netsh winsock reset
-echo [>] Network cache ถูกล้างแล้ว.
+echo [>] Network cache cleared.
 echo.
 pause
 goto mainMenu
@@ -606,31 +606,31 @@ echo.
 echo  ╔══════════════════════ Windows Update Management ══════════════════════╗
 echo  ║                                                                              ║
 echo  ║  [1] Enable Updates                  [3] Check for Updates                    ║
-echo  ║  [2] Disable Updates (**Not Recommended**) [4] กลับสู่เมนูหลัก                ║
+echo  ║  [2] Disable Updates (**Not Recommended**) [4] Return to Main Menu                ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
-set /p update_choice=  กรุณาเลือกตัวเลือก (1-4):
+set /p update_choice=  Please select an option (1-4):
 echo.
 
 if "%update_choice%"=="1" ( call :enableWindowsUpdate ) else
 if "%update_choice%"=="2" ( call :disableWindowsUpdate ) else
 if "%update_choice%"=="3" ( call :checkWindowsUpdates ) else
 if "%update_choice%"=="4" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto windowsUpdateMenu
 )
 goto windowsUpdateMenu
 
 :enableWindowsUpdate
-echo [>] กำลังเปิดใช้งาน Windows Update...
+echo [>] Enabling Windows Update...
 sc config wuauserv start= auto
 sc start wuauserv
 if %errorlevel% equ 0 (
-    echo [>] Updates เปิดใช้งานแล้ว.
+    echo [>] Updates enabled.
 ) else (
-    echo [!] **ข้อผิดพลาด:** การเปิดใช้งานล้มเหลว. กรุณาตรวจสอบสิทธิ์.
+    echo [!] **Error:** Enabling failed. Please check permissions.
 )
 echo.
 pause
@@ -638,54 +638,54 @@ goto mainMenu
 
 :disableWindowsUpdate
 echo.
-echo [!] **คำเตือน:** การปิดใช้งาน updates เป็นความเสี่ยงด้านความปลอดภัย.
-set /p confirm_disable_update=  คุณต้องการดำเนินการต่อหรือไม่? (Y/N):
+echo [!] **Warning:** Disabling updates is a security risk.
+set /p confirm_disable_update=  Do you want to continue? (Y/N):
 if /i "%confirm_disable_update%"=="Y" (
-    echo [>] กำลังปิดใช้งาน Windows Update...
+    echo [>] Disabling Windows Update...
     sc config wuauserv start= disabled
     sc stop wuauserv
     if %errorlevel% equ 0 (
-        echo [>] Updates ถูกปิดใช้งานแล้ว. **ความเสี่ยงด้านความปลอดภัย!**
+        echo [>] Updates disabled. **Security risk!**
     ) else (
-        echo [!] **ข้อผิดพลาด:** การปิดใช้งานล้มเหลว. กรุณาตรวจสอบสิทธิ์.
+        echo [!] **Error:** Disabling failed. Please check permissions.
     )
     echo.
     pause
 ) else (
-    echo [>] การปิดใช้งาน Updates ถูกยกเลิก.
+    echo [>] Disabling Updates cancelled.
     echo.
     pause
 )
 goto mainMenu
 
 :checkWindowsUpdates
-echo [>] กำลังตรวจสอบ updates...
+echo [>] Checking for updates...
 powershell -Command "(New-Object -ComObject Microsoft.Update.AutoUpdate).DetectNow()"
-echo [>] การตรวจสอบ Update เริ่มต้นแล้ว. กรุณาดูที่ Settings > Windows Update.
+echo [>] Update check initiated. Please see Settings > Windows Update.
 echo.
 pause
 goto mainMenu
 
 :autoLogin
 echo.
-echo [>] กำลังตั้งค่า Auto-login (**เสี่ยงด้านความปลอดภัย!**)...
-echo [!] **คำเตือนด้านความปลอดภัย:** Auto-login ข้ามหน้าจอ login, ลดความปลอดภัย.
-echo [!] กรุณาใช้บนเครื่องส่วนตัวที่ปลอดภัยเท่านั้น.
-set /p username=  กรุณาป้อน username:
-set /p password=  กรุณาป้อน password:
+echo [>] Setting Auto-login (**Security Risk!**)...
+echo [!] **Security Warning:** Auto-login bypasses login screen, reduces security.
+echo [!] Please use only on secure, personal machines.
+set /p username=  Please enter username:
+set /p password=  Please enter password:
 call :modifyRegistry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultUserName" "REG_SZ" "%username%"
 call :modifyRegistry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultPassword" "REG_SZ" "%password%"
 call :modifyRegistry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon" "REG_SZ" "1"
-echo [>] Auto-login ถูกตั้งค่าแล้ว. **ความเสี่ยงด้านความปลอดภัย!**
+echo [>] Auto-login set. **Security risk!**
 echo.
 pause
 goto mainMenu
 
 :clearCache
-echo [>] กำลังล้าง system cache...
+echo [>] Clearing system cache...
 del /q /f /s %TEMP%\* 2>nul
 del /q /f /s C:\Windows\Temp\* 2>nul
-echo [>] System cache ถูกล้างแล้ว.
+echo [>] System cache cleared.
 echo.
 pause
 goto mainMenu
@@ -697,11 +697,11 @@ echo.
 echo  ╔══════════════════════════ Disk Optimization ══════════════════════════╗
 echo  ║                                                                              ║
 echo  ║  [1] Analyze Disk              [3] Check Disk Errors         [5] Clean Up System Files        ║
-echo  ║  [2] Optimize/Defrag           [4] Trim SSD                  [6] กลับสู่เมนูหลัก                ║
+echo  ║  [2] Optimize/Defrag           [4] Trim SSD                  [6] Return to Main Menu                ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
-set /p disk_choice=  กรุณาเลือกตัวเลือก (1-6):
+set /p disk_choice=  Please select an option (1-6):
 echo.
 
 if "%disk_choice%"=="1" ( call :analyzeDisk ) else
@@ -710,55 +710,55 @@ if "%disk_choice%"=="3" ( call :checkDiskErrors ) else
 if "%disk_choice%"=="4" ( call :trimSSD ) else
 if "%disk_choice%"=="5" ( goto cleanup_system ) else
 if "%disk_choice%"=="6" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto optimizeDiskMenu
 )
 goto optimizeDiskMenu
 
 :analyzeDisk
-echo [>] กำลังวิเคราะห์ disk...
+echo [>] Analyzing disk...
 defrag C: /A
-echo [>] Disk analysis เสร็จสมบูรณ์.
+echo [>] Disk analysis completed.
 echo.
 pause
 goto mainMenu
 
 :optimizeDefrag
-echo [>] กำลัง Optimize/Defragment disk...
+echo [>] Optimizing/Defragmenting disk...
 defrag C: /O
-echo [>] Disk optimization เสร็จสมบูรณ์.
+echo [>] Disk optimization completed.
 echo.
 pause
 goto mainMenu
 
 :checkDiskErrors
-echo [>] กำลังกำหนดเวลา disk check สำหรับการ restart ครั้งถัดไป...
-echo [!] **Disk check จะทำงานในการ restart ระบบครั้งถัดไป.**
+echo [>] Scheduling disk check for next restart...
+echo [!] **Disk check will run on next system restart.**
 chkdsk C: /F /R /X
 echo.
 pause
 goto mainMenu
 
 :trimSSD
-echo [>] กำลังเปิดใช้งาน SSD TRIM...
+echo [>] Enabling SSD TRIM...
 fsutil behavior set disabledeletenotify 0
-echo [>] SSD TRIM เปิดใช้งานแล้ว.
+echo [>] SSD TRIM enabled.
 echo.
 pause
 goto mainMenu
 
 :cleanup_system
-echo [>] กำลังล้างไฟล์ขยะใน system files...
+echo [>] Cleaning up system files...
 if not exist "%USERPROFILE%\AppData\Local\Microsoft\CleanMgr\StateMgr\CustomState_1.ini" (
-    echo [>] Disk Cleanup settings ไม่พบ. กำลังตั้งค่าเริ่มต้น...
+    echo [>] Disk Cleanup settings not found. Setting defaults...
     cleanmgr /sageset:1
-    echo [!] กรุณาเลือก items ที่ต้องการล้างและคลิก OK.
+    echo [!] Please select items to clean and click OK.
     pause
 )
-echo [>] กำลัง Run Disk Cleanup...
+echo [>] Running Disk Cleanup...
 cleanmgr /sagerun:1
-echo [>] System file cleanup เสร็จสมบูรณ์.
+echo [>] System file cleanup completed.
 echo.
 pause
 goto mainMenu
@@ -769,12 +769,12 @@ cls
 echo.
 echo  ╔══════════════ Check & Repair System Files ══════════════╗
 echo  ║                                                            ║
-echo  ║  [1] Run SFC                 [3] Check Disk Health          [5] กลับสู่เมนูหลัก ║
+echo  ║  [1] Run SFC                 [3] Check Disk Health          [5] Return to Main Menu ║
 echo  ║  [2] Run DISM                [4] Verify System Files                         ║
 echo  ║                                                            ║
 echo  ╚══════════════════════════════════════════════════╝
 echo.
-set /p repair_choice=  กรุณาเลือกตัวเลือก (1-5):
+set /p repair_choice=  Please select an option (1-5):
 echo.
 
 if "%repair_choice%"=="1" ( call :runSFC ) else
@@ -782,40 +782,40 @@ if "%repair_choice%"=="2" ( call :runDISM ) else
 if "%repair_choice%"=="3" ( call :checkDiskHealth ) else
 if "%repair_choice%"=="4" ( call :verifySFCFiles ) else
 if "%repair_choice%"=="5" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto checkRepairMenu
 )
 goto checkRepairMenu
 
 :runSFC
-echo [>] กำลัง Run System File Checker...
+echo [>] Running System File Checker...
 sfc /scannow
-echo [>] SFC scan เสร็จสมบูรณ์.
+echo [>] SFC scan completed.
 echo.
 pause
 goto mainMenu
 
 :runDISM
-echo [>] กำลัง Run DISM...
+echo [>] Running DISM...
 DISM /Online /Cleanup-Image /RestoreHealth
-echo [>] DISM repair เสร็จสมบูรณ์.
+echo [>] DISM repair completed.
 echo.
 pause
 goto mainMenu
 
 :checkDiskHealth
-echo [>] กำลังตรวจสอบ disk health...
+echo [>] Checking disk health...
 wmic diskdrive get status
-echo [>] Disk health check เสร็จสมบูรณ์.
+echo [>] Disk health check completed.
 echo.
 pause
 goto mainMenu
 
 :verifySFCFiles
-echo [>] กำลัง Verify system files (sfcdetails.txt บน Desktop)...
+echo [>] Verifying system files (sfcdetails.txt on Desktop)...
 Findstr /c:"[SR]" %windir%\Logs\CBS\CBS.log >"%userprofile%\Desktop\sfcdetails.txt"
-echo [>] Verification เสร็จสมบูรณ์. ผลลัพธ์อยู่ใน sfcdetails.txt บน Desktop.
+echo [>] Verification completed. Results in sfcdetails.txt on Desktop.
 echo.
 pause
 goto mainMenu
@@ -826,20 +826,20 @@ cls
 echo.
 echo  ╔══════════ Windows Activation (KMS - **RISKY!**) ══════════╗
 echo  ║                                                                 ║
-echo  ║ **คำเตือนความเสี่ยงสูงด้านความปลอดภัยและกฎหมาย:** KMS Activators  ║
-echo  ║ เป็นแหล่งที่ไม่น่าเชื่อถือ. การใช้งาน **ไม่แนะนำอย่างยิ่ง**          ║
-echo  ║ เนื่องจากภัยคุกคามด้านความปลอดภัยและการละเมิดลิขสิทธิ์ซอฟต์แวร์.   ║
+echo  ║ **High Security and Legal Risk Warning:** KMS Activators         ║
+echo  ║ are untrusted sources. Usage is **strongly NOT recommended**         ║
+echo  ║ due to security threats and software piracy.                   ║
 echo  ║                                                                 ║
-echo  ║ **โปรดดำเนินการด้วยความเสี่ยงของคุณเอง!** โดยการดำเนินการต่อ,      ║
-echo  ║ คุณรับทราบและยอมรับความเสี่ยงที่อาจเกิดขึ้นทั้งหมด.              ║
+echo  ║ **Proceed at your own risk!** By proceeding,                 ║
+echo  ║ you acknowledge and accept all potential risks.               ║
 echo  ║                                                                 ║
-echo  ║  [1] Check Activation Status         [4] Input Product Key         [6] กลับสู่เมนูหลัก ║
+echo  ║  [1] Check Activation Status         [4] Input Product Key         [6] Return to Main Menu ║
 echo  ║  [2] Activate using KMS (**HIGH RISK!**) [5] Remove Product Key                    ║
 echo  ║  [3] Activate Digital License                                    ║
 echo  ║                                                                 ║
 echo  ╚══════════════════════════════════════════════════╝
 echo.
-set /p activate_choice=  กรุณาเลือกตัวเลือก (1-6):
+set /p activate_choice=  Please select an option (1-6):
 echo.
 
 if "%activate_choice%"=="1" ( call :checkActivationStatus ) else
@@ -848,14 +848,14 @@ if "%activate_choice%"=="3" ( call :digitalActivate ) else
 if "%activate_choice%"=="4" ( call :manualProductKey ) else
 if "%activate_choice%"=="5" ( call :removeProductKey ) else
 if "%activate_choice%"=="6" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto windowsActivateMenu
 )
 goto windowsActivateMenu
 
 :checkActivationStatus
-echo [>] กำลังตรวจสอบ activation status...
+echo [>] Checking activation status...
 slmgr /xpr
 echo.
 pause
@@ -866,15 +866,15 @@ cls
 echo.
 echo  ╔══════════ KMS Activation - **CONFIRM RISK!** ══════════╗
 echo  ║                                                          ║
-echo  ║ **คุณกำลังจะใช้ KMS ACTIVATION - มีความเสี่ยงสูง!**         ║
-echo  ║ **โปรดยืนยันว่าคุณเข้าใจและยอมรับความเสี่ยงด้านความปลอดภัย   ║
-echo  ║ และกฎหมาย (Y/N):**                                     ║
+echo  ║ **You are about to use KMS ACTIVATION - HIGH RISK!**         ║
+echo  ║ **Please confirm you understand and accept the security    ║
+echo  ║ and legal risks (Y/N):**                                     ║
 echo  ║                                                          ║
 echo  ╚══════════════════════════════════════════════════╝
 echo.
-set /p confirm_kms_risk=  ยืนยันการดำเนินการต่อ (Y/N):
+set /p confirm_kms_risk=  Confirm to proceed (Y/N):
 if /i "%confirm_kms_risk%"=="Y" ( call :kmsActivate ) else (
-    echo [>] KMS Activation ถูกยกเลิก.
+    echo [>] KMS Activation cancelled.
     echo.
     pause
     goto windowsActivateMenu
@@ -882,9 +882,9 @@ if /i "%confirm_kms_risk%"=="Y" ( call :kmsActivate ) else (
 goto windowsActivateMenu
 
 :kmsActivate
-echo [>] กำลังพยายาม KMS activation (**HIGH RISK!**)...
+echo [>] Attempting KMS activation (**HIGH RISK!**)...
 net session >nul 2>&1 || (
-    echo [!] **ข้อผิดพลาด:** จำเป็นต้องมีสิทธิ์ผู้ดูแลระบบ.
+    echo [!] **Error:** Administrator rights required.
     pause
     exit /b 1
 )
@@ -894,30 +894,30 @@ pause
 goto mainMenu
 
 :digitalActivate
-echo [>] กำลังพยายาม digital license activation...
+echo [>] Attempting digital license activation...
 slmgr /ato
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** Digital license activation ล้มเหลว.
+    echo [!] **Error:** Digital license activation failed.
 ) else (
-    echo [>] Digital license activation ถูกพยายามแล้ว. กรุณาตรวจสอบสถานะ.
+    echo [>] Digital license activation attempted. Please check status.
 )
 echo.
 pause
 goto mainMenu
 
 :manualProductKey
-set /p product_key=  กรุณาป้อน product key 25 ตัวอักษร (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX):
-echo [>] กำลังติดตั้ง product key...
+set /p product_key=  Please enter 25-character product key (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX):
+echo [>] Installing product key...
 slmgr /ipk %product_key%
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** Key install ล้มเหลว. Product key ไม่ถูกต้อง?
+    echo [!] **Error:** Key install failed. Invalid product key?
 ) else (
-    echo [>] Key ติดตั้งแล้ว. กำลังพยายาม activation...
+    echo [>] Key installed. Attempting activation...
     slmgr /ato
     if %errorlevel% neq 0 (
-        echo [!] **ข้อผิดพลาด:** Activation ล้มเหลว. กรุณาตรวจสอบ key.
+        echo [!] **Error:** Activation failed. Please check key.
     ) else (
-        echo [>] Activation ถูกพยายามแล้ว. กรุณาตรวจสอบสถานะ.
+        echo [>] Activation attempted. Please check status.
     )
 )
 echo.
@@ -925,12 +925,12 @@ pause
 goto mainMenu
 
 :removeProductKey
-echo [>] กำลังลบ product key...
+echo [>] Removing product key...
 slmgr /upk
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** Key removal ล้มเหลว. สิทธิ์?
+    echo [!] **Error:** Key removal failed. Permissions?
 ) else (
-    echo [>] Product key ถูกลบแล้ว.
+    echo [>] Product key removed.
 )
 echo.
 pause
@@ -945,11 +945,11 @@ echo  ║                                                                       
 echo  ║  [1] List Power Plans             [4] Delete Power Plan (**Caution!**)       [7] Adjust Display/Sleep Timeouts ║
 echo  ║  [2] Set Power Plan              [5] Adjust Sleep Settings                 [8] Configure Lid Close Action     ║
 echo  ║  [3] Create Power Plan             [6] Configure Hibernation                 [9] Configure Power Button Action║
-echo  ║                                                            [10] กลับสู่เมนูหลัก                ║
+echo  ║                                                            [10] Return to Main Menu                ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
-set /p power_choice=  กรุณาเลือกตัวเลือก (1-10):
+set /p power_choice=  Please select an option (1-10):
 echo.
 
 if "%power_choice%"=="1" ( call :listPowerPlans ) else
@@ -962,14 +962,14 @@ if "%power_choice%"=="7" ( call :adjustTimeoutsMenu ) else
 if "%power_choice%"=="8" ( call :lidCloseActionMenu ) else
 if "%power_choice%"=="9" ( call :powerButtonActionMenu ) else
 if "%power_choice%"=="10" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto managePowerMenu
 )
 goto managePowerMenu
 
 :listPowerPlans
-echo [>] กำลัง List power plans...
+echo [>] Listing power plans...
 powercfg /list
 echo.
 pause
@@ -978,23 +978,23 @@ goto mainMenu
 :setPowerPlanMenu
 echo [>] Available power plans:
 powercfg /list
-set /p plan_guid=  กรุณาป้อน plan GUID ที่ต้องการตั้งค่า:
+set /p plan_guid=  Please enter plan GUID to set:
 call :setPowerPlan "%plan_guid%"
 goto managePowerMenu
 
 :setPowerPlan
 powercfg /setactive %~1
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** ล้มเหลวในการตั้งค่า plan. กรุณาตรวจสอบ GUID.
+    echo [!] **Error:** Failed to set plan. Please check GUID.
 ) else (
-    echo [>] Power plan ถูกตั้งค่าแล้ว.
+    echo [>] Power plan set.
 )
 echo.
 pause
 goto managePowerMenu
 
 :createPowerPlanMenu
-set /p plan_name=  กรุณาป้อนชื่อ power plan ใหม่:
+set /p plan_name=  Please enter new power plan name:
 call :createPowerPlan "%plan_name%"
 goto managePowerMenu
 
@@ -1002,9 +1002,9 @@ goto managePowerMenu
 powercfg /duplicatescheme scheme_balanced
 if %errorlevel% equ 0 (
     powercfg /changename %~1
-    echo [>] Power plan ถูกสร้างแล้ว.
+    echo [>] Power plan created.
 ) else (
-    echo [!] **ข้อผิดพลาด:** Plan creation ล้มเหลว.
+    echo [!] **Error:** Plan creation failed.
 )
 echo.
 pause
@@ -1013,25 +1013,25 @@ goto managePowerMenu
 :deletePowerPlanMenu
 echo [>] Available power plans:
 powercfg /list
-set /p del_guid=  กรุณาป้อน plan GUID ที่ต้องการลบ (**Caution!**):
+set /p del_guid=  Please enter plan GUID to delete (**Caution!**):
 call :deletePowerPlan "%del_guid%"
 goto managePowerMenu
 
 :deletePowerPlan
 echo.
-echo [!] **คำเตือน:** การลบ power plan อาจลบ active plan.
-set /p confirm_delete_plan=  คุณต้องการดำเนินการต่อหรือไม่? (Y/N):
+echo [!] **Warning:** Deleting power plan may delete active plan.
+set /p confirm_delete_plan=  Do you want to continue? (Y/N):
 if /i "%confirm_delete_plan%"=="Y" (
     powercfg /delete %~1
     if %errorlevel% equ 0 (
-        echo [>] Power plan ถูกลบแล้ว.
+        echo [>] Power plan deleted.
     ) else (
-        echo [!] **ข้อผิดพลาด:** Plan deletion ล้มเหลว. กรุณาตรวจสอบ GUID.
+        echo [!] **Error:** Plan deletion failed. Please check GUID.
     )
     echo.
     pause
 ) else (
-    echo [>] Plan deletion ถูกยกเลิก.
+    echo [>] Plan deletion cancelled.
     echo.
     pause
 )
@@ -1041,7 +1041,7 @@ goto managePowerMenu
 set /p sleep_time=  Minutes before sleep (0=never):
 powercfg /change standby-timeout-ac %sleep_time%
 powercfg /change standby-timeout-dc %sleep_time%
-echo [>] Sleep settings ถูกปรับแต่งแล้ว.
+echo [>] Sleep settings adjusted.
 echo.
 pause
 goto managePowerMenu
@@ -1052,17 +1052,17 @@ cls
 echo.
 echo  ╔══════════════ Configure Hibernation ══════════════╗
 echo  ║                                                      ║
-echo  ║  [1] Enable Hibernation      [2] Disable Hibernation  [3] กลับสู่เมนู Power ║
+echo  ║  [1] Enable Hibernation      [2] Disable Hibernation  [3] Return to Power Menu ║
 echo  ║                                                      ║
 echo  ╚══════════════════════════════════════════════╝
 echo.
-set /p hib_choice=  กรุณาเลือกตัวเลือก (1-3):
+set /p hib_choice=  Please select an option (1-3):
 echo.
 
 if "%hib_choice%"=="1" ( call :enableHibernation ) else
 if "%hib_choice%"=="2" ( call :disableHibernation ) else
 if "%hib_choice%"=="3" ( goto managePowerMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto configureHibernationSubMenu
 )
@@ -1070,14 +1070,14 @@ goto configureHibernationSubMenu
 
 :enableHibernation
 powercfg /hibernate on
-echo [>] Hibernation เปิดใช้งานแล้ว.
+echo [>] Hibernation enabled.
 echo.
 pause
 goto configureHibernationMenu
 
 :disableHibernation
 powercfg /hibernate off
-echo [>] Hibernation ปิดใช้งานแล้ว.
+echo [>] Hibernation disabled.
 echo.
 pause
 goto configureHibernationMenu
@@ -1095,7 +1095,7 @@ powercfg /change monitor-timeout-ac %~1
 powercfg /change monitor-timeout-dc %~2
 powercfg /change standby-timeout-ac %~3%
 powercfg /change standby-timeout-dc %~4%
-echo [>] Display/sleep timeouts ถูกปรับแต่งแล้ว.
+echo [>] Display/sleep timeouts adjusted.
 echo.
 pause
 goto managePowerMenu
@@ -1109,11 +1109,11 @@ cls
 echo.
 echo  ╔══════════ Configure %~2 Action ══════════╗
 echo  ║                                              ║
-echo  ║  [1] Do Nothing  [2] Sleep  [3] Hibernate  [4] Shut Down  [5] กลับสู่เมนู Power ║
+echo  ║  [1] Do Nothing  [2] Sleep  [3] Hibernate  [4] Shut Down  [5] Return to Power Menu ║
 echo  ║                                              ║
 echo  ╚══════════════════════════════════════════╝
 echo.
-set /p action_choice=  กรุณาเลือกตัวเลือก (1-5):
+set /p action_choice=  Please select an option (1-5):
 echo.
 
 if "%action_choice%"=="1" ( set action=0 ) else
@@ -1121,7 +1121,7 @@ if "%action_choice%"=="2" ( set action=1 ) else
 if "%action_choice%"=="3" ( set action=2 ) else
 if "%action_choice%"=="4" ( set action=3 ) else
 if "%action_choice%"=="5" ( goto managePowerMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto powerActionSubMenu_%~1
 )
@@ -1132,15 +1132,15 @@ goto powerActionMenu
 powercfg /setacvalueindex scheme_current sub_buttons %~1 %~2
 powercfg /setdcvalueindex scheme_current sub_buttons %~1 %~2
 powercfg /setactive scheme_current
-echo [>] %~1 action ถูกตั้งค่าแล้ว.
+echo [>] %~1 action set.
 echo.
 goto powerActionMenu
 
 :enableDarkMode
-echo [>] กำลังเปิดใช้งาน Dark Mode...
+echo [>] Enabling Dark Mode...
 call :modifyRegistry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme" "REG_DWORD" "0"
 call :modifyRegistry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "SystemUsesLightTheme" "REG_DWORD" "0"
-echo [>] Dark Mode เปิดใช้งานแล้ว.
+echo [>] Dark Mode enabled.
 echo.
 pause
 goto mainMenu
@@ -1151,15 +1151,15 @@ cls
 echo.
 echo  ╔══════ Partition Management (**DATA LOSS RISK!**) ══════╗
 echo  ║                                                          ║
-echo  ║ **คำเตือน:** การจัดการ partition อาจทำให้ **ข้อมูลสูญหายถาวร**.   ║
-echo  ║ กรุณาสำรองข้อมูลสำคัญทั้งหมด!                             ║
+echo  ║ **Warning:** Partition management may cause **permanent data loss**.   ║
+echo  ║ Please backup all important data!                             ║
 echo  ║                                                          ║
-echo  ║  [1] List Partitions        [3] Delete Partition (**DATA LOSS!**)  [5] กลับสู่เมนูหลัก ║
+echo  ║  [1] List Partitions        [3] Delete Partition (**DATA LOSS!**)  [5] Return to Main Menu ║
 echo  ║  [2] Create Partition (**DATA LOSS RISK!**) [4] Format Partition (**DATA LOSS!**)    ║
 echo  ║                                                          ║
 echo  ╚══════════════════════════════════════════════╝
 echo.
-set /p part_choice=  กรุณาเลือกตัวเลือก (1-5):
+set /p part_choice=  Please select an option (1-5):
 echo.
 
 if "%part_choice%"=="1" ( call :listPartitions ) else
@@ -1167,14 +1167,14 @@ if "%part_choice%"=="2" ( call :createPartitionMenu ) else
 if "%part_choice%"=="3" ( call :deletePartitionMenu ) else
 if "%part_choice%"=="4" ( call :formatPartitionMenu ) else
 if "%part_choice%"=="5" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto managePartitionsMenu
 )
 goto managePartitionsMenu
 
 :listPartitions
-echo [>] กำลัง List Partitions...
+echo [>] Listing Partitions...
 echo list disk > list_disk.txt
 echo list volume >> list_disk.txt
 diskpart /s list_disk.txt
@@ -1184,36 +1184,36 @@ pause
 goto managePartitionsMenu
 
 :createPartitionMenu
-echo [!] **Data Loss Risk! กรุณาสำรองข้อมูล!**
-set /p disk_num=  กรุณาป้อน disk number:
-set /p part_size=  กรุณาป้อน partition size (MB):
+echo [!] **Data Loss Risk! Please backup data!**
+set /p disk_num=  Please enter disk number:
+set /p part_size=  Please enter partition size (MB):
 call :createPartition "%disk_num%" "%part_size%"
 goto managePartitionsMenu
 
 :createPartition
-echo [>] กำลังสร้าง Partition (**Data Loss Risk!**)...
+echo [>] Creating Partition (**Data Loss Risk!**)...
 (
     echo select disk %~1
     echo create partition primary size=%~2
 ) > create_part.txt
 diskpart /s create_part.txt
 del create_part.txt
-echo [>] Partition ถูกสร้างแล้ว. **กรุณาตรวจสอบ Disk Management.**
+echo [>] Partition created. **Please check Disk Management.**
 echo.
 pause
 goto managePartitionsMenu
 
 :deletePartitionMenu
-echo [!] **Permanent Data Loss Warning! กรุณาสำรองข้อมูล!**
-set /p disk_num=  กรุณาป้อน disk number:
-set /p part_num=  กรุณาป้อน partition number:
+echo [!] **Permanent Data Loss Warning! Please backup data!**
+set /p disk_num=  Please enter disk number:
+set /p part_num=  Please enter partition number:
 call :deletePartition "%disk_num%" "%part_num%"
 goto managePartitionsMenu
 
 :deletePartition
-echo [>] กำลังลบ Partition (**Permanent Data Loss!**)...
-echo [!] **คำเตือน: ข้อมูลจะสูญหายอย่างถาวร! คุณต้องการดำเนินการต่อหรือไม่? (Y/N)**
-set /p confirm_delete_part=  ยืนยันการลบ partition (Y/N):
+echo [>] Deleting Partition (**Permanent Data Loss!**)...
+echo [!] **Warning: Data will be permanently lost! Do you want to continue? (Y/N)**
+set /p confirm_delete_part=  Confirm partition deletion (Y/N):
 if /i "%confirm_delete_part%"=="Y" (
     (
         echo select disk %~1
@@ -1222,28 +1222,28 @@ if /i "%confirm_delete_part%"=="Y" (
     ) > delete_part.txt
     diskpart /s delete_part.txt
     del delete_part.txt
-    echo [>] Partition ถูกลบแล้ว. **ข้อมูลสูญหายอย่างถาวร! กรุณาตรวจสอบ Disk Management.**
+    echo [>] Partition deleted. **Permanent data loss! Please check Disk Management.**
     echo.
     pause
 ) else (
-    echo [>] Partition deletion ถูกยกเลิก.
+    echo [>] Partition deletion cancelled.
     echo.
     pause
 )
 goto managePartitionsMenu
 
 :formatPartitionMenu
-echo [!] **Data Loss Warning! กรุณาสำรองข้อมูล!**
-set /p disk_num=  กรุณาป้อน disk number:
-set /p part_num=  กรุณาป้อน partition number:
-set /p fs=       กรุณาป้อน file system (NTFS/FAT32):
+echo [!] **Data Loss Warning! Please backup data!**
+set /p disk_num=  Please enter disk number:
+set /p part_num=  Please enter partition number:
+set /p fs=       Please enter file system (NTFS/FAT32):
 call :formatPartition "%disk_num%" "%part_num%" "%fs%"
 goto managePartitionsMenu
 
 :formatPartition
-echo [>] กำลัง Format Partition (**Data Loss!**)...
-echo [!] **คำเตือน: ข้อมูลจะสูญหาย! คุณต้องการดำเนินการต่อหรือไม่? (Y/N)**
-set /p confirm_format_part=  ยืนยันการ format partition (Y/N):
+echo [>] Formatting Partition (**Data Loss!**)...
+echo [!] **Warning: Data will be lost! Do you want to continue? (Y/N)**
+set /p confirm_format_part=  Confirm partition formatting (Y/N):
 if /i "%confirm_format_part%"=="Y" (
     (
         echo select disk %~1
@@ -1252,20 +1252,20 @@ if /i "%confirm_format_part%"=="Y" (
     ) > format_part.txt
     diskpart /s format_part.txt
     del format_part.txt
-    echo [>] Partition ถูก format แล้ว. **ข้อมูลสูญหาย! กรุณาตรวจสอบ Disk Management.**
+    echo [>] Partition formatted. **Data lost! Please check Disk Management.**
     echo.
     pause
 ) else (
-    echo [>] Partition formatting ถูกยกเลิก.
+    echo [>] Partition formatting cancelled.
     echo.
     pause
 )
 goto managePartitionsMenu
 
 :manageStartup
-echo [>] กำลังจัดการ startup programs...
+echo [>] Managing startup programs...
 start msconfig
-echo [>] กรุณาใช้ System Configuration utility เพื่อจัดการ startup programs.
+echo [>] Please use System Configuration utility to manage startup programs.
 echo.
 pause
 goto mainMenu
@@ -1276,51 +1276,51 @@ cls
 echo.
 echo  ╔══════════ Backup & Restore Settings ══════════╗
 echo  ║                                              ║
-echo  ║  [1] Create Restore Point    [2] Restore from Restore Point  [3] กลับสู่เมนูหลัก ║
+echo  ║  [1] Create Restore Point    [2] Restore from Restore Point  [3] Return to Main Menu ║
 echo  ║                                              ║
 echo  ╚══════════════════════════════════════════╝
 echo.
-set /p backup_choice=  กรุณาเลือกตัวเลือก (1-3):
+set /p backup_choice=  Please select an option (1-3):
 echo.
 
 if "%backup_choice%"=="1" ( call :createRestorePoint ) else
 if "%backup_choice%"=="2" ( call :restoreFromPoint ) else
 if "%backup_choice%"=="3" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto backupRestoreMenu
 )
 goto backupRestoreMenu
 
 :createRestorePoint
-echo [>] กำลังสร้าง system restore point...
+echo [>] Creating system restore point...
 wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "Manual Restore Point", 100, 7
-echo [>] System restore point ถูกสร้างแล้ว.
+echo [>] System restore point created.
 echo.
 pause
 goto mainMenu
 
 :restoreFromPoint
-echo [>] กำลัง Restore from restore point...
+echo [>] Restoring from restore point...
 rstrui.exe
-echo [>] กรุณาทำตามคำแนะนำบนหน้าจอเพื่อ restore system.
+echo [>] Please follow on-screen instructions to restore system.
 echo.
 pause
 goto mainMenu
 
 :systemInfo
-echo [>] กำลังแสดง system information...
+echo [>] Displaying system information...
 systeminfo
 echo.
 pause
 goto mainMenu
 
 :optimizePrivacy
-echo [>] กำลังปรับแต่ง privacy settings...
-call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0" & echo [>] - Telemetry ถูกปิดใช้งานแล้ว.
-call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" "1" & echo [>] - Advertising ID ถูกปิดใช้งานแล้ว.
-call :modifyRegistry "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" "AllowTelemetry" "REG_DWORD" "0" & echo [>] - เพิ่มเติม Telemetry ถูกปิดใช้งานแล้ว.
-echo [>] Privacy settings ถูกปรับแต่งแล้ว.
+echo [>] Optimizing privacy settings...
+call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0" & echo [>] - Telemetry disabled.
+call :modifyRegistry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" "1" & echo [>] - Advertising ID disabled.
+call :modifyRegistry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" "AllowTelemetry" "REG_DWORD" "0" & echo [>] - Additional Telemetry disabled.
+echo [>] Privacy settings optimized.
 echo.
 pause
 goto mainMenu
@@ -1331,13 +1331,13 @@ cls
 echo.
 echo  ╔══════════ Windows Services Management ══════════╗
 echo  ║                                                ║
-echo  ║  [1] List All Services         [4] Start Service         [7] Change Startup Type  [10] กลับสู่เมนูหลัก ║
+echo  ║  [1] List All Services         [4] Start Service         [7] Change Startup Type  [10] Return to Main Menu ║
 echo  ║  [2] List Running Services     [5] Stop Service          [8] Search for Service                 ║
 echo  ║  [3] List Stopped Services     [6] Restart Service       [9] View Service Details               ║
 echo  ║                                                ║
 echo  ╚══════════════════════════════════════════════╝
 echo.
-set /p service_choice=  กรุณาเลือกตัวเลือก (1-10):
+set /p service_choice=  Please select an option (1-10):
 echo.
 
 if "%service_choice%"=="1" ( call :listAllServices ) else
@@ -1350,67 +1350,67 @@ if "%service_choice%"=="7" ( call :changeStartupTypeMenu ) else
 if "%service_choice%"=="8" ( call :searchServiceMenu ) else
 if "%service_choice%"=="9" ( call :viewServiceDetailsMenu ) else
 if "%service_choice%"=="10" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto manageServicesMenu
 )
 goto manageServicesMenu
 
 :listAllServices
-echo [>] กำลัง List all services...
+echo [>] Listing all services...
 sc query type= service state= all
 echo.
 pause
 goto manageServicesMenu
 
 :listRunningServices
-echo [>] กำลัง List running services...
+echo [>] Listing running services...
 sc query type= service state= running
 echo.
 pause
 goto manageServicesMenu
 
 :listStoppedServices
-echo [>] กำลัง List stopped services...
+echo [>] Listing stopped services...
 sc query type= service state= stopped
 echo.
 pause
 goto manageServicesMenu
 
 :startServiceMenu
-set /p service_name=  กรุณาป้อน service name ที่ต้องการ start:
+set /p service_name=  Please enter service name to start:
 call :startService "%service_name%"
 goto manageServicesMenu
 
 :startService
 sc start "%~1"
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** ล้มเหลวในการ start service. กรุณาตรวจสอบ name/permissions.
+    echo [!] **Error:** Failed to start service. Please check name/permissions.
 ) else (
-    echo [>] Service start ถูกพยายามแล้ว. กรุณาตรวจสอบสถานะ.
+    echo [>] Service start attempted. Please check status.
 )
 echo.
 pause
 goto manageServicesMenu
 
 :stopServiceMenu
-set /p service_name=  กรุณาป้อน service name ที่ต้องการ stop:
+set /p service_name=  Please enter service name to stop:
 call :stopService "%service_name%"
 goto manageServicesMenu
 
 :stopService
 sc stop "%~1"
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** ล้มเหลวในการ stop service. กรุณาตรวจสอบ name/permissions.
+    echo [!] **Error:** Failed to stop service. Please check name/permissions.
 ) else (
-    echo [>] Service stop ถูกพยายามแล้ว. กรุณาตรวจสอบสถานะ.
+    echo [>] Service stop attempted. Please check status.
 )
 echo.
 pause
 goto manageServicesMenu
 
 :restartServiceMenu
-set /p service_name=  กรุณาป้อน service name ที่ต้องการ restart:
+set /p service_name=  Please enter service name to restart:
 call :restartService "%service_name%"
 goto manageServicesMenu
 
@@ -1419,16 +1419,16 @@ sc stop "%~1"
 timeout /t 2 >nul
 sc start "%~1"
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** ล้มเหลวในการ restart service. กรุณาตรวจสอบ name/permissions.
+    echo [!] **Error:** Failed to restart service. Please check name/permissions.
 ) else (
-    echo [>] Service restart ถูกพยายามแล้ว. กรุณาตรวจสอบสถานะ.
+    echo [>] Service restart attempted. Please check status.
 )
 echo.
 pause
 goto manageServicesMenu
 
 :changeStartupTypeMenu
-set /p service_name=  กรุณาป้อน service name:
+set /p service_name=  Please enter service name:
 :changeStartupTypeSubMenu
 cls
 echo.
@@ -1439,14 +1439,14 @@ echo  ║  [2] Automatic (Delayed) [4] Disabled     ║
 echo  ║                                        ║
 echo  ╚══════════════════════════════════════╝
 echo.
-set /p startup_choice=  กรุณาเลือกตัวเลือก (1-4):
+set /p startup_choice=  Please select an option (1-4):
 echo.
 
 if "%startup_choice%"=="1" ( set start_type=auto ) else
 if "%startup_choice%"=="2" ( set start_type=delayed-auto ) else
 if "%startup_choice%"=="3" ( set start_type=demand ) else
 if "%startup_choice%"=="4" ( set start_type=disabled ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto changeStartupTypeSubMenu
 )
@@ -1456,16 +1456,16 @@ goto changeStartupTypeMenu
 :changeServiceStartup
 sc config "%~1" start= %~2
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** ล้มเหลวในการ change startup type. กรุณาตรวจสอบ name/permissions.
+    echo [!] **Error:** Failed to change startup type. Please check name/permissions.
 ) else (
-    echo [>] Startup type ถูกเปลี่ยนเรียบร้อยแล้ว.
+    echo [>] Startup type changed successfully.
 )
 echo.
 pause
 goto changeStartupTypeMenu
 
 :searchServiceMenu
-set /p search_term=  กรุณาป้อน service name search term:
+set /p search_term=  Please enter service name search term:
 call :searchService "%search_term%"
 goto manageServicesMenu
 
@@ -1476,14 +1476,14 @@ pause
 goto manageServicesMenu
 
 :viewServiceDetailsMenu
-set /p service_name=  กรุณาป้อน service name สำหรับรายละเอียด:
+set /p service_name=  Please enter service name for details:
 call :viewServiceDetails "%service_name%"
 goto manageServicesMenu
 
 :viewServiceDetails
 sc qc "%~1"
 echo.
-echo [>] สถานะปัจจุบัน:
+echo [>] Current status:
 sc query "%~1"
 echo.
 pause
@@ -1496,13 +1496,13 @@ echo.
 echo  ╔══════════════════════ Network Optimization ══════════════════════╗
 echo  ║                                                                              ║
 echo  ║  [1] Optimize TCP Settings         [5] Disable IPv6 (**Caution**)           [8] Reset All Network Settings (**Restart Req.**) ║
-echo  ║  [2] Reset Winsock (**Restart Req.**) [6] Enable QoS Packet Scheduler       [9] กลับสู่เมนูหลัก                            ║
+echo  ║  [2] Reset Winsock (**Restart Req.**) [6] Enable QoS Packet Scheduler       [9] Return to Main Menu                            ║
 echo  ║  [3] Clear DNS Cache               [7] Set Static DNS Servers                                   ║
 echo  ║  [4] Optimize Adapter (**Advanced**)                                                          ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
-set /p net_choice=  กรุณาเลือกตัวเลือก (1-9):
+set /p net_choice=  Please select an option (1-9):
 echo.
 
 if "%net_choice%"=="1" ( call :optimizeTCPSettings ) else
@@ -1514,49 +1514,49 @@ if "%net_choice%"=="6" ( call :enableQoSPacketScheduler ) else
 if "%net_choice%"=="7" ( call :setStaticDNSMenu ) else
 if "%net_choice%"=="8" ( call :resetNetworkSettings ) else
 if "%net_choice%"=="9" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto networkOptimizationMenu
 )
 goto networkOptimizationMenu
 
 :optimizeTCPSettings
-echo [>] กำลังปรับแต่ง TCP settings...
+echo [>] Optimizing TCP settings...
 netsh int tcp set global autotuninglevel=normal & netsh int tcp set global congestionprovider=ctcp & netsh int tcp set global ecncapability=enabled & netsh int tcp set heuristics disabled
 netsh int tcp set global rss=enabled & netsh int tcp set global fastopen=enabled & netsh int tcp set global timestamps=disabled & netsh int tcp set global initialRto=2000 & netsh int tcp set global nonsackrttresiliency=disabled
-echo [>] TCP settings ถูกปรับแต่งแล้ว.
+echo [>] TCP settings optimized.
 echo.
 pause
 goto mainMenu
 
 :resetWinsock
-echo [>] กำลัง Reset Winsock...
+echo [>] Resetting Winsock...
 netsh winsock reset
-echo [>] Winsock reset แล้ว. **กรุณา Restart computer!**
+echo [>] Winsock reset. **Please Restart computer!**
 echo.
 pause
 goto mainMenu
 
 :clearDNSCache
-echo [>] กำลังล้าง DNS cache...
+echo [>] Clearing DNS cache...
 ipconfig /flushdns
-echo [>] DNS cache ถูกล้างแล้ว.
+echo [>] DNS cache cleared.
 echo.
 pause
 goto mainMenu
 
 :optimizeAdapterSettings
-echo [>] กำลังปรับแต่ง adapter settings (**ขั้นสูง - โปรดระวัง**)...
+echo [>] Optimizing adapter settings (**Advanced - Use with caution**)...
 for /f "tokens=3*" %%a in ('netsh int show interface ^| findstr /i "connected"') do set "interface_name=%%b"
 if defined interface_name (
     netsh int ip set interface name="%interface_name%" dadtransmits=0 store=persistent
     netsh int ip set interface name="%interface_name%" routerdiscovery=disabled store=persistent
-    echo [>] กำลัง Disable TCP Security features (**อาจลดความปลอดภัย**)...
+    echo [>] Disabling TCP Security features (**May reduce security**)...
     netsh int tcp set security mpp=disabled & netsh int tcp set security profiles=disabled
     powershell -Command "Get-NetAdapter -Name '%interface_name%' | Set-NetAdapterAdvancedProperty -RegistryKeyword '*FlowControl' -RegistryValue 0; Set-NetAdapterAdvancedProperty -RegistryKeyword '*InterruptModeration' -RegistryValue 0; Set-NetAdapterAdvancedProperty -RegistryKeyword '*PriorityVLANTag' -RegistryValue 3; Set-NetAdapterAdvancedProperty -RegistryKeyword '*SpeedDuplex' -RegistryValue 0"
-    echo [>] Adapter settings ถูกปรับแต่งแล้ว. **กรุณาตรวจสอบ connection หลัง tuning.**
+    echo [>] Adapter settings optimized. **Please check connection after tuning.**
 ) else (
-    echo [!] **ข้อผิดพลาด:** ไม่พบ interface ที่ใช้งานอยู่. Adapter optimization ล้มเหลว.
+    echo [!] **Error:** No active interface found. Adapter optimization failed.
 )
 echo.
 pause
@@ -1564,10 +1564,10 @@ goto mainMenu
 
 :disableIPv6Menu
 echo.
-echo [!] **คำเตือน:** การปิดใช้งาน IPv6 อาจทำให้เกิดปัญหา network.
-set /p confirm_ipv6_disable=  คุณต้องการดำเนินการต่อหรือไม่? (Y/N):
+echo [!] **Warning:** Disabling IPv6 may cause network issues.
+set /p confirm_ipv6_disable=  Do you want to continue? (Y/N):
 if /i "%confirm_ipv6_disable%"=="Y" ( call :disableIPv6 ) else (
-    echo [>] IPv6 disabling ถูกยกเลิก.
+    echo [>] IPv6 disabling cancelled.
     echo.
     pause
     goto networkOptimizationMenu
@@ -1575,28 +1575,28 @@ if /i "%confirm_ipv6_disable%"=="Y" ( call :disableIPv6 ) else (
 goto networkOptimizationMenu
 
 :disableIPv6
-echo [>] กำลังปิดใช้งาน IPv6...
+echo [>] Disabling IPv6...
 netsh interface ipv6 set global randomizeidentifiers=disabled
 netsh interface ipv6 set privacy state=disabled
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d 255 /f
-echo [>] IPv6 ปิดใช้งานแล้ว. **กรุณา Restart computer! ตรวจสอบ connection.**
+echo [>] IPv6 disabled. **Please Restart computer! Check connection.**
 echo.
 pause
 goto mainMenu
 
 :enableQoSPacketScheduler
-echo [>] กำลังเปิดใช้งาน QoS Packet Scheduler...
+echo [>] Enabling QoS Packet Scheduler...
 netsh int tcp set global packetcoalescinginbound=disabled
 sc config "Qwave" start= auto
 net start Qwave
-echo [>] QoS Packet Scheduler เปิดใช้งานแล้ว.
+echo [>] QoS Packet Scheduler enabled.
 echo.
 pause
 goto mainMenu
 
 :setStaticDNSMenu
-set /p primary_dns=   กรุณาป้อน primary DNS (เช่น, 8.8.8.8):
-set /p secondary_dns= กรุณาป้อน secondary DNS (เช่น, 8.8.4.4):
+set /p primary_dns=   Please enter primary DNS (e.g., 8.8.8.8):
+set /p secondary_dns= Please enter secondary DNS (e.g., 8.8.4.4):
 call :setStaticDNS "%primary_dns%" "%secondary_dns%"
 goto networkOptimizationMenu
 
@@ -1605,35 +1605,35 @@ for /f "tokens=3*" %%a in ('netsh int show interface ^| findstr /i "connected"')
 if defined interface_name (
     netsh interface ip set dns name="%interface_name%" source=static address=%~1 register=primary
     netsh interface ip add dns name="%interface_name%" address=%~2 index=2
-    echo [>] Static DNS ถูกตั้งค่าแล้ว.
+    echo [>] Static DNS set.
 ) else (
-    echo [!] **ข้อผิดพลาด:** ไม่พบ interface ที่ใช้งานอยู่. Static DNS ล้มเหลว.
+    echo [!] **Error:** No active interface found. Static DNS failed.
 )
 echo.
 pause
 goto mainMenu
 
 :resetNetworkSettings
-echo [>] กำลัง Reset all network settings (**Restart Required**)...
+echo [>] Resetting all network settings (**Restart Required**)...
 netsh winsock reset & netsh int ip reset & netsh advfirewall reset & ipconfig /release & ipconfig /renew & ipconfig /flushdns
-echo [>] All network settings reset แล้ว. **กรุณา Restart computer!**
+echo [>] All network settings reset. **Please Restart computer!**
 echo.
 pause
 goto mainMenu
 
 :disableTransparency
-echo [>] กำลังปิดใช้งาน Transparency Effects...
+echo [>] Disabling Transparency Effects...
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" "EnableTransparency" "REG_DWORD" "0"
-echo [>] Transparency Effects ปิดใช้งานแล้ว.
+echo [>] Transparency Effects disabled.
 echo.
 pause
 goto mainMenu
 
 :disableAnimationsExtra
-echo [>] กำลังปิดใช้งาน Extra Animation Effects...
+echo [>] Disabling Extra Animation Effects...
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "Animations" "REG_DWORD" "0"
 call :modifyRegistry "HKCU\Control Panel\Desktop" "DragFullWindows" "REG_SZ" "1"
-echo [>] Extra Animations ปิดใช้งานแล้ว.
+echo [>] Extra Animations disabled.
 echo.
 pause
 goto mainMenu
@@ -1644,12 +1644,12 @@ cls
 echo.
 echo  ╔══════════ Storage Sense Optimization ══════════╗
 echo  ║                                              ║
-echo  ║  [1] Enable Storage Sense      [3] Configure Recycle Bin Cleanup  [5] กลับสู่เมนูหลัก ║
+echo  ║  [1] Enable Storage Sense      [3] Configure Recycle Bin Cleanup  [5] Return to Main Menu ║
 echo  ║  [2] Set Cleanup Frequency     [4] Configure Temp Files Cleanup                  ║
 echo  ║                                              ║
 echo  ╚══════════════════════════════════════════╝
 echo.
-set /p ss_choice=  กรุณาเลือกตัวเลือก (1-5):
+set /p ss_choice=  Please select an option (1-5):
 echo.
 
 if "%ss_choice%"=="1" ( call :enableStorageSense ) else
@@ -1657,16 +1657,16 @@ if "%ss_choice%"=="2" ( call :configCleanupFrequencyMenu ) else
 if "%ss_choice%"=="3" ( call :configRecycleBinCleanup ) else
 if "%ss_choice%"=="4" ( call :configTempFilesCleanup ) else
 if "%ss_choice%"=="5" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto optimizeStorageSenseSubMenu
 )
 goto optimizeStorageSenseSubMenu
 
 :enableStorageSense
-echo [>] กำลังเปิดใช้งาน Storage Sense...
+echo [>] Enabling Storage Sense...
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\StorageSense" "Enabled" "REG_DWORD" "1"
-echo [>] Storage Sense เปิดใช้งานแล้ว.
+echo [>] Storage Sense enabled.
 echo.
 pause
 goto mainMenu
@@ -1682,14 +1682,14 @@ echo  ║  [2] Every Week   [4] Low Disk Space   ║
 echo  ║                                       ║
 echo  ╚══════════════════════════════════════╝
 echo.
-set /p freq_choice=  กรุณาเลือกตัวเลือก (1-4):
+set /p freq_choice=  Please select an option (1-4):
 echo.
 
 if "%freq_choice%"=="1" ( set freq_val=1 ) else
 if "%freq_choice%"=="2" ( set freq_val=7 ) else
 if "%freq_choice%"=="3" ( set freq_val=30 ) else
 if "%freq_choice%"=="4" ( set freq_val=0 ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto configCleanupFrequencySubMenu
 )
@@ -1698,7 +1698,7 @@ goto configCleanupFrequencyMenu
 
 :configCleanupFrequency
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\StorageSense" "CleanupFrequency" "REG_DWORD" "%~1"
-echo [>] Cleanup frequency ถูกตั้งค่าแล้ว.
+echo [>] Cleanup frequency set.
 echo.
 pause
 goto mainMenu
@@ -1706,7 +1706,7 @@ goto mainMenu
 :configRecycleBinCleanup
 set /p rb_days=  Days for Recycle Bin cleanup (0=disable):
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\StorageSense" "DaysToRunRecycleBinCleanup" "REG_DWORD" "%rb_days%"
-echo [>] Recycle Bin cleanup ถูกตั้งค่าแล้ว.
+echo [>] Recycle Bin cleanup set.
 echo.
 pause
 goto mainMenu
@@ -1714,16 +1714,16 @@ goto mainMenu
 :configTempFilesCleanup
 set /p temp_days=  Days for Temp Files cleanup (0=disable):
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\StorageSense" "DaysToRunTempFilesCleanup" "REG_DWORD" "%temp_days%"
-echo [>] Temp files cleanup ถูกตั้งค่าแล้ว.
+echo [>] Temp files cleanup set.
 echo.
 pause
 goto mainMenu
 
 :disableStartupSound
-echo [>] กำลังปิดใช้งาน Startup Sound...
+echo [>] Disabling Startup Sound...
 call :modifyRegistry "HKEY_CURRENT_USER\AppEvents\Schemes\Apps\Explorer\WindowsLogon\.Current" ".Default" "REG_SZ" "%SystemRoot%\media\Windows Logon.wav"
 call :modifyRegistry "HKEY_CURRENT_USER\AppEvents\Schemes\Apps\Explorer\WindowsLogon\.Current" "ExcludeFromCPL" "REG_DWORD" "1"
-echo [>] Startup Sound ปิดใช้งานแล้ว.
+echo [>] Startup Sound disabled.
 echo.
 pause
 goto mainMenu
@@ -1734,15 +1734,15 @@ cls
 echo.
 echo  ╔══════ Paging File (Virtual Memory) Optimization (**Advanced**) ══════╗
 echo  ║                                                                      ║
-echo  ║ **คำเตือนขั้นสูง:** การตั้งค่า Paging File ที่ไม่ถูกต้องอาจเป็นอันตรายต่อระบบ.   ║
-echo  ║ โปรดดำเนินการด้วยความระมัดระวังและศึกษาข้อมูล!                        ║
+echo  ║ **Advanced Warning:** Incorrect Paging File settings can harm system stability.   ║
+echo  ║ Please proceed with caution and research information!                        ║
 echo  ║                                                                      ║
-echo  ║  [1] System Managed Size (**Recommended**) [3] Disable Paging File (**NOT Recommended!**) [5] กลับสู่เมนูหลัก ║
-echo  ║  [2] Custom Size                               [4] กลับสู่เมนู CPU                       ║
+echo  ║  [1] System Managed Size (**Recommended**) [3] Disable Paging File (**NOT Recommended!**) [5] Return to Main Menu ║
+echo  ║  [2] Custom Size                               [4] Return to CPU Menu                       ║
 echo  ║                                                                      ║
 echo  ╚══════════════════════════════════════════════════════════╝
 echo.
-set /p pf_choice=  กรุณาเลือกตัวเลือก (1-5):
+set /p pf_choice=  Please select an option (1-5):
 echo.
 
 if "%pf_choice%"=="1" ( call :systemManagedPagingFile ) else
@@ -1750,29 +1750,29 @@ if "%pf_choice%"=="2" ( call :customSizePagingFileMenu ) else
 if "%pf_choice%"=="3" ( call :disablePagingFileWarn ) else
 if "%pf_choice%"=="4" ( goto optimizeCPUMenu ) else
 if "%pf_choice%"=="5" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto optimizePagingFileSubMenu
 )
 goto optimizePagingFileSubMenu
 
 :systemManagedPagingFile
-echo [>] กำลังตั้งค่า Paging File เป็น System Managed Size (**Recommended**)...
+echo [>] Setting Paging File to System Managed Size (**Recommended**)...
 wmic computersystem where name="%computername%" set AutomaticManagedPagefile=True
-echo [>] Paging File ถูกตั้งค่าเป็น System Managed.
+echo [>] Paging File set to System Managed.
 echo.
 pause
 goto mainMenu
 
 :customSizePagingFileMenu
-set /p initial_size=  กรุณาป้อน initial size (MB):
-set /p max_size=      กรุณาป้อน maximum size (MB):
+set /p initial_size=  Please enter initial size (MB):
+set /p max_size=      Please enter maximum size (MB):
 call :customSizePagingFile "%initial_size%" "%max_size%"
 goto optimizePagingFileMenu
 
 :customSizePagingFile
 wmic pagefileset where name="C:\\pagefile.sys" set InitialSize=%~1,MaximumSize=%~2
-echo [>] Paging File ถูกตั้งค่าเป็น Custom Size (Initial: %~1MB, Max: %~2MB).
+echo [>] Paging File set to Custom Size (Initial: %~1MB, Max: %~2MB).
 echo.
 pause
 goto mainMenu
@@ -1782,14 +1782,14 @@ cls
 echo.
 echo  ╔══════ Disable Paging File - **CONFIRM RISK!** ══════╗
 echo  ║                                                          ║
-echo  ║ **คุณกำลังจะ DISABLE PAGING FILE - ไม่แนะนำ!**             ║
-echo  ║ **โปรดยืนยันว่าคุณเข้าใจความเสี่ยงด้าน SYSTEM STABILITY (Y/N):** ║
+echo  ║ **You are about to DISABLE PAGING FILE - NOT Recommended!**             ║
+echo  ║ **Please confirm you understand SYSTEM STABILITY risks (Y/N):** ║
 echo  ║                                                          ║
 echo  ╚══════════════════════════════════════════════╝
 echo.
-set /p confirm_pf_disable=  ยืนยันการดำเนินการต่อ (Y/N):
+set /p confirm_pf_disable=  Confirm to proceed (Y/N):
 if /i "%confirm_pf_disable%"=="Y" ( call :disablePagingFile ) else (
-    echo [>] Paging File disabling ถูกยกเลิก.
+    echo [>] Paging File disabling cancelled.
     echo.
     pause
     goto optimizePagingFileMenu
@@ -1797,19 +1797,19 @@ if /i "%confirm_pf_disable%"=="Y" ( call :disablePagingFile ) else (
 goto optimizePagingFileMenu
 
 :disablePagingFile
-echo [>] กำลังปิดใช้งาน Paging File (**NOT Recommended!**)...
+echo [>] Disabling Paging File (**NOT Recommended!**)...
 wmic computersystem where name="%computername%" set AutomaticManagedPagefile=False
 wmic pagefileset where name="C:\\pagefile.sys" delete
-echo [>] Paging File ปิดใช้งานแล้ว. **System instability risk! Restart & test system.**
+echo [>] Paging File disabled. **System instability risk! Restart & test system.**
 echo.
 pause
 goto mainMenu
 
 :disableWidgets
-echo [>] กำลังปิดใช้งาน Widget Features (Windows 11)...
+echo [>] Disabling Widget Features (Windows 11)...
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "TaskbarDa" "REG_DWORD" "0"
 call :modifyRegistry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "TaskbarMn" "REG_DWORD" "0"
-echo [>] Widget Features ปิดใช้งานแล้ว. (**Restart Explorer or PC recommended.**)
+echo [>] Widget Features disabled. (**Restart Explorer or PC recommended.**)
 echo.
 pause
 goto mainMenu
@@ -1820,12 +1820,12 @@ cls
 echo.
 echo  ╔══════════ Game Mode Optimization ══════════╗
 echo  ║                                             ║
-echo  ║  [1] Enable Game Mode         [3] Disable Game DVR & Bar (Option 3) [5] กลับสู่เมนูหลัก ║
-echo  ║  [2] Disable GameBar Service   [4] กลับสู่เมนู CPU                       ║
+echo  ║  [1] Enable Game Mode         [3] Disable Game DVR & Bar (Option 3) [5] Return to Main Menu ║
+echo  ║  [2] Disable GameBar Service   [4] Return to CPU Menu                       ║
 echo  ║                                             ║
 echo  ╚══════════════════════════════════════════╝
 echo.
-set /p game_choice=  กรุณาเลือกตัวเลือก (1-5):
+set /p game_choice=  Please select an option (1-5):
 echo.
 
 if "%game_choice%"=="1" ( call :enableGameMode ) else
@@ -1833,25 +1833,25 @@ if "%game_choice%"=="2" ( call :disableGameBarService ) else
 if "%game_choice%"=="3" ( call :disableGameDVRBar & pause & goto mainMenu ) else
 if "%game_choice%"=="4" ( goto optimizeCPUMenu ) else
 if "%game_choice%"=="5" ( goto mainMenu ) else (
-    echo [!] **ข้อผิดพลาด:** ตัวเลือกไม่ถูกต้อง.
+    echo [!] **Error:** Invalid option.
     pause
     goto optimizeGameModeSubMenu
 )
 goto optimizeGameModeSubMenu
 
 :enableGameMode
-echo [>] กำลังเปิดใช้งาน Game Mode...
+echo [>] Enabling Game Mode...
 call :modifyRegistry "HKCU\Software\Microsoft\GameBar" "AllowAutoGameMode" "REG_DWORD" "1"
-echo [>] Game Mode เปิดใช้งานแล้ว.
+echo [>] Game Mode enabled.
 echo.
 pause
 goto mainMenu
 
 :disableGameBarService
-echo [>] กำลังปิดใช้งาน Game Bar Presence Writer Service...
+echo [>] Disabling Game Bar Presence Writer Service...
 sc config "GameBarSvc" start= disabled
 sc stop "GameBarSvc" 2>nul
-echo [>] Game Bar Presence Writer Service ปิดใช้งานแล้ว.
+echo [>] Game Bar Presence Writer Service disabled.
 echo.
 pause
 goto mainMenu
@@ -1863,21 +1863,21 @@ echo  ╔═══════════════════════�
 echo  ║                                                                              ║
 echo  ║  Windows Optimization Script v3.5 - Enhanced Edition - Help                   ║
 echo  ║                                                                              ║
-echo  ║  คำแนะนำการใช้งาน:                                                            ║
-echo  ║  - ป้อนหมายเลขตัวเลือก (1-30) เพื่อเลือกเมนู.                                  ║
-echo  ║  - ตัวเลือกที่มี **คำเตือน** ควรใช้ด้วยความระมัดระวัง.                           ║
-echo  ║  - อ่านคำแนะนำและคำเตือนอย่างละเอียดก่อนดำเนินการ.                             ║
-echo  ║  - หากพบปัญหา, กรุณาตรวจสอบสิทธิ์ผู้ดูแลระบบและ Restart เครื่อง.                ║
+echo  ║  Usage Instructions:                                                         ║
+echo  ║  - Enter the option number (1-30) to select a menu.                          ║
+echo  ║  - Options with **warnings** should be used with caution.                      ║
+echo  ║  - Read instructions and warnings carefully before proceeding.                 ║
+echo  ║  - If issues occur, please check administrator rights and Restart machine.     ║
 echo  ║                                                                              ║
-echo  ║  **ข้อมูลเพิ่มเติม:**                                                          ║
-echo  ║  - Script นี้ปรับปรุงประสิทธิภาพและความเร็วของ Windows.                         ║
-echo  ║  - เหมาะสำหรับ Windows 11 (อาจมีปัญหาความเข้ากันได้กับ Windows รุ่นเก่า).         ║
-echo  ║  - การปรับแต่งบางอย่างอาจต้อง Restart เครื่องเพื่อให้มีผล.                        ║
+echo  ║  **Additional Information:**                                                  ║
+echo  ║  - This script improves the efficiency and speed of Windows.                   ║
+echo  ║  - Optimized for Windows 11 (may have compatibility issues with older Windows). ║
+echo  ║  - Some optimizations may require a system Restart to take effect.              ║
 echo  ║                                                                              ║
-echo  ║  **ติดต่อผู้พัฒนา:** [GT Singtaro]                                             ║
+echo  ║  **Developer Contact:** [GT Singtaro]                                         ║
 echo  ║  **Version:** 3.5 - Enhanced Edition                                          ║
 echo  ║                                                                              ║
-echo  ║  กดปุ่มใดก็ได้เพื่อกลับสู่เมนูหลัก...                                           ║
+echo  ║  Press any key to return to the main menu...                                   ║
 echo  ║                                                                              ║
 echo  ╚══════════════════════════════════════════════════════════════════════╝
 echo.
@@ -1888,8 +1888,8 @@ goto mainMenu
 :endexit
 echo.
 echo  ╔══════════════════════════════════════════════════════════════════╗
-echo  ║         ขอบคุณที่ใช้ Windows Optimization Script! - Enhanced Edition         ║
-echo  ║               Script พัฒนาโดย [GT Singtaro]                                 ║
+echo  ║         Thank you for using Windows Optimization Script! - Enhanced Edition         ║
+echo  ║               Script developed by [GT Singtaro]                                 ║
 echo  ║              Version 3.5 - Enhanced Edition - Main Menu                     ║
 echo  ╚══════════════════════════════════════════════════════════════════╝
 echo.
@@ -1900,7 +1900,7 @@ exit
 :modifyRegistry
 reg add %1 /v %2 /t %3 /d %4 /f 2>nul
 if %errorlevel% neq 0 (
-    echo [!] **ข้อผิดพลาด:** ไม่สามารถแก้ไข registry key: %1\%2
+    echo [!] **Error:** Unable to modify registry key: %1\%2
     pause
 )
 exit /b 0
