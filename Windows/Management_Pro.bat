@@ -78,9 +78,9 @@ goto menu
 :option_2
 :manage_defender
 cls
-echo ===================================================
-echo             Windows Defender Management
-echo ===================================================
+echo ===================================================================
+echo             Windows Defender Management - Advanced
+echo ===================================================================
 echo 1. Check Windows Defender Status
 echo 2. Enable Windows Defender Protection
 echo 3. Disable Windows Defender Protection (HIGH RISK - NOT RECOMMENDED)
@@ -92,9 +92,16 @@ echo 8. Manage Cloud-delivered Protection (Enable/Disable)
 echo 9. Manage Automatic Sample Submission (Enable/Disable)
 echo 10. Manage Potentially Unwanted Application (PUA) Protection (Enable/Disable)
 echo 11. View Threat History Log
-echo 12. Return to Main Menu
-echo ===================================================
-set /p def_choice=Enter your choice (1-12):
+echo 12. Manage Exclusions
+echo     12.1. Add File Exclusion
+echo     12.2. Add Folder Exclusion
+echo     12.3. Remove Exclusion (by Path)
+echo     12.4. List All Exclusions
+echo 13. Manage Controlled Folder Access (Enable/Disable)
+echo 14. View Quarantined Threats
+echo 15. Return to Main Menu
+echo ===================================================================
+set /p def_choice=Enter your choice (1-15):
 
 if "%def_choice%"=="1" goto check_defender
 if "%def_choice%"=="2" goto enable_defender
@@ -107,12 +114,187 @@ if "%def_choice%"=="8" goto manage_cloud
 if "%def_choice%"=="9" goto manage_samples
 if "%def_choice%"=="10" goto manage_pua
 if "%def_choice%"=="11" goto view_history
-if "%def_choice%"=="12" goto menu
+if "%def_choice%"=="12" goto manage_exclusions_menu
+if "%def_choice%"=="13" goto manage_controlled_folder_access
+if "%def_choice%"=="14" goto view_quarantined_threats
+if "%def_choice%"=="15" goto menu
 echo Invalid choice. Please try again.
 pause
 goto manage_defender
 
+:manage_exclusions_menu
+cls
+echo ==================================================
+echo             Manage Windows Defender Exclusions
+echo ==================================================
+echo 1. Add File Exclusion
+echo 2. Add Folder Exclusion
+echo 3. Remove Exclusion (by Path)
+echo 4. List All Exclusions
+echo 5. Return to Windows Defender Management Menu
+echo ==================================================
+set /p exclusion_choice=Enter your choice (1-5):
+
+if "%exclusion_choice%"=="1" goto add_file_exclusion
+if "%exclusion_choice%"=="2" goto add_folder_exclusion
+if "%exclusion_choice%"=="3" goto remove_exclusion
+if "%exclusion_choice%"=="4" goto list_exclusions
+if "%exclusion_choice%"=="5" goto manage_defender
+echo Invalid choice. Please try again.
+pause
+goto manage_exclusions_menu
+
+:add_file_exclusion
+cls
+echo ==================================================
+echo              Add File Exclusion
+echo ==================================================
+set /p exclusion_path=Enter the full path to the file to exclude:
+if not exist "%exclusion_path%" (
+    echo Error: File path does not exist. Please enter a valid file path.
+    pause
+    goto manage_exclusions_menu
+)
+powershell -Command "Add-MpPreference -ExclusionPath '%exclusion_path%'"
+if %errorlevel% equ 0 (
+    echo File exclusion added successfully: "%exclusion_path%"
+) else (
+    echo Error adding file exclusion. Error Code: %errorlevel%
+    echo Please check permissions and ensure path is correct.
+)
+pause
+goto manage_exclusions_menu
+
+:add_folder_exclusion
+cls
+echo ==================================================
+echo              Add Folder Exclusion
+echo ==================================================
+set /p exclusion_path=Enter the full path to the folder to exclude:
+if not exist "%exclusion_path%" (
+    echo Error: Folder path does not exist. Please enter a valid folder path.
+    pause
+    goto manage_exclusions_menu
+)
+powershell -Command "Add-MpPreference -ExclusionPath '%exclusion_path%'"
+if %errorlevel% equ 0 (
+    echo Folder exclusion added successfully: "%exclusion_path%"
+) else (
+    echo Error adding folder exclusion. Error Code: %errorlevel%
+    echo Please check permissions and ensure path is correct.
+)
+pause
+goto manage_exclusions_menu
+
+:remove_exclusion
+cls
+echo ==================================================
+echo              Remove Exclusion (by Path)
+echo ==================================================
+set /p exclusion_path=Enter the full path of the exclusion to remove:
+powershell -Command "Remove-MpPreference -ExclusionPath '%exclusion_path%'"
+if %errorlevel% equ 0 (
+    echo Exclusion removed successfully for path: "%exclusion_path%"
+) else (
+    echo Error removing exclusion. Error Code: %errorlevel%
+    echo Exclusion path may not exist or error occurred.
+)
+pause
+goto manage_exclusions_menu
+
+:list_exclusions
+cls
+echo ==================================================
+echo              List All Exclusions
+echo ==================================================
+echo Listing all Windows Defender exclusions...
+powershell -Command "Get-MpPreference | Select-Object ExclusionPath | Format-List"
+if %errorlevel% neq 0 (
+    echo.
+    echo Error listing exclusions. Error Code: %errorlevel%
+    echo Please ensure PowerShell is working correctly.
+) else (
+    echo.
+    echo Exclusion list displayed above.
+)
+pause
+goto manage_exclusions_menu
+
+:manage_controlled_folder_access
+cls
+echo ==================================================
+echo         Manage Controlled Folder Access
+echo ==================================================
+echo 1. Check Controlled Folder Access Status
+echo 2. Enable Controlled Folder Access
+echo 3. Disable Controlled Folder Access
+echo 4. Return to Windows Defender Management Menu
+echo ==================================================
+set /p cfa_choice=Enter your choice (1-4):
+
+if "%cfa_choice%"=="1" goto check_cfa_status
+if "%cfa_choice%"=="2" goto enable_cfa
+if "%cfa_choice%"=="3" goto disable_cfa
+if "%cfa_choice%"=="4" goto manage_defender
+echo Invalid choice. Please try again.
+pause
+goto manage_controlled_folder_access
+
+:check_cfa_status
+echo Checking Controlled Folder Access Status...
+powershell -Command "Get-MpPreference | Select-Object EnableControlledFolderAccess"
+pause
+goto manage_controlled_folder_access
+
+:enable_cfa
+echo Enabling Controlled Folder Access...
+powershell -Command "Set-MpPreference -EnableControlledFolderAccess Enabled"
+if %errorlevel% equ 0 (
+    echo Controlled Folder Access Enabled.
+) else (
+    echo Error enabling Controlled Folder Access. Error Code: %errorlevel%
+)
+pause
+goto manage_controlled_folder_access
+
+:disable_cfa
+echo Disabling Controlled Folder Access...
+echo WARNING: Disabling Controlled Folder Access may reduce ransomware protection.
+set /p disable_cfa_confirm=Are you sure you want to DISABLE Controlled Folder Access? (Type YES to confirm):
+if /i "%disable_cfa_confirm%"=="YES" (
+    powershell -Command "Set-MpPreference -EnableControlledFolderAccess Disabled"
+    if %errorlevel% equ 0 (
+        echo Controlled Folder Access Disabled.
+    ) else (
+        echo Error disabling Controlled Folder Access. Error Code: %errorlevel%
+    )
+) else (
+    echo Disabling Controlled Folder Access Cancelled.
+)
+pause
+goto manage_controlled_folder_access
+
+:view_quarantined_threats
+cls
+echo ==================================================
+echo             View Quarantined Threats
+echo ==================================================
+echo Displaying quarantined threats from Windows Defender...
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -GetFiles -path \ProgramData\Microsoft\Windows Defender\Quarantine
+if %errorlevel% equ 0 (
+    echo.
+    echo Quarantined Threats Displayed Above. Check the output for details.
+    echo Note: This may show file paths, not actual file names in some cases.
+) else (
+    echo.
+    echo Error: Failed to retrieve Quarantined Threats. Error Code: %errorlevel%
+    echo Please check Windows Defender and system logs for more details.
+)
+pause
+goto manage_defender
+
 :check_defender
+:: (Code เดิมจาก Option 2 - check_defender)
 echo Checking Windows Defender Status...
 sc query windefend
 if %errorlevel% equ 0 (
@@ -128,6 +310,7 @@ pause
 goto manage_defender
 
 :enable_defender
+:: (Code เดิมจาก Option 2 - enable_defender)
 echo Enabling Windows Defender Protection...
 echo.
 echo Applying settings to enable Windows Defender and Real-Time Protection...
@@ -151,6 +334,7 @@ pause
 goto manage_defender
 
 :disable_defender
+:: (Code เดิมจาก Option 2 - disable_defender)
 echo ==========================================================================================
 echo  !!!  WARNING: DISABLING WINDOWS DEFENDER SIGNIFICANTLY INCREASES YOUR SYSTEM'S VULNERABILITY !!!
 echo  It is HIGHLY RECOMMENDED to keep Windows Defender enabled for continuous protection.
@@ -189,6 +373,7 @@ pause
 goto manage_defender
 
 :update_defender
+:: (Code เดิมจาก Option 2 - update_defender)
 echo Updating Windows Defender Signatures...
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
 if %errorlevel% equ 0 (
@@ -203,6 +388,7 @@ pause
 goto manage_defender
 
 :quick_scan
+:: (Code เดิมจาก Option 2 - quick_scan)
 echo Running Quick Scan for Threats...
 echo.
 echo Starting a quick scan with Windows Defender...
@@ -219,6 +405,7 @@ pause
 goto manage_defender
 
 :full_scan
+:: (Code เดิมจาก Option 2 - full_scan)
 echo Running Full System Scan for Threats...
 echo.
 echo Starting a full system scan with Windows Defender in the background. This may take a considerable time.
@@ -231,6 +418,7 @@ pause
 goto manage_defender
 
 :manage_realtime
+:: (Code เดิมจาก Option 2 - manage_realtime)
 echo Managing Real-time Protection...
 echo.
 echo Current Real-time Protection Status:
@@ -271,6 +459,7 @@ pause
 goto manage_defender
 
 :manage_cloud
+:: (Code เดิมจาก Option 2 - manage_cloud)
 echo Managing Cloud-delivered Protection...
 echo.
 echo Current Cloud-delivered Protection Status:
@@ -301,6 +490,7 @@ pause
 goto manage_defender
 
 :manage_samples
+:: (Code เดิมจาก Option 2 - manage_samples)
 echo Managing Automatic Sample Submission...
 echo.
 echo Current Automatic Sample Submission Status:
@@ -330,6 +520,7 @@ pause
 goto manage_defender
 
 :manage_pua
+:: (Code เดิมจาก Option 2 - manage_pua)
 echo Managing Potentially Unwanted Application (PUA) Protection...
 echo.
 echo Current Potentially Unwanted Application (PUA) Protection Status:
@@ -362,6 +553,7 @@ pause
 goto manage_defender
 
 :view_history
+:: (Code เดิมจาก Option 2 - view_history)
 echo Viewing Threat History Log...
 echo.
 echo Displaying recent threat history from Windows Defender:
@@ -378,6 +570,7 @@ pause
 goto manage_defender
 
 :registry_error
+:: (Code เดิมจาก Option 2 - registry_error)
 echo.
 echo !!! ERROR: Failed to modify Registry. Error Code: %errorlevel% !!!
 echo Please ensure you are running this script as an Administrator.
@@ -670,143 +863,682 @@ goto optimize_features
 :option_4
 :optimize_cpu
 cls
-echo ==================================================
-echo CPU Optimization - Advanced
-echo ==================================================
-echo 1. Set High Performance power plan
-echo 2. Disable CPU throttling
-echo 3. Optimize processor scheduling
-echo 4. Disable CPU core parking
-echo 5. Adjust processor power management
-echo 6. Enable hardware-accelerated GPU scheduling
-echo 7. Disable unnecessary system services (Caution)
-echo 8. Adjust visual effects for performance
-echo 9. Enable Multi-core Boot (Restart Required)
-echo 10. Enable Maximum Memory Boot (Restart Required)
-echo 11. Return to main menu
-echo ==================================================
-set /p cpu_choice=Enter your choice (1-11):
+echo "=============================================================="
+echo "                 CPU Optimization - Advanced & Comprehensive"
+echo "             [ Optimized for Windows 10 & Windows 11 ]"
+echo "=============================================================="
+echo " Advanced CPU optimization for maximum performance on Windows 10 & 11."
+echo "=============================================================="
+echo "WARNING: Incorrect settings can cause system instability."
+echo "         Understand each option before applying."
+echo "=============================================================="
 
-if "%cpu_choice%"=="1" goto set_high_performance
-if "%cpu_choice%"=="2" goto disable_throttling
-if "%cpu_choice%"=="3" goto optimize_scheduling
-if "%cpu_choice%"=="4" goto disable_core_parking
-if "%cpu_choice%"=="5" goto adjust_power_management
-if "%cpu_choice%"=="6" goto enable_gpu_scheduling
-if "%cpu_choice%"=="7" goto disable_services
-if "%cpu_choice%"=="8" goto adjust_visual_effects
-if "%cpu_choice%"=="9" goto enable_multicore_boot
-if "%cpu_choice%"=="10" goto enable_maxmem_boot
-if "%cpu_choice%"=="11" goto menu
-echo Invalid choice. Please try again.
+echo "Select an optimization category:"
+echo "=============================================================="
+echo "1. Power Management"
+echo "2. Scheduling & Responsiveness"
+echo "3. Core Parking & Services"
+echo "4. Visual Effects"
+echo "5. Boot Performance"
+echo "--------------------------------------------------------------"
+echo "6. Comprehensive CPU Optimization (Advanced)"
+echo "7. Revert All CPU Optimizations"
+echo "--------------------------------------------------------------"
+echo "8. Display Current CPU Settings"
+echo "9. Advanced Performance Tools"
+echo "--------------------------------------------------------------"
+echo "10. Return to Main Menu"
+echo "=============================================================="
+set /p cpu_category_choice=Enter choice (1-10):
+
+:: Validate user input
+if not "%cpu_category_choice%"=="" (
+    if %cpu_category_choice% geq 1 if %cpu_category_choice% leq 10 (
+        goto cpu_category_option_%cpu_category_choice%
+    )
+)
+
+:: If invalid choice, prompt again
+echo "Invalid choice. Try again."
 pause
 goto optimize_cpu
+
+
+:cpu_category_option_1
+:cpu_power_management
+cls
+echo "=============================================================="
+echo "            CPU Optimization - Power Management"
+echo "=============================================================="
+echo " Optimize CPU power settings for better performance."
+echo "=============================================================="
+echo "1. Set High Performance Plan (Desktops)"
+echo "2. Set Ultimate Performance Plan (If Available - Windows 11 Recommended)"
+echo "3. Disable CPU Throttling (Max Performance - May Increase Heat)"
+echo "4. Aggressive Performance Boost Mode"
+echo "5. Adjust Processor State (Min/Max Power)"
+echo "--------------------------------------------------------------"
+echo "6. Revert Power Management Optimizations"
+echo "7. Return to CPU Optimization Menu"
+echo "=============================================================="
+set /p cpu_power_choice=Enter choice (1-7):
+
+if "%cpu_power_choice%"=="1" goto set_high_performance
+if "%cpu_power_choice%"=="2" goto set_ultimate_performance
+if "%cpu_power_choice%"=="3" goto disable_throttling
+if "%cpu_power_choice%"=="4" goto adjust_power_management
+if "%cpu_power_choice%"=="5" goto adjust_processor_state
+if "%cpu_power_choice%"=="6" goto revert_power_management_optimizations
+if "%cpu_power_choice%"=="7" goto optimize_cpu
+echo "Invalid choice. Try again."
+pause
+goto cpu_power_management
+
+:set_ultimate_performance
+echo "Setting Ultimate Performance Power Plan..."
+:: Check if Ultimate Performance plan exists, if not, create it.
+powercfg /list | findstr /C:"Ultimate Performance" > nul
+if %errorlevel% neq 0 (
+    echo "Ultimate Performance plan not found. Creating..."
+    powercfg -duplicatescheme e9a42b02-d5df-44c8-aa00-0003f1474963
+)
+echo "Setting active power plan to Ultimate Performance..."
+powercfg -setactive e9a42b02-d5df-44c8-aa00-0003f1474963
+echo "Ultimate Performance plan set."
+pause
+goto cpu_power_management
+
 
 :set_high_performance
-echo Setting High Performance power plan...
-powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-if %errorlevel% neq 0 (
-    echo Failed to set High Performance power plan. Checking for Ultimate Performance...
-    powercfg /list | findstr "Ultimate Performance"
-    if %errorlevel% equ 0 (
-        for /f "tokens=4" %%i in ('powercfg -list ^| findstr /i "Ultimate Performance"') do set up_guid=%%i
-        powercfg -setactive %up_guid%
-        echo Ultimate Performance power plan set.
-        pause
-        goto optimize_cpu
-    ) else (
-        echo Ultimate Performance power plan not found. Creating High Performance plan...
-        powercfg -duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-        for /f "tokens=4" %%i in ('powercfg -list ^| findstr /i "High performance"') do set hp_guid=%%i
-        powercfg -setactive %hp_guid%
-        echo High Performance power plan set.
-    )
-) else (
-    echo High Performance power plan set.
-)
+echo "Setting High Performance Power Plan..."
+echo "Setting active power plan to High Performance..."
+powercfg -setactive 8c5e7fda-e8bf-4a96-94b6-fe8dd03c9a8c
+echo "High Performance plan set."
 pause
-goto optimize_cpu
+goto cpu_power_management
+
 
 :disable_throttling
-echo Disabling CPU throttling...
-powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
-powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMIN 100
-powercfg -setactive scheme_current
-echo CPU throttling disabled.
+echo "Disabling CPU Throttling..."
+powercfg -attributes SUB_PROCESSOR PROCTHROTTLEMAX -ATTRIB_HIDE
+powercfg -attributes SUB_PROCESSOR PROCTHROTTLEMIN -ATTRIB_HIDE
+powercfg -setacvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg -setdcvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg -setacvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMIN 0
+powercfg -setdcvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMIN 0
+powercfg -SetActive scheme_current
+echo "CPU Throttling disabled."
 pause
-goto optimize_cpu
+goto cpu_power_management
 
-:optimize_scheduling
-echo Optimizing processor scheduling...
-call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "38"
-echo Processor scheduling optimized for best performance of programs.
-pause
-goto optimize_cpu
-
-:disable_core_parking
-echo Disabling CPU core parking...
-powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100
-powercfg -setactive scheme_current
-echo CPU core parking disabled.
-pause
-goto optimize_cpu
 
 :adjust_power_management
-echo Adjusting processor power management...
-powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTMODE 2
-powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTPOL 100
-powercfg -setacvalueindex scheme_current sub_processor PERFINCPOL 2
-powercfg -setacvalueindex scheme_current sub_processor PERFDECPOL 1
-powercfg -setactive scheme_current
-echo Processor power management adjusted for maximum performance.
+echo "Setting Performance Boost Mode to Aggressive..."
+powercfg -attributes SUB_PROCESSOR PERFBOOSTMODE -ATTRIB_HIDE
+powercfg -setacvalueindex scheme_current SUB_PROCESSOR PERFBOOSTMODE aggressive
+powercfg -setdcvalueindex scheme_current SUB_PROCESSOR PERFBOOSTMODE aggressive
+powercfg -SetActive scheme_current
+echo "Performance Boost Mode set to Aggressive."
 pause
-goto optimize_cpu
+goto cpu_power_management
+
+
+:adjust_processor_state
+echo "Adjusting Processor State..."
+echo "Setting Minimum Processor State to 5%..."
+powercfg -attributes SUB_PROCESSOR PROCTHROTTLEMIN -ATTRIB_HIDE
+powercfg -setacvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMIN 5
+powercfg -setdcvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMIN 5
+echo "Setting Maximum Processor State to 100%..."
+powercfg -attributes SUB_PROCESSOR PROCTHROTTLEMAX -ATTRIB_HIDE
+powercfg -setacvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg -setdcvalueindex scheme_current SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg -SetActive scheme_current
+echo "Processor State adjusted."
+pause
+goto cpu_power_management
+
+
+:revert_power_management_optimizations
+echo "Reverting Power Management Optimizations..."
+echo "Setting active power plan to Balanced..."
+powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
+echo "Power Management optimizations reverted."
+pause
+goto cpu_power_management
+
+
+:cpu_category_option_2
+:cpu_scheduling_responsiveness
+cls
+echo "=============================================================="
+echo "         CPU Optimization - Scheduling & Responsiveness"
+echo "=============================================================="
+echo " Optimize CPU scheduling for better program responsiveness."
+echo "=============================================================="
+echo "1. Optimize Scheduling for Programs (Responsiveness)"
+echo "2. Prioritize Programs over Background Services"
+echo "3. Enable Hardware-accelerated GPU Scheduling (Graphics - Win10 2004+/Win11)"
+echo "--------------------------------------------------------------"
+echo "4. Revert Scheduling Optimizations"
+echo "5. Return to CPU Optimization Menu"
+echo "=============================================================="
+set /p cpu_schedule_choice=Enter choice (1-5):
+
+if "%cpu_schedule_choice%"=="1" goto optimize_scheduling
+if "%cpu_schedule_choice%"=="2" goto adjust_system_responsiveness
+if "%cpu_schedule_choice%"=="3" goto enable_gpu_scheduling
+if "%cpu_schedule_choice%"=="4" goto revert_scheduling_optimizations
+if "%cpu_schedule_choice%"=="5" goto optimize_cpu
+echo "Invalid choice. Try again."
+pause
+goto cpu_scheduling_responsiveness
+
+
+:optimize_scheduling
+echo "Optimizing Scheduling for Programs..."
+echo "Reduce background task priority for better program responsiveness."
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemThreadPool" "ThreadPoolHysteresisIntervals" "REG_DWORD" "5"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemThreadPool" "ThreadPoolMaximumThreads" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemThreadPool" "ThreadPoolSchedulingPolicy" "REG_DWORD" "1"
+echo "Scheduling optimized for programs."
+pause
+goto cpu_scheduling_responsiveness
+
+
+:adjust_system_responsiveness
+echo "Prioritizing Programs for Responsiveness..."
+echo "Foreground programs prioritized over background services."
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "SystemResponsiveness" "REG_DWORD" "14"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" "Scheduling Category" "REG_SZ" "High"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" "PriorityClass" "REG_DWORD" "8"
+echo "Program responsiveness prioritized."
+pause
+goto cpu_scheduling_responsiveness
+
 
 :enable_gpu_scheduling
-echo Enabling hardware-accelerated GPU scheduling...
-call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "REG_DWORD" "2"
-echo Hardware-accelerated GPU scheduling enabled. Please restart your computer for changes to take effect.
+echo "Enabling GPU Scheduling..."
+:: Check if GPU Scheduling is supported (Windows 10 2004+ / Windows 11) - (This check is simplified, more robust check might be needed)
+ver | findstr /C:"Version 10.0" > nul
+if %errorlevel% equ 0 (
+    echo "Windows 10+ detected. Enabling GPU Scheduling..."
+    call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "REG_DWORD" "2"
+    echo "GPU Scheduling enabled. Restart may be needed."
+) else (
+    echo "GPU Scheduling available on Windows 10 2004+ / Windows 11 only."
+    echo "Your system may not support this."
+)
 pause
-goto optimize_cpu
+goto cpu_scheduling_responsiveness
+
+
+:revert_scheduling_optimizations
+echo "Reverting Scheduling Optimizations..."
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" /d 2 /f
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "SystemResponsiveness" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" "Scheduling Category" "REG_SZ" "Medium" /f
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" "PriorityClass" "REG_DWORD" /d 4 /f
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemThreadPool" "ThreadPoolHysteresisIntervals" "REG_DWORD" /d 10 /f
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemThreadPool" "ThreadPoolMaximumThreads" "REG_DWORD" /d 2147483647 /f
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemThreadPool" "ThreadPoolSchedulingPolicy" "REG_DWORD" /d 0 /f
+echo "Scheduling optimizations reverted."
+pause
+goto cpu_scheduling_responsiveness
+
+
+:cpu_category_option_3
+:cpu_core_services
+cls
+echo "=============================================================="
+echo "           CPU Optimization - Core Parking & Services"
+echo "=============================================================="
+echo " Manage CPU core parking and unnecessary system services."
+echo "=============================================================="
+echo "1. Disable CPU Core Parking (Consistent Performance)"
+echo "2. Disable Unnecessary Services (Caution - May Affect Functionality - Windows 11 Notes Below)"
+echo "   - Windows 11 Notes: Service behavior may differ from Windows 10."
+echo "     Test after disabling. Disable ""SysMain"" & ""DiagTrack"" cautiously."
+echo "     Disable ""Windows Search"" (WSearch) only if not used."
+echo "--------------------------------------------------------------"
+echo "3. Revert Core Parking & Services Optimizations"
+echo "4. Return to CPU Optimization Menu"
+echo "=============================================================="
+set /p cpu_core_choice=Enter choice (1-4):
+
+if "%cpu_core_choice%"=="1" goto disable_core_parking
+if "%cpu_core_choice%"=="2" goto disable_services
+if "%cpu_core_choice%"=="3" goto revert_core_services_optimizations
+if "%cpu_core_choice%"=="4" goto optimize_cpu
+echo "Invalid choice. Try again."
+pause
+goto cpu_core_services
+
+
+:disable_core_parking
+echo "Disabling CPU Core Parking..."
+powercfg -attributes SUB_PROCESSOR CPMINCORES -ATTRIB_HIDE
+powercfg -setacvalueindex scheme_current SUB_PROCESSOR CPMINCORES 100
+powercfg -setdcvalueindex scheme_current SUB_PROCESSOR CPMINCORES 100
+powercfg -SetActive scheme_current
+echo "CPU Core Parking disabled."
+pause
+goto cpu_core_services
+
 
 :disable_services
-echo Disabling unnecessary system services...
-echo WARNING: Disabling system services may affect certain functionalities.
-echo Disabling the following services: SysMain (Superfetch), DiagTrack (Diagnostic Tracking Service), WSearch (Windows Search).
-echo Proceed with caution.
-pause
+cls
+echo "=============================================================="
+echo "          Disable Unnecessary System Services (Caution)"
+echo "=============================================================="
+echo " Disabling services may improve performance but affect system functions."
+echo " Proceed with caution and test your system afterwards."
+echo "=============================================================="
+echo "Select services to disable:"
+echo "1. Disable SysMain (Superfetch) - (May affect app preloading)"
+echo "2. Disable Diagnostic Tracking (DiagTrack) - (Telemetry & Diagnostics)"
+echo "3. Disable Windows Search (WSearch) - (Disables file indexing - NOT RECOMMENDED for most)"
+echo "--------------------------------------------------------------"
+echo "4. Disable SysMain, DiagTrack, & WSearch (Aggressive - Advanced Users)"
+echo "5. Return to Core Parking & Services Menu"
+echo "=============================================================="
+set /p disable_service_choice=Enter choice (1-5):
 
+if "%disable_service_choice%"=="1" goto disable_sysmain
+if "%disable_service_choice%"=="2" goto disable_diagtrack
+if "%disable_service_choice%"=="3" goto disable_wsearch
+if "%disable_service_choice%"=="4" goto disable_all_services
+if "%disable_service_choice%"=="5" goto cpu_core_services
+echo "Invalid choice. Try again."
+pause
+goto disable_services
+
+
+:disable_sysmain
+echo "Disabling SysMain (Superfetch) Service..."
 sc config "SysMain" start= disabled
 sc stop "SysMain"
+echo "SysMain service disabled."
+pause
+goto disable_services
+
+:disable_diagtrack
+echo "Disabling Diagnostic Tracking Service (DiagTrack)..."
 sc config "DiagTrack" start= disabled
 sc stop "DiagTrack"
+echo "Diagnostic Tracking Service disabled."
+pause
+goto disable_services
+
+:disable_wsearch
+echo "Disabling Windows Search (WSearch) Service..."
+echo "WARNING: Disabling Windows Search disables file indexing & search."
+echo "         Only proceed if you don't use Windows Search."
+pause
 sc config "WSearch" start= disabled
 sc stop "WSearch"
-echo Unnecessary system services disabled.
+echo "Windows Search service disabled."
 pause
-goto optimize_cpu
+goto disable_services
+
+:disable_all_services
+echo "Disabling SysMain, DiagTrack, & Windows Search Services..."
+echo "Disabling SysMain..."
+sc config "SysMain" start= disabled
+sc stop "SysMain"
+echo "Disabling DiagTrack..."
+sc config "DiagTrack" start= disabled
+sc stop "DiagTrack"
+echo "Disabling Windows Search..."
+sc config "WSearch" start= disabled
+sc stop "WSearch"
+echo "SysMain, DiagTrack, & Windows Search services disabled."
+echo "WARNING: System functionality may be affected. Test thoroughly."
+pause
+goto disable_services
+
+
+:revert_core_services_optimizations
+echo "Reverting Core Parking & Services Optimizations..."
+powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 0
+powercfg -setdcvalueindex scheme_current sub_processor CPMINCORES 0
+powercfg -SetActive scheme_current
+
+sc config "SysMain" start= auto
+sc start "SysMain"
+sc config "DiagTrack" start= auto
+sc start "DiagTrack"
+sc config "WSearch" start= auto
+sc start "WSearch"
+
+echo "Core Parking & Services optimizations reverted."
+pause
+goto cpu_core_services
+
+
+:cpu_category_option_4
+:cpu_visual_effects
+cls
+echo "=============================================================="
+echo "           CPU Optimization - Visual Effects"
+echo "=============================================================="
+echo " Adjust visual effects for better performance."
+echo "=============================================================="
+echo "1. Adjust for Best Performance (Fastest Appearance)"
+echo "--------------------------------------------------------------"
+echo "2. Revert Visual Effects Optimizations"
+echo "3. Return to CPU Optimization Menu"
+echo "=============================================================="
+set /p cpu_visual_choice=Enter choice (1-3):
+
+if "%cpu_visual_choice%"=="1" goto adjust_visual_effects
+if "%cpu_visual_choice%"=="2" goto revert_visual_effects_optimizations
+if "%cpu_visual_choice%"=="3" goto optimize_cpu
+echo "Invalid choice. Try again."
+pause
+goto cpu_visual_effects
+
 
 :adjust_visual_effects
-echo Adjusting visual effects for best performance...
-call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" "VisualFXSetting" "REG_DWORD" "2"
-echo Visual effects adjusted for best performance.
+echo "Adjusting Visual Effects for Best Performance..."
+echo "Setting visual effects to ""Adjust for best performance""..."
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" "VisualFXSetting" "REG_DWORD" "2" /f
+echo "Visual effects adjusted for best performance."
 pause
-goto optimize_cpu
+goto cpu_visual_effects
+
+
+:revert_visual_effects_optimizations
+echo "Reverting Visual Effects Optimizations..."
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" "VisualFXSetting" "REG_DWORD" /d 0 /f
+echo "Visual Effects optimizations reverted (Windows default)."
+pause
+goto cpu_visual_effects
+
+
+:cpu_category_option_5
+:cpu_boot_performance
+cls
+echo "=============================================================="
+echo "           CPU Optimization - Boot Performance"
+echo "=============================================================="
+echo " Improve boot performance for faster startup."
+echo "=============================================================="
+echo "1. Enable Multi-core Boot (Use all CPU cores - Restart Required)"
+echo "2. Disable Memory Limit for Boot (Use all RAM - Restart Required)"
+echo "--------------------------------------------------------------"
+echo "3. Revert Boot Performance Enhancements"
+echo "4. Return to CPU Optimization Menu"
+echo "=============================================================="
+set /p cpu_boot_choice=Enter choice (1-4):
+
+if "%cpu_boot_choice%"=="1" goto enable_multicore_boot
+if "%cpu_boot_choice%"=="2" goto disable_maxmem_boot
+if "%cpu_boot_choice%"=="3" goto revert_boot_optimizations
+if "%cpu_boot_choice%"=="4" goto optimize_cpu
+echo "Invalid choice. Try again."
+pause
+goto cpu_boot_performance
+
 
 :enable_multicore_boot
-echo Enabling Multi-core Boot...
-bcdedit /set {current} numproc /all
-echo Multi-core Boot enabled.
+echo "Enabling Multi-core Boot..."
+echo "Setting Windows to use all processors during startup..."
+bcdedit /set {current} numproc /enum
+echo "Multi-core Boot enabled. Restart for changes."
+pause
+goto cpu_boot_performance
+
+:disable_maxmem_boot
+echo "Disabling Memory Limit for Boot..."
+echo "Ensuring Windows uses all available RAM during startup..."
+bcdedit /deletevalue {current} truncatememory
+bcdedit /deletevalue {current} removememory
+echo "Memory Limit for Boot disabled. Restart for changes."
+pause
+goto cpu_boot_performance
+
+
+:revert_boot_optimizations
+echo "Reverting Boot Performance Enhancements..."
+bcdedit /deletevalue {current} numproc
+:: bcdedit /deletevalue {current} truncatememory  <- Already deleted in disable_maxmem_boot, no need to delete again.
+:: bcdedit /deletevalue {current} removememory   <- Already deleted in disable_maxmem_boot, no need to delete again.
+echo "Boot Performance enhancements reverted."
+pause
+goto cpu_boot_performance
+
+
+:cpu_category_option_6
+:cpu_comprehensive_optimize
+cls
+echo "=============================================================="
+echo "         CPU Optimization - Comprehensive (Advanced)"
+echo "=============================================================="
+echo " Comprehensive CPU optimization for maximum performance."
+echo " Includes:"
+echo "- Ultimate/High Performance plan"
+echo "- Disable CPU throttling & core parking"
+echo "- Optimize scheduling & power"
+echo "- Enable GPU scheduling"
+echo "- Disable SysMain & DiagTrack (Caution)"
+echo "- Best performance visual effects"
+echo "- Multi-core & Max Memory Boot"
+echo "=============================================================="
+echo "WARNING: Aggressive optimization. May reduce system stability."
+echo "         Recommended for advanced users only."
+echo "=============================================================="
+pause
+
+echo "Applying Ultimate or High Performance Power Plan..."
+call :set_ultimate_or_high_performance
+echo "Disabling CPU Throttling..."
+call :disable_throttling
+echo "Optimizing Processor Scheduling..."
+call :optimize_scheduling
+echo "Disabling CPU Core Parking..."
+call :disable_core_parking
+echo "Setting Performance Boost Mode..."
+call :adjust_power_management
+echo "Enabling GPU Scheduling..."
+call :enable_gpu_scheduling
+echo "Disabling SysMain & DiagTrack Services..."
+call :disable_sysmain
+call :disable_diagtrack
+echo "Adjusting Visual Effects..."
+call :adjust_visual_effects
+echo "Enabling Multi-core Boot..."
+call :enable_multicore_boot
+echo "Disabling Memory Limit for Boot..."
+call :disable_maxmem_boot
+
+echo.
+echo "Comprehensive CPU Optimization Applied."
+echo "Restart your computer for full effect."
 pause
 goto optimize_cpu
 
-:enable_maxmem_boot
-echo Enabling Maximum Memory Boot...
-bcdedit /set {current} truncatememory /no
-bcdedit /set {current} removememory 0
-echo Maximum Memory Boot enabled.
+:set_ultimate_or_high_performance
+:: Function to set Ultimate Performance if available, otherwise High Performance
+powercfg /list | findstr /C:"Ultimate Performance" > nul
+if %errorlevel% equ 0 (
+    goto set_ultimate_performance
+) else (
+    goto set_high_performance
+)
+exit /b
+
+
+:cpu_category_option_7
+:revert_cpu_optimizations
+cls
+echo "=============================================================="
+echo "             Revert All CPU Optimizations to Default"
+echo "=============================================================="
+echo " Reverting all CPU optimizations applied by this script."
+echo " Includes:"
+echo "- Balanced power plan"
+echo "- Re-enable CPU throttling & core parking"
+echo "- Revert scheduling & power"
+echo "- Disable GPU scheduling"
+echo "- Re-enable system services (SysMain, DiagTrack, WSearch)"
+echo "- Default visual effects"
+echo "- Default Boot settings"
+echo "=============================================================="
+echo "Please wait, reverting optimizations..."
+pause
+
+echo "Setting Balanced Power Plan and Reverting Power Management..."
+goto revert_power_management_optimizations
+echo "Reverting Scheduling Optimizations..."
+goto revert_scheduling_optimizations
+echo "Reverting Core Parking & Services Optimizations..."
+goto revert_core_services_optimizations
+echo "Reverting Visual Effects Optimizations..."
+goto revert_visual_effects_optimizations
+echo "Reverting Boot Optimizations..."
+goto revert_boot_optimizations
+
+echo.
+echo "All CPU Optimizations Reverted to Default."
+echo "Restart your computer for full effect."
 pause
 goto optimize_cpu
+
+
+:cpu_category_option_8
+:cpu_monitoring
+cls
+echo "=============================================================="
+echo "             Display Current CPU Settings & Status"
+echo "=============================================================="
+echo " Displaying current CPU related settings:"
+echo "=============================================================="
+
+echo.
+echo "--- Current Power Plan ---"
+powercfg /getactivescheme
+
+echo.
+echo "--- CPU Throttling Status ---"
+powercfg /q scheme_current sub_processor PROCTHROTTLEMAX
+powercfg /q scheme_current sub_processor PROCTHROTTLEMIN
+
+echo.
+echo "--- CPU Core Parking Status ---"
+powercfg /q scheme_current sub_processor CPMINCORES
+
+echo.
+echo "--- Performance Boost Mode ---"
+powercfg /q scheme_current sub_processor PERFBOOSTMODE
+
+echo.
+echo "--- GPU Scheduling ---"
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode
+
+echo.
+echo "--- System Services Status (SysMain, DiagTrack, WSearch) ---"
+echo "SysMain (Superfetch) Service Status:"
+sc query SysMain
+echo.
+echo "Diagnostic Tracking Service Status:"
+sc query DiagTrack
+echo.
+echo "Windows Search Service Status:"
+sc query WSearch
+
+echo.
+echo "--- Boot Performance Settings ---"
+echo "Multi-core Boot Status:"
+bcdedit /get {current} numproc
+echo.
+echo "Memory Limit Boot Status (TruncateMemory):"
+bcdedit /get {current} truncatememory
+echo.
+echo "Memory Limit Boot Status (RemoveMemory):"
+bcdedit /get {current} removememory
+
+
+echo.
+echo "=============================================================="
+echo "CPU Settings Displayed. Review output above."
+pause
+goto optimize_cpu
+
+
+:cpu_category_option_9
+:cpu_advanced_tools
+cls
+echo "=============================================================="
+echo "         Advanced Performance Tools & Information"
+echo "=============================================================="
+echo " For in-depth CPU analysis & tuning, consider these tools:"
+echo "=============================================================="
+
+echo "1. Windows Performance Analyzer (WPA):"
+echo "   - Powerful tool from Microsoft for system performance analysis."
+echo "   - Includes CPU usage, bottlenecks, and more."
+echo "   - Part of Windows ADK. Download: [link] (replace with actual link)"
+
+echo "2. Process Lasso:"
+echo "   - Third-party tool for real-time CPU optimization & process management."
+echo "   - ProBalance prevents process CPU monopolization."
+echo "   - Website: https://bitsum.com/"
+
+echo "3. Performance Monitor (perfmon.exe):"
+echo "   - Built-in Windows tool for real-time monitoring of CPU, memory, disk, network."
+echo "   - Create custom data collector sets for logging."
+
+echo "4. Resource Monitor (resmon.exe):"
+echo "   - Built-in Windows tool for real-time resource overview."
+echo "   - Shows CPU, memory, disk, network usage. Identify CPU intensive processes."
+
+echo "=============================================================="
+echo "These tools offer advanced performance tuning capabilities."
+echo "Recommended for users needing detailed CPU performance insights."
+echo "=============================================================="
+pause
+goto optimize_cpu
+
+
+:cpu_category_option_10
+goto menu
+
+
+:: Subroutine to modify registry (Improved with error handling)
+:modify_registry
+    setlocal
+    set regPath=%~1
+    set regName=%~2
+    set regType=%~3
+    set regValue=%~4
+    set forceOption=
+    if "%~5"=="/f" set forceOption=/f
+
+    echo "Setting Registry: ""%regName%"" in ""%regPath%"" to ""%regValue%"" (Type: %regType%)..."
+    reg add "%regPath%" /v "%regName%" /t %regType% /d "%regValue%" %forceOption%
+    if %errorlevel% equ 0 (
+        echo "Registry value set successfully."
+    ) else (
+        echo "Error setting registry value. Error Code: %errorlevel%"
+        echo "Check permissions and syntax."
+        pause
+        exit /b 1
+    )
+    endlocal
+    exit /b 0
+
+
+:: Subroutine to set Ultimate Performance or High Performance Power Plan
+:set_ultimate_or_high_performance_power_plan
+    powercfg /list | findstr /C:"Ultimate Performance" > nul
+    if %errorlevel% equ 0 (
+        goto set_ultimate_performance
+    ) else (
+        goto set_high_performance
+    )
+    exit /b 0
 
 :option_5
 :optimize_internet
@@ -1257,23 +1989,42 @@ goto optimize_disk
 :option_10
 :check_repair
 cls
-echo ======================================================
-echo System Check and Repair - Advanced
-echo ======================================================
-echo 1. Run SFC (System File Checker) - Scan and Repair (Requires Restart if repairs are made)
-echo 2. Run SFC (System File Checker) - Scan only (Verification)
-echo 3. Run DISM (Deployment Image Servicing and Management) - Check Health
-echo 4. Run DISM (Deployment Image Servicing and Management) - Scan Health
-echo 5. Run DISM (Deployment Image Servicing and Management) - Restore Health (Requires Internet)
-echo 6. Run DISM (Deployment Image Servicing and Management) - Start Component Cleanup (WinSXS Cleanup)
+echo ==============================================================================
+echo                     System Check and Repair - Advanced
+echo ==============================================================================
+echo  **WARNING:** These tools are for advanced system troubleshooting.
+echo  Incorrect usage may impact system stability.
+echo  Please read instructions and warnings carefully before selecting each option.
+echo ==============================================================================
+echo 1. SFC (System File Checker) - Scan and Repair (Recommended - May require restart)
+echo    Checks and repairs corrupted system files if errors are found.
+echo 2. SFC (System File Checker) - Scan only (System Verification)
+echo    Checks for corrupted system files but will not attempt repairs.
+echo 3. DISM (Deployment Image Servicing and Management) - Check Health
+echo    Checks if the Component Store (WinSXS) is in a healthy state.
+echo 4. DISM (Deployment Image Servicing and Management) - Scan Health
+echo    Scans the Component Store for potential damage (Takes longer than Check Health).
+echo 5. DISM (Deployment Image Servicing and Management) - Restore Health (Requires Internet)
+echo    Scans and repairs the Component Store using online sources (Internet connection required).
+echo 6. DISM (Deployment Image Servicing and Management) - Start Component Cleanup (WinSXS Cleanup)
+echo    Cleans up outdated data in the WinSxS Folder to reduce Component Store size and free up disk space.
 echo 7. Check Disk Health Status (SMART Status)
+echo    Checks the health status of hard drives or SSDs using SMART (Self-Monitoring, Analysis, and Reporting Technology).
 echo 8. Check Disk for Errors (chkdsk /F /R /X - Requires Restart)
+echo    Checks and repairs disk errors (File System Errors, Bad Sectors) - Requires system restart.
 echo 9. Run Windows Memory Diagnostic (Requires Restart)
-echo 10. Run Driver Verifier (Advanced - Requires Caution and Restart)
-echo 11. View SFC Scan Details Log
-echo 12. Return to main menu
-echo ======================================================
-set /p repair_choice=Enter your choice (1-12):
+echo    Checks for RAM memory issues - Requires system restart to perform the test.
+echo 10. Driver Management - Advanced Driver Tools
+echo     10.1. List all installed drivers - Display all installed drivers
+echo     10.2. Search for drivers by keyword - Search drivers using a keyword
+echo 11. Run Driver Verifier (Advanced - Requires Caution and Restart)
+echo     **WARNING:** Driver Verifier is an advanced tool, may cause system instability or BSOD if drivers have issues.
+echo     Use only when necessary and understand the risks.
+echo 12. View SFC Scan Details Log
+echo     Opens the log file containing details of SFC scan and repair operations.
+echo 13. Return to Main Menu
+echo ==============================================================================
+set /p repair_choice=Enter your choice (1-13):
 
 if "%repair_choice%"=="1" goto run_sfc_scan_repair
 if "%repair_choice%"=="2" goto run_sfc_scanonly
@@ -1284,121 +2035,353 @@ if "%repair_choice%"=="6" goto run_dism_cleanup_component
 if "%repair_choice%"=="7" goto check_disk_health_smart
 if "%repair_choice%"=="8" goto check_disk_errors_chkdsk
 if "%repair_choice%"=="9" goto run_memory_diagnostic
-if "%repair_choice%"=="10" goto run_driver_verifier
-if "%repair_choice%"=="11" goto view_sfc_log
-if "%repair_choice%"=="12" goto menu
+if "%repair_choice%"=="10" goto driver_management_menu  REM: Go to Driver Management Menu
+if "%repair_choice%"=="11" goto run_driver_verifier
+if "%repair_choice%"=="12" goto view_sfc_log
+if "%repair_choice%"=="13" goto menu
 echo Invalid choice. Please try again.
 pause
 goto check_repair
 
+:driver_management_menu
+cls
+echo ==================================================
+echo                 Driver Management - Advanced
+echo ==================================================
+echo 1. List all installed drivers - Display all installed drivers
+echo 2. Search for drivers by keyword - Search drivers using a keyword
+echo 3. Return to System Check and Repair Menu - Back to System Check and Repair Menu
+echo ==================================================
+set /p driver_mgmt_choice=Enter your choice (1-3):
+
+if "%driver_mgmt_choice%"=="1" goto list_all_drivers_func
+if "%driver_mgmt_choice%"=="2" goto search_drivers_func
+if "%driver_mgmt_choice%"=="3" goto check_repair
+echo Invalid choice. Please try again.
+pause
+goto driver_management_menu
+
+:list_all_drivers_func
+cls
+echo ==================================================
+echo              List All Installed Drivers
+echo ==================================================
+echo Listing all installed drivers... Please wait...
+echo ==================================================
+pnputil /enum-drivers
+if %errorlevel% neq 0 (
+    echo.
+    echo !!! ERROR: Failed to list drivers. Error Code: %errorlevel% !!!
+    echo Please ensure you are running this script as an Administrator.
+) else (
+    echo.
+    echo ==================================================
+    echo          Driver Listing Completed - Check Output Above
+    echo ==================================================
+    echo Driver listing completed. Check the output above for the list of installed drivers.
+)
+pause
+goto driver_management_menu
+
+:search_drivers_func
+cls
+echo ==================================================
+echo              Search Drivers by Keyword
+echo ==================================================
+set /p search_term=Enter keyword to search for drivers (e.g., display, network, vendor name):
+echo ==================================================
+echo Searching for drivers matching keyword: "%search_term%"... Please wait...
+echo ==================================================
+pnputil /enum-drivers | findstr /i "%search_term%"
+if %errorlevel% neq 0 (
+    echo.
+    echo No drivers found matching keyword "%search_term%" or error during search.
+) else (
+    echo.
+    echo ==================================================
+    echo       Driver Search Completed - Check Output Above
+    echo ==================================================
+    echo Driver search completed. Check the output above for drivers matching your keyword.
+)
+pause
+goto driver_management_menu
+
 :run_sfc_scan_repair
-echo Running System File Checker (SFC) - Scan and Repair...
-echo This process will scan for and repair corrupted system files.
+:: (Code เดิมจาก Option 10 - run_sfc_scan_repair)
+echo.
+echo ==============================================================================
+echo           Running System File Checker (SFC) - Scan and Repair
+echo ==============================================================================
+echo This process will scan and repair corrupted system files if found.
+echo Please wait, this process may take some time...
+echo ==============================================================================
 sfc /scannow
-echo SFC scan completed. Check output above for details.
-echo Note: If SFC found and repaired errors, a system restart is recommended.
+if %errorlevel% equ 0 (
+    echo.
+    echo ==============================================================================
+    echo           SFC Scan Completed - SFC Scan Completed Successfully
+    echo ==============================================================================
+    echo SFC scan is complete. Please check the output above for details.
+    echo **Recommendation:** If SFC found and repaired errors, a system restart is recommended.
+) else (
+    echo.
+    echo !!! ERROR: SFC Scan Failed - SFC Scan Failed !!!
+    echo ==============================================================================
+    echo SFC scan failed. Error Code: %errorlevel%
+    echo Please check the CBS log file (%windir%\Logs\CBS\CBS.log) for more details.
+    echo Or verify Administrator privileges and try again.
+)
 pause
 goto check_repair
 
 :run_sfc_scanonly
-echo Running System File Checker (SFC) - Scan only (Verification)...
+:: (Code เดิมจาก Option 10 - run_sfc_scanonly)
+echo.
+echo ==============================================================================
+echo           Running System File Checker (SFC) - Scan only (Verification)
+echo ==============================================================================
 echo This process will scan for corrupted system files but will not attempt repairs.
+echo Used for system verification only. Please wait...
+echo ==============================================================================
 sfc /verifyonly
-echo SFC scan completed (Verification only). Check output above for details.
+if %errorlevel% equ 0 (
+    echo.
+    echo ==============================================================================
+    echo           SFC Scan (Verification Only) Completed - SFC Scan (Verification) Completed Successfully
+    echo ==============================================================================
+    echo SFC scan (Verification) is complete. Please check the output above for details.
+) else (
+    echo.
+    echo !!! ERROR: SFC Scan (Verification Only) Failed - SFC Scan (Verification) Failed !!!
+    echo ==============================================================================
+    echo SFC scan (Verification) failed. Error Code: %errorlevel%
+    echo Please check the CBS log file (%windir%\Logs\CBS\CBS.log) for more details.
+    echo Or verify Administrator privileges and try again.
+)
 pause
 goto check_repair
 
 :run_dism_checkhealth
-echo Running DISM (Deployment Image Servicing and Management) - Check Health...
-echo This process will check if the component store is corrupted.
+:: (Code เดิมจาก Option 10 - run_dism_checkhealth)
+echo.
+echo ==============================================================================
+echo     Running DISM - Check Health (Component Store Health Status Check)
+echo ==============================================================================
+echo This process will check if the Component Store (WinSXS) is in a healthy state.
+echo This is a quick preliminary check. Please wait...
+echo ==============================================================================
 DISM /Online /Cleanup-Image /CheckHealth
-echo DISM CheckHealth completed. Check output above for details.
+if %errorlevel% equ 0 (
+    echo.
+    echo ==============================================================================
+    echo           DISM CheckHealth Completed - DISM Check Health Completed Successfully
+    echo ==============================================================================
+    echo DISM CheckHealth is complete. Please check the output above for details.
+    echo Status "No component store corruption detected" indicates a healthy system.
+) else (
+    echo.
+    echo !!! ERROR: DISM CheckHealth Failed - DISM Check Health Failed !!!
+    echo ==============================================================================
+    echo DISM CheckHealth failed. Error Code: %errorlevel%
+    echo Please try running DISM ScanHealth or RestoreHealth to further investigate and repair.
+    echo Or check the DISM log file (%windir%\Logs\DISM\dism.log) for more details.
+)
 pause
 goto check_repair
 
 :run_dism_scanhealth
-echo Running DISM (Deployment Image Servicing and Management) - Scan Health...
-echo This process will scan the component store for corruption. This may take a few minutes.
+:: (Code เดิมจาก Option 10 - run_dism_scanhealth)
+echo.
+echo ==============================================================================
+echo         Running DISM - Scan Health (Component Store Health Scan)
+echo ==============================================================================
+echo This process will scan the Component Store (WinSXS) for potential damage.
+echo This process may take several minutes. Please wait...
+echo ==============================================================================
 DISM /Online /Cleanup-Image /ScanHealth
-echo DISM ScanHealth completed. Check output above for details.
+if %errorlevel% equ 0 (
+    echo.
+    echo ==============================================================================
+    echo           DISM ScanHealth Completed - DISM Scan Health Completed Successfully
+    echo ==============================================================================
+    echo DISM ScanHealth is complete. Please check the output above for details.
+    echo If corruption is found, it is recommended to run DISM RestoreHealth to repair it.
+) else (
+    echo.
+    echo !!! ERROR: DISM ScanHealth Failed - DISM Scan Health Failed !!!
+    echo ==============================================================================
+    echo DISM ScanHealth failed. Error Code: %errorlevel%
+    echo Please check the DISM log file (%windir%\Logs\DISM\dism.log) for more details.
+    echo Or verify Administrator privileges and try again.
+)
 pause
 goto check_repair
 
 :run_dism_restorehealth
-echo Running DISM (Deployment Image Servicing and Management) - Restore Health...
-echo This process will scan and repair the component store using online sources.
-echo Make sure you have an active internet connection. This may take a while.
+:: (Code เดิมจาก Option 10 - run_dism_restorehealth)
+echo.
+echo ==============================================================================
+echo       Running DISM - Restore Health (Component Store Health Repair)
+echo ==============================================================================
+echo This process will scan and repair the Component Store (WinSXS) using online sources.
+echo **WARNING:** Internet connection is required, and this process may take a long time. Please wait...
+echo ==============================================================================
 DISM /Online /Cleanup-Image /RestoreHealth
-echo DISM RestoreHealth completed. Check output above for details.
+if %errorlevel% equ 0 (
+    echo.
+    echo ==============================================================================
+    echo         DISM RestoreHealth Completed - DISM Restore Health Completed Successfully
+    echo ==============================================================================
+    echo DISM RestoreHealth is complete. Please check the output above for details.
+    echo The Component Store has been repaired.
+) else (
+    echo.
+    echo !!! ERROR: DISM RestoreHealth Failed - DISM Restore Health Failed !!!
+    echo ==============================================================================
+    echo DISM RestoreHealth failed. Error Code: %errorlevel%
+    echo Please check your internet connection and the DISM log file (%windir%\Logs\DISM\dism.log).
+    echo Or verify Administrator privileges and try again.
+)
 pause
 goto check_repair
 
 :run_dism_cleanup_component
-echo Running DISM (Deployment Image Servicing and Management) - Start Component Cleanup...
-echo This process will clean up the WinSxS folder to reduce component store size.
-echo This may free up disk space.
+:: (Code เดิมจาก Option 10 - run_dism_cleanup_component)
+echo.
+echo ==============================================================================
+echo     Running DISM - Start Component Cleanup (WinSXS Cleanup)
+echo ==============================================================================
+echo This process will clean up outdated data in the WinSxS Folder to reduce Component Store size.
+echo May help free up disk space. Please wait...
+echo ==============================================================================
 DISM /Online /Cleanup-Image /StartComponentCleanup
-echo DISM Component Cleanup completed. Check output above for details.
+if %errorlevel% equ 0 (
+    echo.
+    echo ==============================================================================
+    echo     DISM Component Cleanup Completed - DISM Component Cleanup Completed Successfully
+    echo ==============================================================================
+    echo DISM Component Cleanup is complete. Please check the output above for details.
+    echo Disk space may have been freed up after the cleanup.
+) else (
+    echo.
+    echo !!! ERROR: DISM Component Cleanup Failed - DISM Component Cleanup Failed !!!
+    echo ==============================================================================
+    echo DISM Component Cleanup failed. Error Code: %errorlevel%
+    echo Please check the DISM log file (%windir%\Logs\DISM\dism.log) for more details.
+    echo Or verify Administrator privileges and try again.
+)
 pause
 goto check_repair
 
 :check_disk_health_smart
-echo Checking Disk Health Status (SMART Status)...
-wmic diskdrive get status,model,index,size,SerialNumber,PredFail, ক্যাপশন
-echo Disk health check completed. Check status above.
-echo PredFail = 'TRUE' indicates a potential disk failure. Status = 'OK' is normal.
+:: (Code เดิมจาก Option 10 - check_disk_health_smart)
+echo.
+echo ==============================================================================
+echo                 Checking Disk Health Status (SMART Status)
+echo ==============================================================================
+echo This process will check the health status of hard drives or SSDs using SMART.
+echo Please wait...
+echo ==============================================================================
+wmic diskdrive get status,model,index,size,SerialNumber,PredFail, Caption
+echo.
+echo ==============================================================================
+echo             Disk Health Check Completed - Disk Health Check Completed Successfully
+echo ==============================================================================
+echo Disk health check is complete. Please check the status above.
+echo PredFail = 'TRUE' indicates potential disk failure. Status = 'OK' is normal.
 pause
 goto check_repair
 
 :check_disk_errors_chkdsk
-echo Checking Disk for Errors (chkdsk /F /R /X)...
-echo This process will schedule a disk check on the next system restart.
-echo Please save your work and be prepared to restart your computer.
+:: (Code เดิมจาก Option 10 - check_disk_errors_chkdsk)
+echo.
+echo ==============================================================================
+echo         Checking Disk for Errors (chkdsk /F /R /X - Requires Restart)
+echo ==============================================================================
+echo This process will schedule a disk check for errors on the next system restart.
+echo **WARNING:** Please save your work and be prepared to restart your computer.
+echo ==============================================================================
 chkdsk C: /F /R /X
-echo Disk check scheduled. Please restart your computer to perform the check.
+echo.
+echo ==============================================================================
+echo         Disk Check Scheduled - Disk Check Scheduled (Requires Restart)
+echo ==============================================================================
+echo Disk check scheduled successfully. Please restart your computer to perform the check.
 pause
 goto check_repair
 
 :run_memory_diagnostic
-echo Running Windows Memory Diagnostic...
-echo This will launch the Windows Memory Diagnostic tool and require a system restart.
-echo Please save your work before proceeding.
+:: (Code เดิมจาก Option 10 - run_memory_diagnostic)
+echo.
+echo ==============================================================================
+echo             Running Windows Memory Diagnostic (Requires Restart)
+echo ==============================================================================
+echo This process will launch the Windows Memory Diagnostic tool and require a system restart.
+echo **WARNING:** Please save your work before proceeding.
+echo ==============================================================================
 start mdsched.exe
-echo Windows Memory Diagnostic tool launched. Please restart your computer to run the memory test.
+echo.
+echo ==============================================================================
+echo         Windows Memory Diagnostic Launched - Windows Memory Diagnostic Launched
+echo ==============================================================================
+echo Windows Memory Diagnostic tool launched. Please restart your computer to begin the memory test.
 pause
 goto check_repair
 
 :run_driver_verifier
-echo WARNING: Running Driver Verifier may cause system instability or BSOD if drivers have issues.
-echo Driver Verifier is an advanced tool for driver debugging and should be used with caution.
-echo Proceed only if you are comfortable with troubleshooting potential system crashes.
+:: (Code เดิมจาก Option 10 - run_driver_verifier)
+echo.
+echo ==============================================================================
+echo         !!! WARNING - Driver Verifier (Advanced - Requires Caution) !!!
+echo ==============================================================================
+echo **WARNING:** Driver Verifier is an advanced tool for driver debugging.
+echo Incorrect usage may cause system instability or Blue Screen of Death (BSOD).
+echo Proceed only if you understand the risks and have system troubleshooting knowledge.
+echo **Recommendation:** If unsure, please choose "N" to cancel.
+echo ==============================================================================
 set /p confirm_verifier=Are you sure you want to run Driver Verifier? (Y/N - Highly Recommended to choose N if unsure):
 if /i "%confirm_verifier%"=="Y" (
+    echo.
+    echo ==============================================================================
+    echo             Launching Driver Verifier Manager - Launching Driver Verifier Manager
+    echo ==============================================================================
     echo Launching Driver Verifier Manager...
     verifier
-    echo Driver Verifier Manager opened. Please configure and run verifier from the GUI.
-    echo A system restart will be required after configuring Driver Verifier.
+    echo.
+    echo ==============================================================================
+    echo         Driver Verifier Manager Opened - Driver Verifier Manager Opened
+    echo ==============================================================================
+    echo Driver Verifier Manager opened. Please configure and run Verifier from the GUI.
+    echo **WARNING:** A system restart will be required after configuring Driver Verifier.
 ) else (
-    echo Driver Verifier cancelled.
+    echo.
+    echo Driver Verifier cancelled - Driver Verifier Cancelled
 )
 pause
 goto check_repair
 
 :view_sfc_log
-echo Viewing SFC Scan Details Log...
+:: (Code เดิมจาก Option 10 - view_sfc_log)
+echo.
+echo ==============================================================================
+echo             Viewing SFC Scan Details Log (sfcdetails.txt)
+echo ==============================================================================
 echo Opening SFC details log file (sfcdetails.txt) from your Desktop...
+echo ==============================================================================
 start "" "%userprofile%\Desktop\sfcdetails.txt"
 if not exist "%userprofile%\Desktop\sfcdetails.txt" (
-    echo SFC log file not found on Desktop. Running SFC verification to generate log...
+    echo.
+    echo SFC log file not found on Desktop - SFC log file not found on Desktop
+    echo ==============================================================================
+    echo SFC log file not found on Desktop. Generating a new log...
     Findstr /c:"[SR]" %windir%\Logs\CBS\CBS.log >"%userprofile%\Desktop\sfcdetails.txt"
-    echo SFC log generated and saved to sfcdetails.txt on your desktop.
+    echo SFC log generated and saved to sfcdetails.txt on your desktop - SFC log generated and saved to sfcdetails.txt on your desktop
+) else (
+    echo.
+    echo SFC log file opened from Desktop - SFC log file opened from Desktop
 )
 pause
 goto check_repair
-
-@echo off
-color 0a
-title Windows Activation Script (Improved)
 
 :option_11
 :windows_activate
@@ -2004,43 +2987,625 @@ goto menu
 
 :option_17
 :backup_restore
-echo Backup and Restore Settings
-echo 1. Create system restore point
-echo 2. Restore from a restore point
-set /p backup_choice=Enter your choice (1-2):
-if "%backup_choice%"=="1" goto create_restore
-if "%backup_choice%"=="2" goto restore_point
-goto menu
+cls
+echo ===================================================================
+echo             Backup and Restore Settings - Advanced
+echo ===================================================================
+echo 1. Create System Restore Point (Improved)
+echo    Create a manual system restore point for system recovery.
+echo 2. Restore System from Restore Point
+echo    Restore your system to a previously created restore point.
+echo 3. Create System Image Backup (Advanced - wbadmin)
+echo    Create a full system image backup using wbadmin.exe (requires external storage).
+echo 4. Restore System from System Image (Advanced - Recovery Environment)
+echo    Guide to restoring your system from a system image backup (requires boot to Recovery Environment).
+echo 5. Backup Specific Folders (Basic - robocopy)
+echo    Basic backup of specific folders to a destination folder (using robocopy - no versioning).
+echo 6. Guide to File History (Windows Built-in File Backup)
+echo    Open Windows File History settings for advanced file backup and versioning.
+echo 7. Return to Main Menu
+echo ===================================================================
+set /p backup_choice=Enter your choice (1-7):
 
-:create_restore
-echo Creating system restore point...
-wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "Manual Restore Point", 100, 7
-echo System restore point created.
+if "%backup_choice%"=="1" goto create_restore_improved
+if "%backup_choice%"=="2" goto restore_point
+if "%backup_choice%"=="3" goto create_system_image_backup
+if "%backup_choice%"=="4" goto restore_system_image_guide
+if "%backup_choice%"=="5" goto backup_specific_folders
+if "%backup_choice%"=="6" goto guide_file_history
+if "%backup_choice%"=="7" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto backup_restore
+
+:create_restore_improved
+cls
+echo ===================================================================
+echo          Create System Restore Point - Improved
+echo ===================================================================
+echo Creating a system restore point... Please wait...
+echo ===================================================================
+set restore_description="Manual Restore Point - Created by Optimization Script v3.0"
+wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "%restore_description%", 100, 7
+if %errorlevel% equ 0 (
+    echo.
+    echo System restore point created successfully.
+    echo Description: "%restore_description%"
+    echo You can use this restore point to revert system changes if needed.
+) else (
+    echo.
+    echo !!! ERROR: Failed to create system restore point. Error Code: %errorlevel% !!!
+    echo Please ensure Volume Shadow Copy Service (VSS) is running and you have enough disk space.
+    echo Also, check if System Protection is enabled for your system drive.
+)
+pause
+goto backup_restore
 
 :restore_point
-echo Restoring from a restore point...
+:: (Code เดิมจาก Option 17 - restore_point)
+echo ===================================================================
+echo          Restore System from Restore Point
+echo ===================================================================
+echo Launching System Restore...
 rstrui.exe
-echo Please follow the on-screen instructions to restore your system.
+echo Please follow the on-screen instructions in System Restore to choose a restore point and restore your system.
+echo **WARNING:** System restore will revert system files and settings to the chosen restore point.
+echo Ensure you have backed up any important data created after the restore point.
 pause
-goto menu
+goto backup_restore
+
+:create_system_image_backup
+cls
+echo ===================================================================
+echo          Create System Image Backup (Advanced - wbadmin)
+echo ===================================================================
+echo **WARNING:** System image backup creates a full copy of your system drive.
+echo This requires significant disk space on an EXTERNAL STORAGE DEVICE (USB drive, external HDD, network share).
+echo Ensure you have connected and selected the correct external storage device for backup.
+echo ===================================================================
+echo Please specify the DRIVE LETTER of the EXTERNAL STORAGE DEVICE where you want to save the system image backup (e.g., E: or F:):
+set /p backup_target_drive=Enter drive letter:
+
+if not defined backup_target_drive (
+    echo Error: No drive letter entered. System image backup cancelled.
+    pause
+    goto backup_restore
+)
+
+echo ===================================================================
+echo Starting System Image Backup to drive %backup_target_drive%... Please wait, this may take a long time.
+echo ===================================================================
+wbadmin start backup -backupTarget:%backup_target_drive% -include:C: -allCritical -quiet
+if %errorlevel% equ 0 (
+    echo.
+    echo System image backup created successfully on drive %backup_target_drive%.
+    echo **IMPORTANT:** Keep the external storage device safe. You will need it to restore your system image.
+) else (
+    echo.
+    echo !!! ERROR: Failed to create system image backup. Error Code: %errorlevel% !!!
+    echo Please check:
+    echo - If the external storage device is connected and accessible with drive letter %backup_target_drive%.
+    echo - If there is enough free space on the external storage device.
+    echo - If wbadmin.exe is functioning correctly (check Event Viewer for wbadmin errors).
+)
+pause
+goto backup_restore
+
+:restore_system_image_guide
+cls
+echo ===================================================================
+echo      Restore System from System Image (Advanced - Recovery Environment)
+echo ===================================================================
+echo **WARNING:** Restoring from a system image will ERASE EVERYTHING on your system drive
+echo and replace it with the contents of the system image.
+echo Ensure you have backed up any important data on your current system drive that is NOT in the system image.
+echo ===================================================================
+echo **Instructions to Restore System Image:**
+echo 1. **Connect the external storage device** containing your system image backup to your computer.
+echo 2. **Restart your computer.**
+echo 3. **Boot into Windows Recovery Environment (WinRE).**
+echo    - You can usually do this by repeatedly pressing a specific key during startup (e.g., F11, F12, Del, Esc).
+echo      The key varies depending on your computer manufacturer. Check your computer's manual or website.
+echo    - Alternatively, you can boot from Windows installation media (USB or DVD) and choose "Repair your computer".
+echo 4. In WinRE, navigate to **Troubleshoot > Advanced options > System Image Recovery.**
+echo 5. **Follow the on-screen instructions** to select your system image backup from the external storage device and restore your system.
+echo ===================================================================
+echo **IMPORTANT:** System image restore is a destructive operation. Proceed with caution and ensure you understand the risks.
+echo This script only provides guidance. The actual restore process is done within Windows Recovery Environment.
+pause
+goto backup_restore
+
+:backup_specific_folders
+cls
+echo ===================================================================
+echo          Backup Specific Folders (Basic - robocopy)
+echo ===================================================================
+echo **WARNING:** This is a BASIC folder backup using robocopy. It does NOT provide versioning or advanced backup features.
+echo It is intended for simple backups of important folders. For more robust backup solutions, consider using File History or System Image Backup.
+echo ===================================================================
+set /p source_folder=Enter the full path of the SOURCE FOLDER to backup:
+if not exist "%source_folder%" (
+    echo Error: Source folder does not exist. Please enter a valid folder path.
+    pause
+    goto backup_restore
+)
+set /p destination_folder=Enter the full path of the DESTINATION FOLDER for backup:
+if not exist "%destination_folder%" (
+    echo Destination folder does not exist. Creating destination folder: "%destination_folder%"
+    mkdir "%destination_folder%" 2>nul
+    if not exist "%destination_folder%" (
+        echo Error: Failed to create destination folder. Please check permissions and path.
+        pause
+        goto backup_restore
+    )
+)
+
+echo ===================================================================
+echo Starting basic folder backup from "%source_folder%" to "%destination_folder%"... Please wait.
+echo ===================================================================
+robocopy "%source_folder%" "%destination_folder%" /MIR /COPYALL /R:2 /W:3 /LOG+:"backup_log_robocopy.txt"
+if %errorlevel% lss 8 (
+    echo.
+    echo Basic folder backup completed successfully.
+    echo Source folder: "%source_folder%"
+    echo Destination folder: "%destination_folder%"
+    echo Log file (robocopy details): "backup_log_robocopy.txt" (in script directory)
+) else (
+    echo.
+    echo !!! WARNING: Basic folder backup completed with potential errors. Error Code: %errorlevel% !!!
+    echo Please check the robocopy log file "backup_log_robocopy.txt" (in script directory) for details.
+)
+pause
+goto backup_restore
+
+:guide_file_history
+cls
+echo ===================================================================
+echo      Guide to File History (Windows Built-in File Backup)
+echo ===================================================================
+echo Windows File History is a built-in feature for automatic file backup and versioning.
+echo It is recommended for backing up personal files (documents, pictures, music, videos, etc.).
+echo ===================================================================
+echo **Instructions to Configure File History:**
+echo 1. **Connect an external drive** (USB drive or external HDD) to your computer.
+echo 2. **Open Control Panel.**
+echo 3. Go to **System and Security > File History.**
+echo    - Alternatively, search for "File History" in the Windows Start Menu.
+echo 4. In File History settings:
+echo    - **Turn on File History** if it's off.
+echo    - **Select your external drive** as the backup drive.
+echo    - **Configure folders to backup** (by default, it backs up Libraries, Desktop, Contacts, and Favorites).
+echo    - **Adjust advanced settings** (backup frequency, versions to keep, exclusions, etc.) as needed.
+echo ===================================================================
+echo File History will automatically backup your files to the selected drive at regular intervals.
+echo You can restore previous versions of files from File History settings.
+echo This script only provides guidance. You need to configure File History settings manually.
+pause
+goto backup_restore
 
 :option_18
 :system_info
-echo Displaying system information...
-systeminfo
+cls
+echo ===================================================================
+echo         Detailed Hardware and System Information - Advanced View
+echo ===================================================================
+echo Displaying comprehensive hardware and system information... Please wait...
+echo ===================================================================
+
+echo.
+echo ========================= Operating System =========================
+systeminfo | findstr /c:"OS Name" /c:"OS Version" /c:"Build Type" /c:"Registered Owner" /c:"Installation Date" /c:"System Boot Time"
+echo.
+
+echo ============================== CPU ==============================
+echo Processor Information:
+wmic cpu get Name,DeviceID,Manufacturer,CurrentClockSpeed,MaxClockSpeed,NumberOfCores,NumberOfLogicalProcessors,L2CacheSize,L3CacheSize /format:list
+echo.
+
+echo ============================ Motherboard ============================
+echo BaseBoard Information:
+wmic baseboard get Manufacturer,Product,Version,SerialNumber /format:list
+echo.
+
+echo =============================== BIOS ===============================
+echo BIOS Information:
+wmic bios get Manufacturer,Name,SerialNumber,SMBIOSBIOSVersion,Version /format:list
+echo.
+
+echo =============================== Memory (RAM) ===============================
+echo Memory (RAM) Information:
+powershell -Command "Get-WmiObject Win32_PhysicalMemory | Format-List BankLabel,Capacity,Caption,ConfiguredClockSpeed,DeviceLocator,Manufacturer,PartNumber,SerialNumber,SMBIOSMemoryType,Speed"
+echo.
+
+echo ========================== Graphics Card (GPU) ==========================
+echo Graphics Card (GPU) Information:
+powershell -Command "Get-WmiObject Win32_VideoController | Format-List AdapterCompatibility,AdapterDACType,AdapterRAM,Caption,Description,DriverDate,DriverVersion,InfFilename,InfSection,Manufacturer,Name,PNPDeviceID,VideoProcessor"
+echo.
+
+echo ========================== Storage Devices (Disks) =========================
+echo Storage Devices (Disks) Information:
+powershell -Command "Get-WmiObject Win32_DiskDrive | Format-List Caption,DeviceID,Manufacturer,Model,Name,PNPDeviceID,SerialNumber,Size,InterfaceType,MediaType,Partitions"
+echo.
+
+echo ========================== Audio Devices =========================
+echo Audio Devices Information:
+powershell -Command "Get-WmiObject Win32_SoundDevice | Format-List Caption,DeviceID,Manufacturer,ProductName,Status"
+echo.
+
+echo ========================== Network Adapters =========================
+echo Network Adapters Information:
+:: Enhanced Network Adapter Information using PowerShell
+powershell -Command "Get-NetAdapter | Where-Object {$_.NetEnabled -eq \$true} | Format-List Name,InterfaceDescription,InterfaceName,MacAddress,Status,LinkSpeed,MediaType,DriverInformation"
+echo.
+
+echo ========================== Monitor/Display =========================
+echo Monitor/Display Information:
+powershell -Command "Get-WmiObject WmiMonitorID -Namespace root\wmi | ForEach-Object { \$ManufacturerNameBytes = \$_.ManufacturerName -ne \$null ? \$_.ManufacturerName : @(0) ; \$ProductNameBytes = \$_.ProductName -ne \$null ? \$_.ProductName : @(0) ; \$ManufacturerName = ([System.Text.Encoding]::ASCII).GetString(\$ManufacturerNameBytes).Trim(\"`0`"); \$ProductName = ([System.Text.Encoding]::ASCII).GetString(\$ProductNameBytes).Trim(\"`0`"); Write-Host 'Manufacturer:' \$ManufacturerName; Write-Host 'Product Name:' \$ProductName ; Write-Host 'Serial Number (Raw):' \$_.SerialNumberID ;  Write-Host 'InstanceName:' \$_.InstanceName ; Write-Host '-------------------' }"
+echo.
+
+echo ========================== Input Devices (Mouse/Keyboard) =========================
+echo Input Devices (Mouse/Keyboard) Information:
+echo --- Mouse Devices ---
+powershell -Command "Get-WmiObject Win32_PointingDevice | Format-List Caption,DeviceID,Manufacturer,Name,PNPDeviceID"
+echo.
+echo --- Keyboard Devices ---
+powershell -Command "Get-WmiObject Win32_Keyboard | Format-List Caption,DeviceID,Layout,Manufacturer,Name,PNPDeviceID"
+echo.
+
+echo ===================================================================
+echo     Detailed Hardware and System Information Display Completed - Check Output Above
+echo ===================================================================
 pause
 goto menu
 
 :option_19
 :optimize_privacy
-echo Optimizing privacy settings...
-call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
-call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" "1"
-call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
-echo Privacy settings optimized.
+cls
+echo ======================================================
+echo              Privacy Optimization - Advanced
+echo ======================================================
+echo Please select a category to optimize privacy settings:
+echo ======================================================
+
+echo 1. Telemetry and Data Collection
+echo 2. Advertising and Personalization
+echo 3. User Experience and Feedback
+echo 4. Connected Experiences
+echo ------------------------------------------------------
+echo 5. Revert all Privacy Optimizations (Undo Changes)
+echo 6. Return to main menu
+echo ======================================================
+set /p privacy_choice=Enter your choice (1-6):
+
+:: Validate user input
+if not "%privacy_choice%"=="" (
+    if %privacy_choice% geq 1 if %privacy_choice% leq 6 (
+        goto privacy_option_%privacy_choice%
+    )
+)
+
+:: If invalid choice, prompt again
+echo Invalid choice. Please try again.
 pause
+goto optimize_privacy
+
+:privacy_option_1
+:privacy_telemetry
+cls
+echo ======================================================
+echo          Telemetry and Data Collection Settings
+echo ======================================================
+echo 1. Disable Telemetry (Basic Level - Recommended)
+echo 2. Disable Customer Experience Improvement Program (CEIP)
+echo 3. Disable Error Reporting
+echo 4. Disable Compatibility Telemetry
+echo ------------------------------------------------------
+echo 5. Revert Telemetry & Data Collection Optimizations
+echo 6. Return to Privacy Optimization Menu
+echo ======================================================
+set /p telemetry_choice=Enter your choice (1-6):
+
+if "%telemetry_choice%"=="1" goto disable_telemetry_adv
+if "%telemetry_choice%"=="2" goto disable_ceip_adv
+if "%telemetry_choice%"=="3" goto disable_error_reporting_adv
+if "%telemetry_choice%"=="4" goto disable_compatibility_telemetry_adv
+if "%telemetry_choice%"=="5" goto revert_telemetry_optimizations
+if "%telemetry_choice%"=="6" goto optimize_privacy
+echo Invalid choice. Please try again.
+pause
+goto privacy_telemetry
+
+:disable_telemetry_adv
+echo Disabling Telemetry and Data Collection (Basic Level)...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
+echo Telemetry and Data Collection (Basic Level) disabled.
+pause
+goto privacy_telemetry
+
+:disable_ceip_adv
+echo Disabling Customer Experience Improvement Program (CEIP)...
+call :modify_registry "HKCU\SOFTWARE\Microsoft\SQMClient\Windows" "CEIPEnable" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\SQMClient\Windows" "CEIPEnable" "REG_DWORD" "0"
+echo Customer Experience Improvement Program (CEIP) disabled.
+pause
+goto privacy_telemetry
+
+:disable_error_reporting_adv
+echo Disabling Error Reporting...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" "Disabled" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" "DontConsentPrompt" "REG_DWORD" "1"
+echo Error Reporting disabled.
+pause
+goto privacy_telemetry
+
+:disable_compatibility_telemetry_adv
+echo Disabling Compatibility Telemetry...
+sc config "DiagTrack" start= disabled
+sc stop "DiagTrack"
+echo Compatibility Telemetry (Diagnostic Tracking Service) disabled.
+pause
+goto privacy_telemetry
+
+:revert_telemetry_optimizations
+echo Reverting Telemetry & Data Collection Optimizations...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" /d 1 /f
+call :modify_registry "HKCU\SOFTWARE\Microsoft\SQMClient\Windows" "CEIPEnable" "REG_DWORD" /d 1 /f
+call :modify_registry "HKLM\SOFTWARE\Microsoft\SQMClient\Windows" "CEIPEnable" "REG_DWORD" /d 1 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" "Disabled" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" "DontConsentPrompt" "REG_DWORD" /d 0 /f
+sc config "DiagTrack" start= auto
+sc start "DiagTrack"
+echo Telemetry & Data Collection optimizations reverted.
+pause
+goto privacy_telemetry
+
+
+:privacy_option_2
+:privacy_advertising
+cls
+echo ======================================================
+echo          Advertising and Personalization Settings
+echo ======================================================
+echo 1. Disable Advertising ID
+echo 2. Disable Location Services (System-wide)
+echo 3. Disable Camera Access (For all apps)
+echo 4. Disable Microphone Access (For all apps)
+echo ------------------------------------------------------
+echo 5. Revert Advertising & Personalization Optimizations
+echo 6. Return to Privacy Optimization Menu
+echo ======================================================
+set /p advertising_choice=Enter your choice (1-6):
+
+if "%advertising_choice%"=="1" goto disable_advertising_id_adv
+if "%advertising_choice%"=="2" goto disable_location_services_adv
+if "%advertising_choice%"=="3" goto disable_camera_access_adv
+if "%advertising_choice%"=="4" goto disable_microphone_access_adv
+if "%advertising_choice%"=="5" goto revert_advertising_optimizations
+if "%advertising_choice%"=="6" goto optimize_privacy
+echo Invalid choice. Please try again.
+pause
+goto privacy_advertising
+
+:disable_advertising_id_adv
+echo Disabling Advertising ID...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" "1"
+echo Advertising ID disabled.
+pause
+goto privacy_advertising
+
+:disable_location_services_adv
+echo Disabling Location Services (System-wide)...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" "DisableLocation" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" "NoGlobalLocationControl" "REG_DWORD" "1"
+echo Location Services (System-wide) disabled.
+pause
+goto privacy_advertising
+
+:disable_camera_access_adv
+echo Disabling Camera Access (For all apps)...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Camera" "LetAppsAccessCamera" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Camera" "LetAppsAccessCamera_ForceAllowTheseApps" "REG_SZ" ""
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Camera" "LetAppsAccessCamera_ForceDenyTheseApps" "REG_SZ" "*"
+echo Camera Access (For all apps) disabled.
+pause
+goto privacy_advertising
+
+:disable_microphone_access_adv
+echo Disabling Microphone Access (For all apps)...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Microphone" "LetAppsAccessMicrophone" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Microphone" "LetAppsAccessMicrophone_ForceAllowTheseApps" "REG_SZ" ""
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Microphone" "LetAppsAccessMicrophone_ForceDenyTheseApps" "REG_SZ" "*"
+echo Microphone Access (For all apps) disabled.
+pause
+goto privacy_advertising
+
+:revert_advertising_optimizations
+echo Reverting Advertising & Personalization Optimizations...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" "DisableLocation" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" "NoGlobalLocationControl" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Camera" "LetAppsAccessCamera" "REG_DWORD" /d 1 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Camera" "LetAppsAccessCamera_ForceAllowTheseApps" "REG_SZ" "" /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Camera" "LetAppsAccessCamera_ForceDenyTheseApps" "REG_SZ" "" /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Microphone" "LetAppsAccessMicrophone" "REG_DWORD" /d 1 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Microphone" "LetAppsAccessMicrophone_ForceAllowTheseApps" "REG_SZ" "" /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Microphone" "LetAppsAccessMicrophone_ForceDenyTheseApps" "REG_SZ" "" /f
+echo Advertising & Personalization optimizations reverted.
+pause
+goto privacy_advertising
+
+
+:privacy_option_3
+:privacy_ux_feedback
+cls
+echo ======================================================
+echo          User Experience and Feedback Settings
+echo ======================================================
+echo 1. Disable Windows Tips and Notifications
+echo 2. Disable Lock Screen Ads and Spotlight
+echo 3. Disable Start Menu Suggestions and Ads
+echo ------------------------------------------------------
+echo 4. Revert User Experience & Feedback Optimizations
+echo 5. Return to Privacy Optimization Menu
+echo ======================================================
+set /p ux_feedback_choice=Enter your choice (1-5):
+
+if "%ux_feedback_choice%"=="1" goto disable_windows_tips_adv
+if "%ux_feedback_choice%"=="2" goto disable_lockscreen_ads_adv
+if "%ux_feedback_choice%"=="3" goto disable_startmenu_suggestions_adv
+if "%ux_feedback_choice%"=="4" goto revert_ux_feedback_optimizations
+if "%ux_feedback_choice%"=="5" goto optimize_privacy
+echo Invalid choice. Please try again.
+pause
+goto privacy_ux_feedback
+
+:disable_windows_tips_adv
+echo Disabling Windows Tips and Notifications...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableSoftLanding" "REG_DWORD" "1"
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" "NoToastApplicationNotification" "REG_DWORD" "1"
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" "NoToastNotificationQueue" "REG_DWORD" "1"
+echo Windows Tips and Notifications disabled.
+pause
+goto privacy_ux_feedback
+
+:disable_lockscreen_ads_adv
+echo Disabling Lock Screen Ads and Spotlight...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableWindowsSpotlightFeatures" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableContentDeliveryAds" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableLockScreenSpotlight" "REG_DWORD" "1"
+echo Lock Screen Ads and Spotlight disabled.
+pause
+goto privacy_ux_feedback
+
+:disable_startmenu_suggestions_adv
+echo Disabling Start Menu Suggestions and Ads...
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SystemPaneSuggestionsEnabled" "REG_DWORD" "0"
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SubscribedContent-338393Enabled" "REG_DWORD" "0"
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ShowSyncProviderNotifications" "REG_DWORD" "0"
+echo Start Menu Suggestions and Ads disabled.
+pause
+goto privacy_ux_feedback
+
+:revert_ux_feedback_optimizations
+echo Reverting User Experience & Feedback Optimizations...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableSoftLanding" "REG_DWORD" /d 0 /f
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" "NoToastApplicationNotification" "REG_DWORD" /d 0 /f
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" "NoToastNotificationQueue" "REG_DWORD" /d 0 /f
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SystemPaneSuggestionsEnabled" "REG_DWORD" /d 1 /f
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SubscribedContent-338393Enabled" "REG_DWORD" /d 1 /f
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ShowSyncProviderNotifications" "REG_DWORD" /d 1 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableWindowsSpotlightFeatures" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableContentDeliveryAds" "REG_DWORD" /d 0 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableLockScreenSpotlight" "REG_DWORD" /d 0 /f
+echo User Experience & Feedback optimizations reverted.
+pause
+goto privacy_ux_feedback
+
+
+:privacy_option_4
+:privacy_connected_experiences
+cls
+echo ======================================================
+echo          Connected Experiences Settings
+echo ======================================================
+echo 1. Disable Activity Feed (Timeline)
+echo 2. Disable Cortana
+echo 3. Disable Web Search in Start Menu
+echo 4. Disable People Bar (My People)
+echo 5. Uninstall OneDrive (Optional - Requires User Confirmation)
+echo ------------------------------------------------------
+echo 6. Revert Connected Experiences Optimizations
+echo 7. Return to Privacy Optimization Menu
+echo ======================================================
+set /p connected_choice=Enter your choice (1-7):
+
+if "%connected_choice%"=="1" goto disable_activity_feed_adv
+if "%connected_choice%"=="2" goto disable_cortana_adv
+if "%connected_choice%"=="3" goto disable_web_search_startmenu_adv
+if "%connected_choice%"=="4" goto disable_people_bar_adv
+if "%connected_choice%"=="5" goto uninstall_onedrive_adv
+if "%connected_choice%"=="6" goto revert_connected_optimizations
+if "%connected_choice%"=="7" goto optimize_privacy
+echo Invalid choice. Please try again.
+pause
+goto privacy_connected_experiences
+
+:disable_activity_feed_adv
+echo Disabling Activity Feed (Timeline)...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" "EnableActivityFeed" "REG_DWORD" "0"
+echo Activity Feed (Timeline) disabled.
+pause
+goto privacy_connected_experiences
+
+:disable_cortana_adv
+echo Disabling Cortana...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" "0"
+echo Cortana disabled.
+pause
+goto privacy_connected_experiences
+
+:disable_web_search_startmenu_adv
+echo Disabling Web Search in Start Menu...
+call :modify_registry "HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer" "DisableSearchBoxSuggestions" "REG_DWORD" "1"
+call :modify_registry "HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer" "NoInternetOpenWith" "REG_DWORD" "1"
+echo Web Search in Start Menu disabled.
+pause
+goto privacy_connected_experiences
+
+:disable_people_bar_adv
+echo Disabling People Bar (My People)...
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "PeopleBand" "REG_DWORD" "0"
+echo People Bar (My People) disabled.
+pause
+goto privacy_connected_experiences
+
+:uninstall_onedrive_adv
+echo Uninstalling OneDrive (Optional)...
+set /p confirm_onedrive_adv=Are you sure you want to uninstall OneDrive? (Y/N - Recommended to choose N if you use OneDrive):
+if /i "%confirm_onedrive_adv%"=="Y" (
+    if exist "%ProgramFiles%\OneDrive\setup.exe" (
+        echo Uninstalling OneDrive (per-machine)...
+        "%ProgramFiles%\OneDrive\setup.exe" /uninstall
+    ) else if exist "%LocalAppData%\Microsoft\OneDrive\Update\OneDriveSetup.exe" (
+        echo Uninstalling OneDrive (per-user)...
+        "%LocalAppData%\Microsoft\OneDrive\Update\OneDriveSetup.exe" /uninstall
+    ) else (
+        echo OneDrive uninstaller not found. OneDrive may not be installed or uninstallation method may need to be adjusted.
+    )
+    echo OneDrive uninstallation process started. Please check for completion.
+    echo You may need to manually remove OneDrive folders after uninstallation.
+) else (
+    echo OneDrive uninstallation cancelled.
+)
+pause
+goto privacy_connected_experiences
+
+:revert_connected_optimizations
+echo Reverting Connected Experiences Optimizations...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" "EnableActivityFeed" "REG_DWORD" /d 1 /f
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" /d 1 /f
+call :modify_registry "HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer" "DisableSearchBoxSuggestions" "REG_DWORD" /d 0 /f
+call :modify_registry "HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer" "NoInternetOpenWith" "REG_DWORD" /d 0 /f
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "PeopleBand" "REG_DWORD" /d 1 /f
+echo Connected Experiences optimizations reverted.
+pause
+goto privacy_connected_experiences
+
+
+:privacy_option_5
+:revert_privacy_optimizations
+echo Reverting All Privacy Optimizations...
+echo Restoring default privacy settings.
+goto revert_telemetry_optimizations
+goto revert_advertising_optimizations
+goto revert_ux_feedback_optimizations
+goto revert_connected_optimizations
+echo All privacy optimizations reverted to default settings.
+pause
+goto optimize_privacy
+
+
+:privacy_option_6
 goto menu
 
 :option_20
