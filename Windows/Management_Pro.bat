@@ -13,77 +13,40 @@ if %errorlevel% neq 0 (
 
 :menu
 cls
-echo ======================================================
-echo Windows Optimization Script v3.0 - Advanced Edition
-echo ======================================================
+@echo off
+title Windows Optimization Script v3.0 - Advanced Edition
+
+echo ====================================
+echo Windows Optimization Script v3.0
+echo ====================================
 echo Please select an option:
-echo ======================================================
-echo :: 1 - Display Performance Optimization ::
+echo ====================================
+
 echo 1. Optimize display performance
-echo ======================================================
-echo :: 2 - Windows Defender Management ::
 echo 2. Manage Windows Defender
-echo ======================================================
-echo :: 3 - Windows Features Optimization ::
-echo 3. Windows Features Optimization - Advanced
-echo ======================================================
-echo :: 4 - CPU Performance Optimization ::
-echo 4. CPU Optimization - Advanced
-echo ======================================================
-echo :: 5 - Internet Performance Optimization ::
-echo 5. Internet Performance Optimization - Advanced
-echo ======================================================
-echo :: 6 - Windows Update Management ::
+echo 3. Optimize Windows Features (Advanced)
+echo 4. Optimize CPU (Advanced)
+echo 5. Optimize Internet (Advanced)
 echo 6. Manage Windows Update
-echo ======================================================
-echo :: 7 - Auto-login Configuration ::
 echo 7. Configure Auto-login
-echo ======================================================
-echo :: 8 - System Cache Cleanup ::
-echo 8. Clearing System Cache - Advanced
-echo ======================================================
-echo :: 9 - Disk Optimization ::
-echo 9. Disk Optimization - Advanced
-echo ======================================================
-echo :: 10 - System Check and Repair ::
-echo 10. System Check and Repair - Advanced
-echo ======================================================
-echo :: 11 - Windows Activation Management ::
+echo 8. Clear System Cache (Advanced)
+echo 9. Optimize Disk (Advanced)
+echo 10. System Check and Repair (Advanced)
 echo 11. Windows Activation
-echo ======================================================
-echo :: 12 - Power Settings Management ::
-echo 12. Power Settings Management - Advanced
-echo ======================================================
-echo :: 13 - Dark Mode Enable/Disable ::
-echo 13. Enable Dark Mode
-echo ======================================================
-echo :: 14 - Partition Management (DISKPART) ::
-echo 14. Manage partitions
-echo ======================================================
-echo :: 15 - Disk Space Cleanup (DISKCLEANUP) ::
-echo 15. Clean up disk space
-echo ======================================================
-echo :: 16 - Startup Programs Management (MSCONFIG) ::
-echo 16. Manage startup programs
-echo ======================================================
-echo :: 17 - Backup and Restore Settings ::
-echo 17. Backup and restore settings
-echo ======================================================
-echo :: 18 - System Information ::
-echo 18. System information
-echo ======================================================
-echo :: 19 - Privacy Settings Optimization ::
-echo 19. Optimize privacy settings
-echo ======================================================
-echo :: 20 - Windows Services Management ::
-echo 20. Windows Services Management
-echo ======================================================
-echo :: 21 - Network Optimization ::
-echo 21. Network optimization
-echo ======================================================
-echo :: 22 - Exit Script ::
+echo 12. Manage Power Settings (Advanced)
+echo 13. Enable/Disable Dark Mode
+echo 14. Manage Partitions (DISKPART)
+echo 15. Clean Up Disk Space (DISKCLEANUP)
+echo 16. Manage Startup Programs (MSCONFIG)
+echo 17. Backup and Restore Settings
+echo 18. System Information
+echo 19. Optimize Privacy Settings
+echo 20. Manage Windows Services
+echo 21. Optimize Network
 echo 22. Exit
-echo ======================================================
+
+echo ====================================
+
 set /p choice=Enter your choice (1-22):
 
 :: Validate user input
@@ -1064,7 +1027,6 @@ for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr "Connected"') do
 echo Internet optimizations reverted to default settings. Please restart your computer.
 pause
 goto optimize_internet
-
 :option_6
 :windows_update
 echo Windows Update Management
@@ -1434,24 +1396,28 @@ if not exist "%userprofile%\Desktop\sfcdetails.txt" (
 pause
 goto check_repair
 
+@echo off
+color 0a
+title Windows Activation Script (Improved)
+
 :option_11
 :windows_activate
 cls
-echo ==================================================
-echo Windows Activation
-echo ==================================================
+echo ==================================================================
+echo                       Windows Activation Script (Improved)
+echo ==================================================================
 echo 1. Check activation status
-echo 2. Activate using KMS (for Volume License versions)
-echo 3. Activate using digital license
+echo 2. Activate using KMS (Volume License - **USE WITH CAUTION**)
+echo 3. Activate Windows (Digital License or KMS if configured)
 echo 4. Input a product key manually
 echo 5. Remove product key
 echo 6. Return to main menu
-echo ==================================================
+echo ==================================================================
 set /p activate_choice=Enter your choice (1-6):
 
 if "%activate_choice%"=="1" goto check_activation
-if "%activate_choice%"=="2" goto kms_activate
-if "%activate_choice%"=="3" goto digital_activate
+if "%activate_choice%"=="2" goto kms_activate_warning
+if "%activate_choice%"=="3" goto activate_windows
 if "%activate_choice%"=="4" goto manual_key
 if "%activate_choice%"=="5" goto remove_key
 if "%activate_choice%"=="6" goto menu
@@ -1460,19 +1426,60 @@ pause
 goto windows_activate
 
 :check_activation
-echo Checking Windows activation status...
+cls
+echo ==================================================================
+echo                    Checking Windows Activation Status
+echo ==================================================================
 slmgr /xpr
 pause
 goto windows_activate
 
-:kms_activate
+:kms_activate_warning
+cls
+echo ====================================================================================
+echo                       !!!  WARNING - KMS ACTIVATION  !!!
+echo ====================================================================================
+echo You have chosen to activate Windows using KMS via an external script.
+echo **THIS METHOD INVOLVES DOWNLOADING AND EXECUTING A SCRIPT FROM:**
+echo
+echo                  https://get.activated.win
+echo
+echo ====================================================================================
+echo **SECURITY RISK:**
+echo Executing scripts from the internet can be dangerous.
+echo We **STRONGLY RECOMMEND** reviewing the script's content before execution
+echo to understand what it does. Proceed at your own risk.
+echo ====================================================================================
+echo Do you understand the risks and want to proceed with KMS activation?
+echo ====================================================================================
+echo 1. Proceed with KMS Activation
+echo 2. Return to Activation Menu
+echo ====================================================================================
+set /p kms_choice=Enter your choice (1-2):
+
+if "%kms_choice%"=="1" goto kms_activate_real
+if "%kms_choice%"=="2" goto windows_activate
+echo Invalid choice. Returning to Activation Menu.
+pause
+goto windows_activate
+
+:kms_activate_real
+cls
+echo ==================================================================
+echo                    Attempting KMS Activation (External Script)
+echo ==================================================================
 :: Check if the script is running with administrator privileges
 net session >nul 2>&1
 if %errorLevel% == 0 (
     :: If running as administrator, execute the PowerShell command
+    echo Attempting KMS Activation using script from https://get.activated.win ...
     powershell -command "irm https://get.activated.win | iex"
+    echo.
+    echo KMS Activation Attempted. Please check your activation status.
+    slmgr /xpr
 ) else (
     :: If not running as administrator, relaunch the script as administrator
+    echo Requesting Administrator Privileges for KMS Activation...
     echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
     echo UAC.ShellExecute "cmd.exe", "/c %~s0", "", "runas", 1 >> "%temp%\getadmin.vbs"
     "%temp%\getadmin.vbs"
@@ -1481,52 +1488,64 @@ if %errorLevel% == 0 (
 pause
 goto windows_activate
 
-:activate_kms
-slmgr /ato
-if %errorlevel% neq 0 (
-    echo Activation failed. Please try another method or check your Windows version.
-) else (
-    echo Windows activation attempted. Please check the activation status.
-)
-pause
-goto windows_activate
 
-:digital_activate
-echo Attempting to activate Windows using digital license...
+:activate_windows
+cls
+echo ==================================================================
+echo          Attempting Windows Activation (Digital License or KMS)
+echo ==================================================================
+echo Attempting Windows activation using digital license or configured KMS...
 slmgr /ato
 if %errorlevel% neq 0 (
-    echo Digital license activation failed. Your PC may not have a digital license.
+    echo Activation failed. Please check your network connection and KMS configuration (if applicable).
 ) else (
-    echo Digital license activation attempted. Please check the activation status.
+    echo Windows activation attempted successfully!
+    echo.
+    echo Current Activation Status:
+    slmgr /xpr
 )
 pause
 goto windows_activate
 
 :manual_key
+cls
+echo ==================================================================
+echo                 Manual Product Key Activation
+echo ==================================================================
 set /p product_key=Enter your 25-character product key (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX):
+echo.
 echo Installing product key...
 slmgr /ipk %product_key%
 if %errorlevel% neq 0 (
     echo Failed to install product key. The key may be invalid or not applicable to your Windows version.
 ) else (
-    echo Product key installed. Attempting activation...
+    echo Product key installed successfully.
+    echo.
+    echo Attempting activation...
     slmgr /ato
     if %errorlevel% neq 0 (
         echo Activation failed. Please check your product key and try again.
     ) else (
-        echo Windows activation attempted. Please check the activation status.
+        echo Windows activation attempted successfully!
+        echo.
+        echo Current Activation Status:
+        slmgr /xpr
     )
 )
 pause
 goto windows_activate
 
 :remove_key
+cls
+echo ==================================================================
+echo                     Remove Product Key
+echo ==================================================================
 echo Removing current product key...
 slmgr /upk
 if %errorlevel% neq 0 (
     echo Failed to remove product key. You may not have permission or there's no key to remove.
 ) else (
-    echo Product key removed successfully.
+    echo Product key removed successfully. Windows is now unactivated.
 )
 pause
 goto windows_activate
