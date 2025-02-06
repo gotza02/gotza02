@@ -178,19 +178,40 @@ cls
 echo ==================================================
 echo CPU Optimization
 echo ==================================================
-echo 1. Set High Performance power plan
-echo 2. Disable CPU Throttling (For advanced users)
-echo 3. Optimize Processor Scheduling
-echo 4. Enable Hardware-Accelerated GPU Scheduling (Requires Restart)
-echo 5. Return to Main Menu
+echo  [Power Management]
+echo  1. Set High Performance Power Plan
+echo  2. Disable CPU Throttling (Advanced - May increase heat/power)
+echo  3. Customize Power Plan Settings (Advanced)
+echo.
+echo  [Processor Scheduling & Affinity]
+echo  4. Optimize Processor Scheduling (Programs vs. Background Services)
+echo  5. Set Process Priority (Temporary - Requires Process Name)
+echo  6. Set Process Affinity (Advanced - Requires Process Name)
+echo.
+echo  [System Configuration]
+echo  7. Enable Hardware-Accelerated GPU Scheduling (Requires Restart)
+echo  8. Disable Core Parking (May not be beneficial on all systems)
+echo  9. Disable Legacy USB Support in BIOS (Caution - May disable input)
+echo.
+echo  [Overclocking/Undervolting - EXTREMELY DANGEROUS]
+echo 10.  Open BIOS/UEFI Settings (Requires Restart - Use with EXTREME CAUTION)
+echo.
+echo 11. Return to Main Menu
 echo ==================================================
-set /p cpu_choice=Enter your choice (1-5):
+set /p cpu_choice=Enter your choice (1-11):
 
 if "%cpu_choice%"=="1" goto set_high_performance
 if "%cpu_choice%"=="2" goto disable_throttling
-if "%cpu_choice%"=="3" goto optimize_scheduling
-if "%cpu_choice%"=="4" goto enable_gpu_scheduling
-if "%cpu_choice%"=="5" goto menu
+if "%cpu_choice%"=="3" goto customize_power_plan
+if "%cpu_choice%"=="4" goto optimize_scheduling
+if "%cpu_choice%"=="5" goto set_process_priority
+if "%cpu_choice%"=="6" goto set_process_affinity
+if "%cpu_choice%"=="7" goto enable_gpu_scheduling
+if "%cpu_choice%"=="8" goto disable_core_parking
+if "%cpu_choice%"=="9" goto disable_legacy_usb
+if "%cpu_choice%"=="10" goto open_bios_settings
+if "%cpu_choice%"=="11" goto menu
+
 echo Invalid choice.
 pause
 goto optimize_cpu
@@ -204,7 +225,15 @@ goto optimize_cpu
 
 :disable_throttling
 echo Disabling CPU Throttling...
-echo WARNING: This may increase power consumption and heat.
+echo WARNING: This may increase power consumption, heat generation,
+echo          and potentially reduce CPU lifespan.  Use with caution
+echo          and monitor your system temperatures.
+call :get_confirmation "Are you sure you want to disable CPU throttling?"
+if errorlevel 1 (
+    echo Throttling disablement cancelled.
+    pause
+    goto optimize_cpu
+)
 powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
 powercfg -setdcvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
 powercfg -setactive scheme_current
@@ -212,17 +241,127 @@ echo CPU throttling disabled (both AC and DC).
 pause
 goto optimize_cpu
 
-:optimize_scheduling
-echo Optimizing Processor Scheduling for best performance of programs...
-call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "38"
-echo Processor scheduling optimized.
+:customize_power_plan
+echo Opening Power Options control panel...
+echo Use the control panel to customize advanced power plan settings.
+control powercfg.cpl
 pause
 goto optimize_cpu
 
+:optimize_scheduling
+echo Select processor scheduling optimization:
+echo 1. Optimize for Programs (Recommended for most users)
+echo 2. Optimize for Background Services (For servers or specific workloads)
+set /p "sched_choice=Enter your choice (1-2): "
+
+if "%sched_choice%"=="1" (
+    call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "38"
+    echo Processor scheduling optimized for Programs.
+) else if "%sched_choice%"=="2" (
+    call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "24"
+    echo Processor scheduling optimized for Background Services.
+) else (
+    echo Invalid scheduling choice.
+)
+pause
+goto optimize_cpu
+
+:set_process_priority
+set /p "proc_name=Enter the process name (e.g., notepad.exe): "
+echo Select priority level:
+echo  1. Realtime (DANGEROUS - Can cause system instability)
+echo  2. High
+echo  3. Above Normal
+echo  4. Normal
+echo  5. Below Normal
+echo  6. Low
+set /p "priority_choice=Enter your choice (1-6): "
+
+if "%priority_choice%"=="1" set "priority_level=realtime"
+if "%priority_choice%"=="2" set "priority_level=high"
+if "%priority_choice%"=="3" set "priority_level=abovenormal"
+if "%priority_choice%"=="4" set "priority_level=normal"
+if "%priority_choice%"=="5" set "priority_level=belownormal"
+if "%priority_choice%"=="6" set "priority_level=low"
+
+if not defined priority_level (
+    echo Invalid priority choice.
+    pause
+    goto optimize_cpu
+)
+
+echo Setting priority for process "%proc_name%" to %priority_level%...
+wmic process where name="%proc_name%" CALL setpriority "%priority_level%"
+echo Process priority change attempted.  Check Task Manager.
+pause
+goto optimize_cpu
+
+:set_process_affinity
+echo WARNING: Setting process affinity incorrectly can negatively impact performance.
+set /p "proc_name=Enter the process name (e.g., notepad.exe): "
+set /p "affinity_mask=Enter the affinity mask (decimal value - see documentation): "
+echo Setting affinity for process "%proc_name%" to %affinity_mask%...
+powershell -Command "$Process = Get-Process '%proc_name%'; $Process.ProcessorAffinity=%affinity_mask%"
+echo Process affinity change attempted. Check Task Manager.
+pause
+goto optimize_cpu
 :enable_gpu_scheduling
 echo Enabling Hardware-Accelerated GPU Scheduling...
 call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "REG_DWORD" "2"
 echo Hardware-accelerated GPU scheduling enabled.  Restart required.
+pause
+goto optimize_cpu
+
+:disable_core_parking
+echo WARNING: Disabling core parking may not improve performance on all systems
+echo          and may increase power consumption.  It is generally recommended
+echo          to leave core parking enabled unless you have a specific reason
+echo          to disable it and have tested the impact.
+call :get_confirmation "Are you sure you want to disable CPU core parking?"
+if errorlevel 1 (
+    echo Core parking disablement cancelled.
+    pause
+    goto optimize_cpu
+)
+powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100
+powercfg -setdcvalueindex scheme_current sub_processor CPMINCORES 100
+powercfg -setactive scheme_current
+
+echo CPU core parking disabled (both AC and DC).
+pause
+goto optimize_cpu
+
+:disable_legacy_usb
+echo WARNING: Disabling legacy USB support in the BIOS can prevent you
+echo          from using USB keyboards and mice *before* the operating
+echo          system loads.  This can make it difficult to access the
+echo          BIOS or troubleshoot boot problems.  Do NOT proceed unless
+echo          you understand the risks and have alternative input methods.
+call :get_confirmation "Are you ABSOLUTELY SURE you want to disable Legacy USB?"
+if errorlevel 1 (
+    echo Operation cancelled.
+    pause
+    goto optimize_cpu
+)
+echo This option cannot be performed directly from the script.
+echo You must manually disable "Legacy USB Support" (or similar)
+echo in your computer's BIOS/UEFI settings.  Refer to your
+echo motherboard or computer manufacturer's documentation.
+pause
+goto optimize_cpu
+
+:open_bios_settings
+echo WARNING: Modifying BIOS/UEFI settings incorrectly can prevent your
+echo          computer from booting.  Overclocking or undervolting can
+echo          damage your hardware.  Proceed with EXTREME CAUTION.
+call :get_confirmation "Are you ABSOLUTELY SURE you want to open BIOS/UEFI settings?"
+if errorlevel 1 (
+    echo Operation cancelled.
+    pause
+    goto optimize_cpu
+)
+shutdown /r /fw /f /t 00
+echo Restarting to BIOS/UEFI settings...
 pause
 goto optimize_cpu
 
