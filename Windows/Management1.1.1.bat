@@ -1,254 +1,589 @@
 @echo off
-
-:: ============================================================================
-:: Windows Optimization and Management Script - Comprehensive Edition (English)
-:: ============================================================================
-:: Author: [Your Name/Organization] (Adapted from original script)
-:: Version: 5.0 (Comprehensive)
-::
-:: Description: This script provides an extensive set of tools to
-::              optimize, maintain, configure, and troubleshoot Windows.
-::              It is designed for speed, efficiency, and comprehensiveness.
-::
-:: IMPORTANT: Run this script as an administrator. It includes a built-in
-::            administrator privilege check.
-:: ============================================================================
-
-:: ============================================================================
-:: --- Administrator Privilege Check and Self-Elevation ---
-:: ============================================================================
-
-net session >nul 2>&1
-if %errorLevel% NEQ 0 (
-    echo Requesting administrative privileges...
-    if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs"
-    echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c """"%~f0""""", "", "runas", 1 >> "%temp%\getadmin.vbs"
-    "%temp%\getadmin.vbs"
-    del "%temp%\getadmin.vbs"
-    exit /B
-)
-
-:: ============================================================================
-:: --- Enable Delayed Expansion ---
-:: ============================================================================
-
 setlocal enabledelayedexpansion
 
-:: ============================================================================
-:: --- Function Definitions ---
-:: ============================================================================
-
-:: Function to modify registry values with error handling and logging
-:modify_registry
-set "reg_key=%~1"
-set "reg_value=%~2"
-set "reg_type=%~3"
-set "reg_data=%~4"
-
-reg add "%reg_key%" /v "%reg_value%" /t %reg_type% /d "%reg_data%" /f >nul 2>&1
-if %errorlevel% NEQ 0 (
-    echo ERROR: Failed to modify registry key: "%reg_key%\%reg_value%"
-    echo        Errorlevel: %errorlevel%
+:: Check for administrator privileges
+:check_admin
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo This script requires administrator privileges.
+    echo Please run as administrator and try again.
     pause
+    exit /b 1
 )
-goto :eof
-
-:: Function to check if a service exists
-:service_exists
-sc query "%~1" >nul 2>&1
-exit /b %errorlevel%
-goto :eof
-
-:: Function to get user confirmation (Y/N)
-:get_confirmation
-set "prompt_message=%~1"
-set /p "confirmation=%prompt_message% (Y/N): "
-if /I "%confirmation%"=="Y" (
-    exit /b 0  :: Return 0 for YES
-) else (
-    exit /b 1  :: Return 1 for NO
-)
-goto :eof
-
-:: ============================================================================
-:: --- Main Menu ---
-:: ============================================================================
 
 :menu
 cls
-echo ================================================================
-echo  Windows Optimization and Management Script v5.0 (Comprehensive)
-echo ================================================================
-echo  [Performance]
-echo   1. Optimize Display
-echo   2. Optimize CPU
-echo   3. Optimize Internet
-echo   4. Optimize Disk
-echo.
-echo  [System Management]
-echo   5. Manage Windows Defender
-echo   6. Manage Windows Update
-echo   7. Manage Startup Programs
-echo   8. Configure Auto-login (Use with caution!)
-echo   9. Manage User Accounts (NEW)
-echo.
-echo  [Maintenance]
-echo  10. Clear System Cache
-echo  11. Check and Repair System Files
-echo  12. Clean Up Disk Space
-echo  13. Advanced System Cleanup (NEW)
-echo.
-echo  [System Configuration]
-echo  14. Manage Power Settings
-echo  15. Enable/Disable Dark Mode
-echo  16. System Information
-echo  17. Backup and Restore Settings (System Restore)
-echo  18. Manage Environment Variables (NEW)
-echo.
-echo  [Windows Activation]
-echo 19. Windows Activation
-echo.
-echo  [Advanced]
-echo  20. Manage Windows Services (Advanced Users Only)
-echo  21. Optimize Privacy Settings
-echo  22. Network Reset and Advanced Optimization
-echo  23. Manage Installed Applications (NEW)
-echo  24. Advanced Registry Tweaks (Experts Only!) (NEW)
-echo  25. Hardware Diagnostics (NEW)
-echo.
-echo  26. Exit
-echo ================================================================
-set /p "choice=Enter your choice (1-26): "
+echo ==================================================
+echo Windows Optimization Script v4.0
+echo ==================================================
+echo Please select an option:
+echo 1. Optimize display performance
+echo 2. Manage Windows Defender
+echo 3. Optimize system features
+echo 4. Optimize CPU performance
+echo 5. Optimize Internet performance
+echo 6. Manage Windows Update
+echo 7. Configure Auto-login
+echo 8. Clear system cache
+echo 9. Optimize disk
+echo 10. Check and repair system files
+echo 11. Activate Windows
+echo 12. Manage power settings
+echo 13. Enable Dark Mode
+echo 14. Manage partitions
+echo 15. Clean up disk space
+echo 16. Manage startup programs
+echo 17. Backup and restore settings
+echo 18. System information
+echo 19. Optimize privacy settings
+echo 20. Manage Windows services
+echo 21. Network optimization
+echo 22. Manage new Windows 11 features
+echo 23. Exit
+echo ==================================================
+set /p choice=Enter your choice (1-23):
 
-:: Input validation
-if not defined choice (
-    echo Invalid choice. Please try again.
-    pause
-    goto menu
+:: Validate user input
+if not "%choice%"=="" (
+    if %choice% geq 1 if %choice% leq 23 (
+        goto option_%choice%
+    )
 )
 
-:: Check if choice is a number between 1 and 26
-echo %choice%| findstr /r "^[1-9]$ ^1[0-9]$ ^2[0-6]$" >nul
-if errorlevel 1 (
-     echo Invalid choice. Please try again.
-     pause > nul
-     goto menu
-)
+:: If invalid choice, prompt again
+echo Invalid choice. Please try again.
+pause
+goto menu
 
-goto option_%choice%
-
-:: ============================================================================
-:: --- Option Implementations ---
-:: ============================================================================
 :option_1
 :optimize_display
 echo Optimizing display performance...
 call :modify_registry "HKCU\Control Panel\Desktop" "UserPreferencesMask" "REG_BINARY" "9012078010000000"
 call :modify_registry "HKCU\Control Panel\Desktop" "MenuShowDelay" "REG_SZ" "0"
 call :modify_registry "HKCU\Control Panel\Desktop\WindowMetrics" "MinAnimate" "REG_SZ" "0"
-call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ListviewAlphaSelect" "REG_DWORD" "0"
-call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ListviewShadow" "REG_DWORD" "0"
-call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "TaskbarAnimations" "REG_DWORD" "0"
-call :modify_registry "HKCU\Software\Microsoft\Windows\DWM" "EnableAeroPeek" "REG_DWORD" "0"
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ListviewAlphaSelect" "REG_DWORD" "0"
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ListviewShadow" "REG_DWORD" "0"
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "TaskbarAnimations" "REG_DWORD" "0"
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM" "EnableAeroPeek" "REG_DWORD" "0"
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" "VisualFXSetting" "REG_DWORD" "2"  :: Updated Visual Effects for Windows 11
 echo Display performance optimized.
 pause
 goto menu
 
 :option_2
+:manage_defender
+cls
+echo ===================================================
+echo             Windows Defender Management
+echo ===================================================
+echo 1. Check Windows Defender status
+echo 2. Enable Windows Defender
+echo 3. Disable Windows Defender (Not recommended)
+echo 4. Update Windows Defender
+echo 5. Run quick scan
+echo 6. Run full scan
+echo 7. Manage real-time protection
+echo 8. Manage cloud-delivered protection
+echo 9. Manage automatic sample submission
+echo 10. View threat history
+echo 11. Return to main menu
+echo ===================================================
+set /p def_choice=Enter your choice (1-11):
+
+if "%def_choice%"=="1" goto check_defender
+if "%def_choice%"=="2" goto enable_defender
+if "%def_choice%"=="3" goto disable_defender
+if "%def_choice%"=="4" goto update_defender
+if "%def_choice%"=="5" goto quick_scan
+if "%def_choice%"=="6" goto full_scan
+if "%def_choice%"=="7" goto manage_realtime
+if "%def_choice%"=="8" goto manage_cloud
+if "%def_choice%"=="9" goto manage_samples
+if "%def_choice%"=="10" goto view_history
+if "%def_choice%"=="11" goto menu
+echo Invalid choice. Please try again.
+pause
+goto manage_defender
+
+:check_defender
+echo Checking Windows Defender status...
+sc query windefend
+pause
+goto manage_defender
+
+:enable_defender
+echo Enabling Windows Defender...
+rem Enable Windows Defender and Real-Time Protection
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" "DisableAntiSpyware" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableRealtimeMonitoring" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableBehaviorMonitoring" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableOnAccessProtection" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableScanOnRealtimeEnable" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SpynetReporting" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SubmitSamplesConsent" "REG_DWORD" "1"
+echo Enabled Windows Defender.
+pause
+goto manage_defender
+
+:disable_defender
+echo WARNING: Disabling Windows Defender may leave your system vulnerable.
+rem Disable Windows Defender and Real-Time Protection
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" "DisableAntiSpyware" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableRealtimeMonitoring" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableBehaviorMonitoring" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableOnAccessProtection" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableScanOnRealtimeEnable" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SpynetReporting" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SubmitSamplesConsent" "REG_DWORD" "2"
+echo Disabled Windows Defender.
+pause
+goto manage_defender
+
+:update_defender
+echo Updating Windows Defender...
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
+if %errorlevel% equ 0 (
+    echo Windows Defender updated successfully.
+) else (
+    echo Failed to update Windows Defender. Please check your internet connection.
+)
+pause
+goto manage_defender
+
+:quick_scan
+echo Running quick scan...
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
+echo Quick scan completed.
+pause
+goto manage_defender
+
+:full_scan
+echo Running full scan...
+echo This may take a while. You can check the progress in Windows Security.
+start "" "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 2
+pause
+goto manage_defender
+
+:manage_realtime
+echo Current real-time protection status:
+reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring
+set /p rtp_choice=Do you want to enable (E) or disable (D) real-time protection? (E/D):
+if /i "%rtp_choice%"=="E" (
+    reg delete "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f
+    echo Real-time protection enabled.
+) else if /i "%rtp_choice%"=="D" (
+    call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" "DisableRealtimeMonitoring" "REG_DWORD" "1"
+    echo Real-time protection disabled. It is recommended to keep it enabled.
+) else (
+    echo Invalid choice.
+)
+pause
+goto manage_defender
+
+:manage_cloud
+echo Current cloud-delivered protection status:
+reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SpynetReporting
+set /p cloud_choice=Do you want to enable (E) or disable (D) cloud-delivered protection? (E/D):
+if /i "%cloud_choice%"=="E" (
+    call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" "SpynetReporting" "REG_DWORD" "2"
+    echo Cloud-delivered protection enabled.
+) else if /i "%cloud_choice%"=="D" (
+    call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" "SpynetReporting" "REG_DWORD" "0"
+    echo Cloud-delivered protection disabled. It is recommended to keep it enabled for better protection.
+) else (
+    echo Invalid choice.
+)
+pause
+goto manage_defender
+
+:manage_samples
+echo Current automatic sample submission status:
+reg query "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent
+set /p sample_choice=Do you want to enable (E) or disable (D) automatic sample submission? (E/D):
+if /i "%sample_choice%"=="E" (
+    call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" "SubmitSamplesConsent" "REG_DWORD" "1"
+    echo Automatic sample submission enabled.
+) else if /i "%sample_choice%"=="D" (
+    call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" "SubmitSamplesConsent" "REG_DWORD" "0"
+    echo Automatic sample submission disabled.
+) else (
+    echo Invalid choice.
+)
+pause
+goto manage_defender
+
+:view_history
+echo Viewing threat history...
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -GetFiles
+echo Threat history displayed above. Check the output for details.
+pause
+goto manage_defender
+
+:option_3
+:optimize_features
+echo Optimizing system features...
+
+:: Disable Activity Feed
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" "EnableActivityFeed" "REG_DWORD" "0"
+echo Activity Feed disabled.
+
+:: Disable background apps
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" "GlobalUserDisabled" "REG_DWORD" "1"
+echo Background apps disabled.
+
+:: Disable Cortana
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" "0"
+echo Cortana disabled.
+
+:: Disable Game DVR and Game Bar
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" "AllowGameDVR" "REG_DWORD" "0"
+call :modify_registry "HKCU\System\GameConfigStore" "GameDVR_Enabled" "REG_DWORD" "0"
+echo Game DVR and Game Bar disabled.
+
+:: Disable Sticky Keys prompt
+call :modify_registry "HKCU\Control Panel\Accessibility\StickyKeys" "Flags" "REG_SZ" "506"
+echo Sticky Keys prompt disabled.
+
+:: Disable Windows Tips
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableSoftLanding" "REG_DWORD" "1"
+echo Windows Tips disabled.
+
+:: Disable Start Menu suggestions
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SystemPaneSuggestionsEnabled" "REG_DWORD" "0"
+echo Start Menu suggestions disabled.
+
+:: Enable Fast Startup
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" "HiberbootEnabled" "REG_DWORD" "1"
+echo Fast Startup enabled.
+
+:: Disable Widgets (Windows 11)
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ShowWidgetsButton" "REG_DWORD" "0"
+echo Widgets disabled (Windows 11).
+
+:: Disable Snap Layouts (Windows 11)
+call :modify_registry "HKCU\Control Panel\Desktop" "WindowArrangementActive" "REG_DWORD" "0"
+echo Snap Layouts disabled (Windows 11).
+
+echo System features optimized.
+pause
+goto menu
+
+:option_4
 :optimize_cpu
 cls
 echo ==================================================
 echo CPU Optimization
 echo ==================================================
 echo 1. Set High Performance power plan
-echo 2. Disable CPU Throttling (For advanced users)
-echo 3. Optimize Processor Scheduling
-echo 4. Enable Hardware-Accelerated GPU Scheduling (Requires Restart)
-echo 5. Return to Main Menu
+echo 2. Disable CPU throttling
+echo 3. Optimize processor scheduling
+echo 4. Disable CPU core parking
+echo 5. Adjust processor power management
+echo 6. Enable hardware-accelerated GPU scheduling
+echo 7. Disable unnecessary system services
+echo 8. Adjust visual effects for performance
+echo 9. Return to main menu
 echo ==================================================
-set /p cpu_choice=Enter your choice (1-5):
+set /p cpu_choice=Enter your choice (1-9):
 
 if "%cpu_choice%"=="1" goto set_high_performance
 if "%cpu_choice%"=="2" goto disable_throttling
 if "%cpu_choice%"=="3" goto optimize_scheduling
-if "%cpu_choice%"=="4" goto enable_gpu_scheduling
-if "%cpu_choice%"=="5" goto menu
-echo Invalid choice.
+if "%cpu_choice%"=="4" goto disable_core_parking
+if "%cpu_choice%"=="5" goto adjust_power_management
+if "%cpu_choice%"=="6" goto enable_gpu_scheduling
+if "%cpu_choice%"=="7" goto disable_services
+if "%cpu_choice%"=="8" goto adjust_visual_effects
+if "%cpu_choice%"=="9" goto menu
+echo Invalid choice. Please try again.
 pause
 goto optimize_cpu
 
 :set_high_performance
 echo Setting High Performance power plan...
 powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+if %errorlevel% neq 0 (
+    echo Failed to set High Performance power plan. Creating a new one...
+    powercfg -duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+    for /f "tokens=4" %%i in ('powercfg -list ^| findstr /i "High performance"') do set hp_guid=%%i
+    powercfg -setactive %hp_guid%
+)
 echo High Performance power plan set.
 pause
 goto optimize_cpu
 
 :disable_throttling
-echo Disabling CPU Throttling...
-echo WARNING: This may increase power consumption and heat.
+echo Disabling CPU throttling...
 powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
-powercfg -setdcvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
+powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMIN 100
 powercfg -setactive scheme_current
-echo CPU throttling disabled (both AC and DC).
+echo CPU throttling disabled.
 pause
 goto optimize_cpu
 
 :optimize_scheduling
-echo Optimizing Processor Scheduling for best performance of programs...
+echo Optimizing processor scheduling...
 call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "38"
-echo Processor scheduling optimized.
+echo Processor scheduling optimized for best performance of programs.
+pause
+goto optimize_cpu
+
+:disable_core_parking
+echo Disabling CPU core parking...
+powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100
+powercfg -setactive scheme_current
+echo CPU core parking disabled.
+pause
+goto optimize_cpu
+
+:adjust_power_management
+echo Adjusting processor power management...
+powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTMODE 2
+powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTPOL 100
+powercfg -setacvalueindex scheme_current sub_processor PERFINCPOL 2
+powercfg -setacvalueindex scheme_current sub_processor PERFDECPOL 1
+powercfg -setactive scheme_current
+echo Processor power management adjusted for maximum performance.
 pause
 goto optimize_cpu
 
 :enable_gpu_scheduling
-echo Enabling Hardware-Accelerated GPU Scheduling...
+echo Enabling hardware-accelerated GPU scheduling...
 call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "REG_DWORD" "2"
-echo Hardware-accelerated GPU scheduling enabled.  Restart required.
+echo Hardware-accelerated GPU scheduling enabled. Please restart your computer for changes to take effect.
 pause
 goto optimize_cpu
 
-:option_3
+:disable_services
+echo Disabling unnecessary system services...
+sc config "SysMain" start= disabled
+sc stop "SysMain"
+sc config "DiagTrack" start= disabled
+sc stop "DiagTrack"
+sc config "WSearch" start= disabled
+sc stop "WSearch"
+:: Add more unnecessary services for Windows 11
+sc config "WerSvc" start= disabled  :: Windows Error Reporting Service
+sc stop "WerSvc"
+sc config "dmwappushservice" start= disabled :: dmwappushservice (Device Management Wireless Application Protocol (WAP) Push service)
+sc stop "dmwappushservice"
+echo Unnecessary system services disabled.
+pause
+goto optimize_cpu
+
+:adjust_visual_effects
+echo Adjusting visual effects for best performance...
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" "VisualFXSetting" "REG_DWORD" "2"
+echo Visual effects adjusted for best performance.
+pause
+goto optimize_cpu
+
+:option_5
 :optimize_internet
-echo Optimizing internet performance...
+cls
+echo ==================================================
+echo Internet Performance Optimization
+echo ==================================================
+echo 1. Basic optimizations
+echo 2. Advanced TCP optimizations
+echo 3. DNS optimization
+echo 4. Network adapter tuning
+echo 5. Clear network cache
+echo 6. Return to main menu
+echo ==================================================
+set /p net_choice=Enter your choice (1-6):
 
-:: Flush DNS Cache
-ipconfig /flushdns
+if "%net_choice%"=="1" goto basic_optimizations
+if "%net_choice%"=="2" goto advanced_tcp
+if "%net_choice%"=="3" goto dns_optimization
+if "%net_choice%"=="4" goto adapter_tuning
+if "%net_choice%"=="5" goto clear_network_cache
+if "%net_choice%"=="6" goto menu
+echo Invalid choice. Please try again.
+pause
+goto optimize_internet
 
-:: Optimize TCP Settings (Modern Approach)
+:basic_optimizations
+echo Performing basic Internet optimizations...
 netsh int tcp set global autotuninglevel=normal
-netsh int tcp set global congestionprovider=ctcp
+netsh int tcp set global chimney=enabled
+netsh int tcp set global dca=enabled
+netsh int tcp set global netdma=enabled
 netsh int tcp set global ecncapability=enabled
 netsh int tcp set global timestamps=disabled
+netsh int tcp set global rss=enabled
+echo Basic optimizations completed.
+pause
+goto optimize_internet
 
-:: Set Google Public DNS (Optional - User can modify)
-netsh interface ip set dns name="Wi-Fi" static 8.8.8.8
-netsh interface ip add dns name="Wi-Fi" 8.8.4.4 index=2
-::Note, replace "Wi-Fi" with your connection's name
+:advanced_tcp
+echo Performing advanced TCP optimizations...
+netsh int tcp set global congestionprovider=ctcp
+netsh int tcp set global ecncapability=enabled
+netsh int tcp set heuristics disabled
+netsh int tcp set global rss=enabled
+netsh int tcp set global fastopen=enabled
+netsh int tcp set global hystart=disabled
+netsh int tcp set global pacingprofile=off
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" "TCPNoDelay" "REG_DWORD" "1"
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" "TCPDelAckTicks" "REG_DWORD" "0"
+echo Advanced TCP optimizations completed.
+pause
+goto optimize_internet
 
-echo Internet performance optimized.
+:dns_optimization
+echo Optimizing DNS settings...
+ipconfig /flushdns
+netsh int ip set dns name="Wi-Fi" source=static address=8.8.8.8 registerdns=primary  :: Improved for potentially different Wi-Fi connection name
+netsh int ip add dns name="Wi-Fi" addr=8.8.4.4 index=2
+echo DNS optimized. Primary: 8.8.8.8, Secondary: 8.8.4.4
+pause
+goto optimize_internet
+
+:adapter_tuning
+echo Tuning network adapter...
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    netsh int ip set interface "%%j" dadtransmits=0 store=persistent
+    netsh int ip set interface "%%j" routerdiscovery=disabled store=persistent
+    powershell "Get-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*FlowControl' | Where-Object {$_.DisplayName -eq 'Flow Control'} | Set-NetAdapterAdvancedProperty -RegistryValue 0" :: Improved Flow Control setting
+    powershell "Get-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*InterruptModeration' | Where-Object {$_.DisplayName -eq 'Interrupt Moderation'} | Set-NetAdapterAdvancedProperty -RegistryValue 0" :: Improved Interrupt Moderation setting
+    powershell "Get-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*PriorityVLANTag' | Where-Object {$_.DisplayName -eq 'Priority & VLAN'} | Set-NetAdapterAdvancedProperty -RegistryValue 3" :: Improved Priority & VLAN setting
+    powershell "Get-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*SpeedDuplex' | Where-Object {$_.DisplayName -eq 'Speed & Duplex'} | Set-NetAdapterAdvancedProperty -RegistryValue 0" :: Improved Speed & Duplex setting
+)
+echo Network adapter tuned for optimal performance.
+pause
+goto optimize_internet
+
+:clear_network_cache
+echo Clearing network cache...
+ipconfig /flushdns
+arp -d *
+nbtstat -R
+nbtstat -RR
+netsh int ip reset
+netsh winsock reset
+echo Network cache cleared.
+pause
+goto optimize_internet
+
+:option_6
+:windows_update
+echo Windows Update Management
+echo 1. Enable Windows Update
+echo 2. Disable Windows Update
+echo 3. Check for updates
+echo 4. Configure Automatic Updates :: Added new option
+echo 5. Return to main menu
+set /p update_choice=Enter your choice (1-5):
+if "%update_choice%"=="1" goto enable_windows_update
+if "%update_choice%"=="2" goto disable_windows_update
+if "%update_choice%"=="3" goto check_updates
+if "%update_choice%"=="4" goto config_auto_updates :: New option
+if "%update_choice%"=="5" goto menu
+goto windows_update
+
+:enable_windows_update
+echo Enabling Windows Update...
+sc config wuauserv start= auto
+sc start wuauserv
+if %errorlevel% neq 0 (
+    echo Failed to enable Windows Update. Please check your permissions.
+) else (
+    echo Windows Update enabled.
+)
+pause
+goto windows_update
+
+:disable_windows_update
+echo Disabling Windows Update...
+sc config wuauserv start= disabled
+sc stop wuauserv
+if %errorlevel% neq 0 (
+    echo Failed to disable Windows Update. Please check your permissions.
+) else (
+    echo Windows Update disabled.
+)
+pause
+goto windows_update
+
+:check_updates
+echo Checking for Windows updates...
+powershell -Command "(New-Object -ComObject Microsoft.Update.AutoUpdate).DetectNow()"
+echo Update check initiated. Please check Windows Update in Settings for results.
+pause
+goto windows_update
+
+:config_auto_updates
+echo Configuring Automatic Updates...
+echo Select automatic update option:
+echo 1. Automatically download and install
+echo 2. Notify for download and install
+echo 3. Not check for updates
+set /p auto_update_choice=Enter your choice (1-3):
+if "%auto_update_choice%"=="1" (
+    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" "AUOptions" "REG_DWORD" "4"
+    echo Configured to automatically download and install updates.
+) else if "%auto_update_choice%"=="2" (
+    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" "AUOptions" "REG_DWORD" "3"
+    echo Configured to notify for download and install updates.
+) else if "%auto_update_choice%"=="3" (
+    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" "NoAutoUpdate" "REG_DWORD" "1"
+    echo Configured not to check for updates.
+) else (
+    echo Invalid choice.
+)
+pause
+goto windows_update
+
+:option_7
+:auto_login
+echo Configuring Auto-login...
+set /p username=Enter username:
+set /p password=Enter password:
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultUserName" "REG_SZ" "%username%"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultPassword" "REG_SZ" "%password%"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon" "REG_SZ" "1"
+echo Auto-login configured.
 pause
 goto menu
 
-:option_4
+:option_8
+:clear_cache
+echo Clearing system cache...
+del /q /f /s %TEMP%\* 2>nul
+del /q /f /s C:\Windows\Temp\* 2>nul
+:: Add browser cache clearing - Chrome example
+if exist "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache" (
+    rd /s /q "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache"
+    md "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache"
+)
+echo System cache cleared.
+pause
+goto menu
+
+:option_9
 :optimize_disk
 cls
 echo ==================================================
 echo Disk Optimization
 echo ==================================================
-echo 1. Analyze disk (Defrag Analysis)
-echo 2. Optimize/Defragment disk (Use with caution on SSDs)
-echo 3. Check Disk for Errors (Requires Restart)
-echo 4. Trim SSD (If applicable)
-echo 5. Return to Main Menu
+echo 1. Analyze disk
+echo 2. Optimize/Defragment disk
+echo 3. Check disk for errors
+echo 4. Trim SSD
+echo 5. Clean up system files
+echo 6. Manage Storage Sense (Windows 11) :: Added new option
+echo 7. Return to main menu
 echo ==================================================
-set /p disk_choice=Enter your choice (1-5):
+set /p disk_choice=Enter your choice (1-7):
 
 if "%disk_choice%"=="1" goto analyze_disk
 if "%disk_choice%"=="2" goto optimize_defrag
 if "%disk_choice%"=="3" goto check_disk
 if "%disk_choice%"=="4" goto trim_ssd
-if "%disk_choice%"=="5" goto menu
+if "%disk_choice%"=="5" goto cleanup_system
+if "%disk_choice%"=="6" goto manage_storage_sense :: New option
+if "%disk_choice%"=="7" goto menu
 echo Invalid choice. Please try again.
 pause
 goto optimize_disk
@@ -262,286 +597,121 @@ goto optimize_disk
 
 :optimize_defrag
 echo Optimizing/Defragmenting disk...
-echo WARNING: Defragmenting SSDs can reduce their lifespan.
-echo          Only proceed if you are using a traditional HDD.
-set /p "confirm=Are you sure you want to defrag (Y/N)? "
-if /I "%confirm%"=="Y" (
-    defrag C: /O
-    echo Disk optimization completed.
-) else (
-    echo Defragmentation cancelled.
-)
+defrag C: /O
+echo Disk optimization completed.
 pause
-goto optimize_disk
+goto optimize_defrag
 
 :check_disk
 echo Checking disk for errors...
-echo This will schedule a disk check on the next restart.
-echo WARNING:  This can take a significant amount of time.
-set /p "confirm=Schedule disk check on next restart (Y/N)? "
-if /I "%confirm%"=="Y" (
-    chkdsk C: /F /R /X
-    echo Disk check scheduled. Restart your computer.
-) else (
-    echo Disk check cancelled.
-)
+echo This process will schedule a disk check on the next system restart.
+chkdsk C: /F /R /X
+echo Disk check scheduled. Please restart your computer to perform the check.
 pause
 goto optimize_disk
 
 :trim_ssd
 echo Trimming SSD...
-fsutil behavior set disabledeletenotify 0  :: Ensure TRIM is enabled
-defrag C: /L  ::  Re-trim the SSD (Windows 8 and later)
+fsutil behavior set disabledeletenotify 0
+defrag C: /L
 echo SSD trim completed.
 pause
 goto optimize_disk
 
-:option_5
-:manage_defender
-cls
-echo ===================================================
-echo             Windows Defender Management
-echo ===================================================
-echo 1. Check Windows Defender status
-echo 2. Enable Windows Defender
-echo 3. Disable Windows Defender (NOT RECOMMENDED)
-echo 4. Update Windows Defender Definitions
-echo 5. Run Quick Scan
-echo 6. Run Full Scan (May take a long time)
-echo 7. Return to Main Menu
-echo ===================================================
-set /p def_choice=Enter your choice (1-7):
+:cleanup_system
+echo Cleaning up system files...
+cleanmgr /sagerun:1
+echo System file cleanup completed.
+pause
+goto optimize_disk
 
-if "%def_choice%"=="1" goto check_defender
-if "%def_choice%"=="2" goto enable_defender
-if "%def_choice%"=="3" goto disable_defender
-if "%def_choice%"=="4" goto update_defender
-if "%def_choice%"=="5" goto quick_scan
-if "%def_choice%"=="6" goto full_scan
-if "%def_choice%"=="7" goto menu
+:manage_storage_sense
+echo Managing Storage Sense (Windows 11)...
+echo 1. Enable Storage Sense
+echo 2. Disable Storage Sense
+echo 3. Configure Storage Sense
+echo 4. Run Storage Sense now
+echo 5. Return to Disk Optimization menu
+set /p ss_choice=Enter your choice (1-5):
+if "%ss_choice%"=="1" goto enable_storage_sense
+if "%ss_choice%"=="2" goto disable_storage_sense
+if "%ss_choice%"=="3" goto config_storage_sense
+if "%ss_choice%"=="4" goto run_storage_sense
+if "%ss_choice%"=="5" goto optimize_disk
 echo Invalid choice. Please try again.
 pause
-goto manage_defender
+goto manage_storage_sense
 
-:check_defender
-echo Checking Windows Defender status...
-sc query windefend
+:enable_storage_sense
+echo Enabling Storage Sense...
+call :modify_registry "HKCU\Software\Microsoft\Windows\StorageSense\Parameters\StoragePolicy" "01" "REG_DWORD" "1"
+echo Storage Sense enabled.
 pause
-goto manage_defender
+goto manage_storage_sense
 
-:enable_defender
-echo Enabling Windows Defender...
-call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" "DisableAntiSpyware" "REG_DWORD" "0"
-call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableRealtimeMonitoring" "REG_DWORD" "0"
-sc start WinDefend
-echo Windows Defender enabled.
+:disable_storage_sense
+echo Disabling Storage Sense...
+call :modify_registry "HKCU\Software\Microsoft\Windows\StorageSense\Parameters\StoragePolicy" "01" "REG_DWORD" "0"
+echo Storage Sense disabled.
 pause
-goto manage_defender
+goto manage_storage_sense
 
-:disable_defender
-echo WARNING: Disabling Windows Defender is NOT recommended.
-echo          Your system will be vulnerable to malware.
-set /p "confirm=Are you sure you want to disable Defender (Y/N)? "
-if /I "%confirm%"=="Y" (
-    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" "DisableAntiSpyware" "REG_DWORD" "1"
-    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableRealtimeMonitoring" "REG_DWORD" "1"
-    sc stop WinDefend
-    echo Windows Defender disabled.
-) else (
-    echo Operation cancelled.
-)
-pause
-goto manage_defender
-
-:update_defender
-echo Updating Windows Defender definitions...
-"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
-echo Windows Defender definitions updated.
-pause
-goto manage_defender
-
-:quick_scan
-echo Running quick scan...
-"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
-echo Quick scan completed.
-pause
-goto manage_defender
-
-:full_scan
-echo Running full scan...
-echo This may take a significant amount of time.
-"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 2
-echo Full scan initiated.
-pause
-goto manage_defender
-
-:option_6
-:windows_update
-cls
-echo ==================================================
-echo Windows Update Management
-echo ==================================================
-echo 1. Enable Windows Update Service
-echo 2. Disable Windows Update Service (NOT RECOMMENDED)
-echo 3. Check for Updates
-echo 4. Return to Main Menu
-echo ==================================================
-set /p update_choice=Enter your choice (1-4):
-
-if "%update_choice%"=="1" goto enable_windows_update
-if "%update_choice%"=="2" goto disable_windows_update
-if "%update_choice%"=="3" goto check_updates
-if "%update_choice%"=="4" goto menu
+:config_storage_sense
+echo Configuring Storage Sense...
+echo 1. Change run frequency
+echo 2. Change Temp files deletion threshold
+echo 3. Return to Storage Sense menu
+set /p config_ss_choice=Enter your choice (1-3):
+if "%config_ss_choice%"=="1" goto config_ss_frequency
+if "%config_ss_choice%"=="2" goto config_ss_threshold
+if "%config_ss_choice%"=="3" goto manage_storage_sense
 echo Invalid choice. Please try again.
 pause
-goto windows_update
+goto config_storage_sense
 
-:enable_windows_update
-echo Enabling Windows Update service...
-sc config wuauserv start= auto
-sc start wuauserv
-echo Windows Update service enabled.
+:config_ss_frequency
+echo Select Storage Sense run frequency:
+echo 1. Daily
+echo 2. Weekly
+echo 3. Monthly
+echo 4. When disk space is low
+set /p ss_freq_choice=Enter your choice (1-4):
+if "%ss_freq_choice%"=="1" set ss_freq_val=1
+if "%ss_freq_choice%"=="2" set ss_freq_val=2
+if "%ss_freq_choice%"=="3" set ss_freq_val=3
+if "%ss_freq_choice%"=="4" set ss_freq_val=5
+call :modify_registry "HKCU\Software\Microsoft\Windows\StorageSense\Parameters\StoragePolicy" "02" "REG_DWORD" "%ss_freq_val%"
+echo Storage Sense run frequency configured.
 pause
-goto windows_update
+goto config_storage_sense
 
-:disable_windows_update
-echo WARNING: Disabling Windows Update is NOT recommended.
-echo          You will not receive security updates.
-set /p "confirm=Are you sure you want to disable updates (Y/N)? "
-if /I "%confirm%"=="Y" (
-    sc config wuauserv start= disabled
-    sc stop wuauserv
-    echo Windows Update service disabled.
-) else (
-    echo Operation cancelled.
-)
+:config_ss_threshold
+echo Select Temp files deletion threshold:
+echo 1. Never
+echo 2. Older than 1 day
+echo 3. Older than 14 days
+echo 4. Older than 30 days
+echo 5. Older than 60 days
+set /p ss_threshold_choice=Enter your choice (1-5):
+if "%ss_threshold_choice%"=="1" set ss_threshold_val=0
+if "%ss_threshold_choice%"=="2" set ss_threshold_val=1
+if "%ss_threshold_choice%"=="3" set ss_threshold_val=14
+if "%ss_threshold_choice%"=="4" set ss_threshold_val=30
+if "%ss_threshold_choice%"=="5" set ss_threshold_val=60
+call :modify_registry "HKCU\Software\Microsoft\Windows\StorageSense\Parameters\StoragePolicy" "08" "REG_DWORD" "%ss_threshold_val%"
+echo Temp files deletion threshold configured.
 pause
-goto windows_update
+goto config_storage_sense
 
-:check_updates
-echo Checking for Windows Updates...
-powershell -Command "(New-Object -ComObject Microsoft.Update.AutoUpdate).DetectNow()"
-echo Update check initiated.  Check Windows Update settings.
+:run_storage_sense
+echo Running Storage Sense now...
+powershell -Command "Start-Process -FilePath 'cleanmgr.exe' -ArgumentList '/sageset:65535 & cleanmgr /sagerun:65535' -Verb RunAs -Wait"
+echo Storage Sense run completed.
 pause
-goto windows_update
+goto manage_storage_sense
 
-:option_7
-:manage_startup
-echo Opening Startup Program Manager...
-start msconfig
-echo Manage startup programs in the Task Manager (Startup tab).
-pause
-goto menu
-
-:option_8
-:auto_login
-echo Configuring Auto-login...
-echo WARNING: Auto-login stores your password in plain text in the registry.
-echo          This is a security risk.  Use with extreme caution.
-set /p "username=Enter username: "
-set /p "password=Enter password: "
-call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultUserName" "REG_SZ" "%username%"
-call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultPassword" "REG_SZ" "%password%"
-call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon" "REG_SZ" "1"
-echo Auto-login configured (with security warning).
-pause
-goto menu
-
-:option_9
-:manage_user_accounts
-cls
-echo ==================================================
-echo User Account Management
-echo ==================================================
-echo 1. List User Accounts
-echo 2. Create New User Account
-echo 3. Delete User Account (USE WITH CAUTION)
-echo 4. Change User Password (Requires Current Password)
-echo 5. Enable/Disable User Account
-echo 6. Return to Main Menu
-echo ==================================================
-set /p user_choice=Enter your choice (1-6):
-
-if "%user_choice%"=="1" goto list_user_accounts
-if "%user_choice%"=="2" goto create_user_account
-if "%user_choice%"=="3" goto delete_user_account
-if "%user_choice%"=="4" goto change_user_password
-if "%user_choice%"=="5" goto enable_disable_user
-if "%user_choice%"=="6" goto menu
-echo Invalid choice.
-pause
-goto manage_user_accounts
-
-:list_user_accounts
-echo Listing user accounts...
-net user
-pause
-goto manage_user_accounts
-
-:create_user_account
-set /p "new_username=Enter new username: "
-set /p "new_password=Enter password for new user: "
-set /p "add_to_admin=Add user to Administrators group (Y/N)? "
-
-net user /add "%new_username%" "%new_password%"
-if /I "%add_to_admin%"=="Y" (
-    net localgroup administrators "%new_username%" /add
-    echo User "%new_username%" created and added to Administrators.
-) else (
-    echo User "%new_username%" created.
-)
-pause
-goto manage_user_accounts
-
-:delete_user_account
-echo WARNING: Deleting a user account will remove all user data.
-set /p "del_username=Enter username to delete: "
-call :get_confirmation "Are you sure you want to delete user '%del_username%'?"
-if errorlevel 1 (
-    echo User deletion cancelled.
-    pause
-    goto manage_user_accounts
-)
-net user "%del_username%" /delete
-echo User "%del_username%" deleted (if it existed).
-pause
-goto manage_user_accounts
-
-:change_user_password
-set /p "target_user=Enter username to change password for: "
-net user "%target_user%"
-:: The above command prompts for the current password, then the new password.
-pause
-goto manage_user_accounts
-
-:enable_disable_user
-set /p "ed_username=Enter username to enable/disable: "
-echo 1. Enable User Account
-echo 2. Disable User Account
-set /p "ed_choice=Enter your choice (1-2): "
-
-if "%ed_choice%"=="1" (
-    net user "%ed_username%" /active:yes
-    echo User "%ed_username%" enabled.
-) else if "%ed_choice%"=="2" (
-    net user "%ed_username%" /active:no
-    echo User "%ed_username%" disabled.
-) else (
-    echo Invalid choice.
-)
-pause
-goto manage_user_accounts
 
 :option_10
-:clear_cache
-echo Clearing system cache...
-del /f /s /q %TEMP%\*
-del /f /s /q C:\Windows\Temp\*
-echo System cache cleared.
-pause
-goto menu
-
-:option_11
 :check_repair
 cls
 echo ==================================================
@@ -549,268 +719,50 @@ echo Check and Repair System Files
 echo ==================================================
 echo 1. Run SFC (System File Checker)
 echo 2. Run DISM (Deployment Image Servicing and Management)
-echo 3. Return to Main Menu
+echo 3. Check disk health
+echo 4. Verify system files
+echo 5. Return to main menu
 echo ==================================================
-set /p repair_choice=Enter your choice (1-3):
+set /p repair_choice=Enter your choice (1-5):
 
 if "%repair_choice%"=="1" goto run_sfc
 if "%repair_choice%"=="2" goto run_dism
-if "%repair_choice%"=="3" goto menu
+if "%repair_choice%"=="3" goto check_disk_health
+if "%repair_choice%"=="4" goto verify_files
+if "%repair_choice%"=="5" goto menu
 echo Invalid choice. Please try again.
 pause
 goto check_repair
 
 :run_sfc
-echo Running System File Checker (SFC)...
+echo Running System File Checker...
 sfc /scannow
 echo SFC scan completed.
 pause
 goto check_repair
 
 :run_dism
-echo Running Deployment Image Servicing and Management (DISM)...
+echo Running DISM...
 DISM /Online /Cleanup-Image /RestoreHealth
-echo DISM scan completed.
+echo DISM repair completed.
 pause
 goto check_repair
 
-:option_12
-:clean_disk
-echo Running Disk Cleanup...
-cleanmgr /sagerun:1  :: Use a predefined cleanup profile (create with cleanmgr /sageset:1)
-echo Disk cleanup completed.
+:check_disk_health
+echo Checking disk health...
+wmic diskdrive get status
+echo Disk health check completed.
 pause
-goto menu
+goto check_repair
 
-:option_13
-:advanced_system_cleanup
-cls
-echo ==================================================
-echo Advanced System Cleanup
-echo ==================================================
-echo WARNING: These options can free up significant space,
-echo          but some may remove files you might need later.
-echo          Proceed with caution.
-echo.
-echo 1. Clean Windows Update Files (Aggressive)
-echo 2. Clear Prefetch Files
-echo 3. Clear Event Logs
-echo 4. Return to Main Menu
-echo ==================================================
-
-set /p cleanup_choice=Enter your choice (1-4):
-
-if "%cleanup_choice%"=="1" goto clean_windows_update_files
-if "%cleanup_choice%"=="2" goto clear_prefetch
-if "%cleanup_choice%"=="3" goto clear_event_logs
-if "%cleanup_choice%"=="4" goto menu
-echo Invalid choice.
+:verify_files
+echo Verifying system files...
+Findstr /c:"[SR]" %windir%\Logs\CBS\CBS.log >"%userprofile%\Desktop\sfcdetails.txt"
+echo Verification completed. Results saved to sfcdetails.txt on your desktop.
 pause
-goto advanced_system_cleanup
+goto check_repair
 
-:clean_windows_update_files
-echo WARNING: This will remove Windows Update files, including
-echo          rollback files.  You will not be able to uninstall
-echo          previous updates after this.
-call :get_confirmation "Are you sure you want to proceed?"
-if errorlevel 1 (
-    echo Operation cancelled.
-    pause
-    goto advanced_system_cleanup
-)
-
-DISM.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
-echo Windows Update files cleaned (aggressively).
-pause
-goto advanced_system_cleanup
-
-:clear_prefetch
-echo Clearing Prefetch files...
-del /f /s /q C:\Windows\Prefetch\*
-echo Prefetch files cleared.
-pause
-goto advanced_system_cleanup
-
-:clear_event_logs
-echo WARNING: This will clear ALL event logs.  This is generally
-echo          not recommended unless you are troubleshooting a
-echo          specific issue.
-call :get_confirmation "Are you sure you want to clear ALL event logs?"
-if errorlevel 1 (
-    echo Operation cancelled.
-    pause
-    goto advanced_system_cleanup
-)
-
-wevtutil el | Foreach-Object {wevtutil cl "$_"}
-echo All event logs cleared.
-pause
-goto advanced_system_cleanup
-
-:option_14
-:manage_power
-cls
-echo ==================================================
-echo Power Settings Management
-echo ==================================================
-echo 1. List All Power Plans
-echo 2. Set Power Plan (Enter GUID)
-echo 3. Return to Main Menu
-echo ==================================================
-set /p power_choice=Enter your choice (1-3):
-
-if "%power_choice%"=="1" goto list_power_plans
-if "%power_choice%"=="2" goto set_power_plan
-if "%power_choice%"=="3" goto menu
-echo Invalid choice. Please try again.
-pause
-goto manage_power
-
-:list_power_plans
-echo Listing all power plans...
-powercfg /list
-pause
-goto manage_power
-
-:set_power_plan
-echo Available power plans:
-powercfg /list
-set /p "plan_guid=Enter the GUID of the power plan to set: "
-powercfg /setactive %plan_guid%
-echo Power plan set.
-pause
-goto manage_power
-
-:option_15
-:enable_disable_dark_mode
-cls
-echo ==================================================
-echo Enable/Disable Dark Mode
-echo ==================================================
-echo 1. Enable Dark Mode
-echo 2. Enable Light Mode
-echo 3. Return to Main Menu
-echo ==================================================
-
-set /p dark_mode_choice=Enter your choice (1-3):
-
-if "%dark_mode_choice%"=="1" goto enable_dark_mode_impl
-if "%dark_mode_choice%"=="2" goto enable_light_mode_impl
-if "%dark_mode_choice%"=="3" goto menu
-echo Invalid choice.
-pause
-goto enable_disable_dark_mode
-
-:enable_dark_mode_impl
-echo Enabling Dark Mode...
-call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme" "REG_DWORD" "0"
-call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "SystemUsesLightTheme" "REG_DWORD" "0"
-echo Dark Mode enabled.
-pause
-goto enable_disable_dark_mode
-
-:enable_light_mode_impl
-echo Enabling Light Mode...
-call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme" "REG_DWORD" "1"
-call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "SystemUsesLightTheme" "REG_DWORD" "1"
-echo Light Mode enabled.
-pause
-goto enable_disable_dark_mode
-
-:option_16
-:system_info
-echo Displaying system information...
-systeminfo
-pause
-goto menu
-
-:option_17
-:backup_restore
-cls
-echo ==================================================
-echo Backup and Restore (System Restore)
-echo ==================================================
-echo 1. Create System Restore Point
-echo 2. Open System Restore
-echo 3. Return to Main Menu
-echo ==================================================
-set /p backup_choice=Enter your choice (1-3):
-
-if "%backup_choice%"=="1" goto create_restore
-if "%backup_choice%"=="2" goto restore_point
-if "%backup_choice%"=="3" goto menu
-echo Invalid choice. Please try again.
-pause
-goto backup_restore
-
-:create_restore
-echo Creating System Restore Point...
-powershell -Command "Checkpoint-Computer -Description \"Manual Restore Point\" -RestorePointType \"MODIFY_SETTINGS\""
-echo System Restore Point created.
-pause
-goto backup_restore
-
-:restore_point
-echo Opening System Restore...
-start rstrui.exe
-echo Follow the on-screen instructions to restore your system.
-pause
-goto backup_restore
-
-:option_18
-:manage_environment_variables
-cls
-echo ==================================================
-echo Manage Environment Variables
-echo ==================================================
-echo 1. List User Environment Variables
-echo 2. List System Environment Variables
-echo 3. Set User Environment Variable
-echo 4. Set System Environment Variable (Requires Restart)
-echo 5. Return to Main Menu
-echo ==================================================
-set /p env_choice=Enter your choice (1-5):
-
-if "%env_choice%"=="1" goto list_user_env_vars
-if "%env_choice%"=="2" goto list_system_env_vars
-if "%env_choice%"=="3" goto set_user_env_var
-if "%env_choice%"=="4" goto set_system_env_var
-if "%env_choice%"=="5" goto menu
-echo Invalid choice.
-pause
-goto manage_environment_variables
-
-:list_user_env_vars
-echo Listing user environment variables...
-set
-pause
-goto manage_environment_variables
-
-:list_system_env_vars
-echo Listing system environment variables...
-reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
-pause
-goto manage_environment_variables
-
-:set_user_env_var
-set /p "env_var_name=Enter variable name: "
-set /p "env_var_value=Enter variable value: "
-setx "%env_var_name%" "%env_var_value%"
-echo User environment variable set.
-pause
-goto manage_environment_variables
-
-:set_system_env_var
-echo WARNING: Setting system environment variables incorrectly can
-echo          cause system instability.
-set /p "env_var_name=Enter variable name: "
-set /p "env_var_value=Enter variable value: "
-setx /M "%env_var_name%" "%env_var_value%"
-echo System environment variable set (requires restart).
-pause
-goto manage_environment_variables
-
-:option_19
+:option_11
 :windows_activate
 cls
 echo ==================================================
@@ -823,7 +775,7 @@ echo 4. Input a product key manually
 echo 5. Remove product key
 echo 6. Return to main menu
 echo ==================================================
-set /p activate_choice=Enter your choice (1-6): 
+set /p activate_choice=Enter your choice (1-6):
 
 if "%activate_choice%"=="1" goto check_activation
 if "%activate_choice%"=="2" goto kms_activate
@@ -879,7 +831,7 @@ pause
 goto windows_activate
 
 :manual_key
-set /p product_key=Enter your 25-character product key (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX): 
+set /p product_key=Enter your 25-character product key (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX):
 echo Installing product key...
 slmgr /ipk %product_key%
 if %errorlevel% neq 0 (
@@ -907,25 +859,317 @@ if %errorlevel% neq 0 (
 pause
 goto windows_activate
 
+:option_12
+:manage_power
+cls
+echo ==================================================
+echo Power Settings Management
+echo ==================================================
+echo 1. List all power plans
+echo 2. Set power plan
+echo 3. Create custom power plan
+echo 4. Delete power plan
+echo 5. Adjust sleep settings
+echo 6. Configure hibernation
+echo 7. Adjust display and sleep timeouts
+echo 8. Configure lid close action
+echo 9. Configure power button action
+echo 10. Return to main menu
+echo ==================================================
+set /p power_choice=Enter your choice (1-10):
+
+if "%power_choice%"=="1" goto list_power_plans
+if "%power_choice%"=="2" goto set_power_plan
+if "%power_choice%"=="3" goto create_power_plan
+if "%power_choice%"=="4" goto delete_power_plan
+if "%power_choice%"=="5" goto adjust_sleep
+if "%power_choice%"=="6" goto configure_hibernate
+if "%power_choice%"=="7" goto adjust_timeouts
+if "%power_choice%"=="8" goto lid_action
+if "%power_choice%"=="9" goto power_button_action
+if "%power_choice%"=="10" goto menu
+echo Invalid choice. Please try again.
+pause
+goto manage_power
+
+:list_power_plans
+echo Listing all power plans...
+powercfg /list
+pause
+goto manage_power
+
+:set_power_plan
+echo Available power plans:
+powercfg /list
+set /p plan_guid=Enter the GUID of the power plan you want to set:
+powercfg /setactive %plan_guid%
+if %errorlevel% neq 0 (
+    echo Failed to set power plan. Please check the GUID and try again.
+) else (
+    echo Power plan set successfully.
+)
+pause
+goto manage_power
+
+:create_power_plan
+set /p plan_name=Enter a name for the new power plan:
+powercfg /duplicatescheme scheme_balanced
+powercfg /changename %plan_name%
+if %errorlevel% neq 0 (
+    echo Failed to create power plan.
+) else (
+    echo Power plan created successfully.
+)
+pause
+goto manage_power
+
+:delete_power_plan
+echo Available power plans:
+powercfg /list
+set /p del_guid=Enter the GUID of the power plan you want to delete:
+powercfg /delete %del_guid%
+if %errorlevel% neq 0 (
+    echo Failed to delete power plan. Please check the GUID and try again.
+) else (
+    echo Power plan deleted successfully.
+)
+pause
+goto manage_power
+
+:adjust_sleep
+set /p sleep_time=Enter the number of minutes before the system goes to sleep (0 to never sleep):
+powercfg /change standby-timeout-ac %sleep_time%
+powercfg /change standby-timeout-dc %sleep_time%
+echo Sleep settings adjusted.
+pause
+goto manage_power
+
+:configure_hibernate
+echo 1. Enable hibernation
+echo 2. Disable hibernation
+set /p hib_choice=Enter your choice (1-2):
+if "%hib_choice%"=="1" (
+    powercfg /hibernate on
+    echo Hibernation enabled.
+) else if "%hib_choice%"=="2" (
+    powercfg /hibernate off
+    echo Hibernation disabled.
+) else (
+    echo Invalid choice.
+)
+pause
+goto manage_power
+
+:adjust_timeouts
+set /p display_ac=Enter minutes before turning off the display (AC power):
+set /p display_dc=Enter minutes before turning off the display (battery):
+set /p sleep_ac=Enter minutes before sleep (AC power):
+set /p sleep_dc=Enter minutes before sleep (battery):
+powercfg /change monitor-timeout-ac %display_ac%
+powercfg /change monitor-timeout-dc %display_dc%
+powercfg /change standby-timeout-ac %sleep_ac%
+powercfg /change standby-timeout-dc %sleep_dc%
+echo Display and sleep timeouts adjusted.
+pause
+goto manage_power
+
+:lid_action
+echo 1. Do nothing
+echo 2. Sleep
+echo 3. Hibernate
+echo 4. Shut down
+set /p lid_choice=Enter your choice for lid close action (1-4):
+if "%lid_choice%"=="1" set action=0
+if "%lid_choice%"=="2" set action=1
+if "%lid_choice%"=="3" set action=2
+if "%lid_choice%"=="4" set action=3
+powercfg /setacvalueindex scheme_current sub_buttons lidaction %action%
+powercfg /setdcvalueindex scheme_current sub_buttons lidaction %action%
+powercfg /setactive scheme_current
+echo Lid close action configured.
+pause
+goto manage_power
+
+:power_button_action
+echo 1. Do nothing
+echo 2. Sleep
+echo 3. Hibernate
+echo 4. Shut down
+set /p button_choice=Enter your choice for power button action (1-4):
+if "%button_choice%"=="1" set action=0
+if "%button_choice%"=="2" set action=1
+if "%button_choice%"=="3" set action=2
+if "%button_choice%"=="4" set action=3
+powercfg /setacvalueindex scheme_current sub_buttons pbuttonaction %action%
+powercfg /setdcvalueindex scheme_current sub_buttons pbuttonaction %action%
+powercfg /setactive scheme_current
+echo Power button action configured.
+pause
+goto manage_power
+
+:option_13
+:enable_dark_mode
+echo Enabling Dark Mode...
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme" "REG_DWORD" "0"
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "SystemUsesLightTheme" "REG_DWORD" "0"
+echo Dark Mode enabled.
+pause
+goto menu
+
+:option_14
+:manage_partitions
+echo Partition Management
+echo 1. List Partitions
+echo 2. Create Partition
+echo 3. Delete Partition
+echo 4. Format Partition
+set /p part_choice=Enter your choice (1-4):
+if "%part_choice%"=="1" goto list_partitions
+if "%part_choice%"=="2" goto create_partition
+if "%part_choice%"=="3" goto delete_partition
+if "%part_choice%"=="4" goto format_partition
+goto menu
+
+:list_partitions
+echo Listing Partitions...
+echo list disk > list_disk.txt
+echo list volume >> list_disk.txt
+diskpart /s list_disk.txt
+del list_disk.txt
+pause
+goto manage_partitions
+
+:create_partition
+echo Creating Partition...
+set /p disk_num=Enter disk number:
+set /p part_size=Enter partition size in MB:
+(
+echo select disk %disk_num%
+echo create partition primary size=%part_size%
+) > create_part.txt
+diskpart /s create_part.txt
+del create_part.txt
+echo Partition created.
+pause
+goto manage_partitions
+
+:delete_partition
+echo Deleting Partition...
+set /p disk_num=Enter disk number:
+set /p part_num=Enter partition number:
+(
+echo select disk %disk_num%
+echo select partition %part_num%
+echo delete partition override
+) > delete_part.txt
+diskpart /s delete_part.txt
+del delete_part.txt
+echo Partition deleted.
+pause
+goto manage_partitions
+
+:format_partition
+echo Formatting Partition...
+set /p disk_num=Enter disk number:
+set /p part_num=Enter partition number:
+set /p fs=Enter file system (NTFS/FAT32):
+(
+echo select disk %disk_num%
+echo select partition %part_num%
+echo format fs=%fs% quick
+) > format_part.txt
+diskpart /s format_part.txt
+del format_part.txt
+echo Partition formatted.
+pause
+goto manage_partitions
+
+:option_15
+:clean_disk
+echo Cleaning up disk space...
+cleanmgr /sagerun:1
+echo Disk cleanup completed.
+pause
+goto menu
+
+:option_16
+:manage_startup
+echo Managing startup programs...
+start msconfig
+echo Please use the System Configuration utility to manage startup programs.
+pause
+goto menu
+
+:option_17
+:backup_restore
+echo Backup and Restore Settings
+echo 1. Create system restore point
+echo 2. Restore from a restore point
+set /p backup_choice=Enter your choice (1-2):
+if "%backup_choice%"=="1" goto create_restore
+if "%backup_choice%"=="2" goto restore_point
+goto menu
+
+:create_restore
+echo Creating system restore point...
+wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "Manual Restore Point", 100, 7
+echo System restore point created.
+pause
+goto menu
+
+:restore_point
+echo Restoring from a restore point...
+rstrui.exe
+echo Please follow the on-screen instructions to restore your system.
+pause
+goto menu
+
+:option_18
+:system_info
+echo Displaying system information...
+systeminfo
+pause
+goto menu
+
+:option_19
+:optimize_privacy
+echo Optimizing privacy settings...
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" "1"
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
+echo Privacy settings optimized.
+pause
+goto menu
+
 :option_20
 :manage_services
 cls
 echo ==================================================
-echo Windows Services Management (ADVANCED USERS ONLY)
+echo Windows Services Management
 echo ==================================================
-echo 1. List All Services
-echo 2. Start a Service
-echo 3. Stop a Service
-echo 4. Change Service Startup Type
-echo 5. Return to Main Menu
+echo 1. List all services
+echo 2. List running services
+echo 3. List stopped services
+echo 4. Start a service
+echo 5. Stop a service
+echo 6. Restart a service
+echo 7. Change service startup type
+echo 8. Search for a service
+echo 9. View service details
+echo 10. Return to main menu
 echo ==================================================
-set /p service_choice=Enter your choice (1-5):
+set /p service_choice=Enter your choice (1-10):
 
 if "%service_choice%"=="1" goto list_all_services
-if "%service_choice%"=="2" goto start_service
-if "%service_choice%"=="3" goto stop_service
-if "%service_choice%"=="4" goto change_startup_type
-if "%service_choice%"=="5" goto menu
+if "%service_choice%"=="2" goto list_running_services
+if "%service_choice%"=="3" goto list_stopped_services
+if "%service_choice%"=="4" goto start_service
+if "%service_choice%"=="5" goto stop_service
+if "%service_choice%"=="6" goto restart_service
+if "%service_choice%"=="7" goto change_startup_type
+if "%service_choice%"=="8" goto search_service
+if "%service_choice%"=="9" goto view_service_details
+if "%service_choice%"=="10" goto menu
 echo Invalid choice. Please try again.
 pause
 goto manage_services
@@ -936,307 +1180,317 @@ sc query type= service state= all
 pause
 goto manage_services
 
+:list_running_services
+echo Listing running services...
+sc query type= service state= running
+pause
+goto manage_services
+
+:list_stopped_services
+echo Listing stopped services...
+sc query type= service state= stopped
+pause
+goto manage_services
+
 :start_service
-set /p "service_name=Enter the name of the service to start: "
-call :service_exists "%service_name%"
-if errorlevel 1 (
-    echo Service "%service_name%" not found.
-    pause
-    goto manage_services
-)
+set /p service_name=Enter the name of the service to start:
 sc start "%service_name%"
-echo Attempted to start service "%service_name%". Check status.
+if %errorlevel% neq 0 (
+    echo Failed to start the service. Please check the service name and your permissions.
+) else (
+    echo Service start attempted. Please check the status.
+)
 pause
 goto manage_services
 
 :stop_service
-set /p "service_name=Enter the name of the service to stop: "
-call :service_exists "%service_name%"
-if errorlevel 1 (
-     echo Service "%service_name%" not found.
-     pause
-     goto manage_services
-)
+set /p service_name=Enter the name of the service to stop:
 sc stop "%service_name%"
-echo Attempted to stop service "%service_name%". Check status.
+if %errorlevel% neq 0 (
+    echo Failed to stop the service. Please check the service name and your permissions.
+) else (
+    echo Service stop attempted. Please check the status.
+)
+pause
+goto manage_services
+
+:restart_service
+set /p service_name=Enter the name of the service to restart:
+sc stop "%service_name%"
+timeout /t 2 >nul
+sc start "%service_name%"
+if %errorlevel% neq 0 (
+    echo Failed to restart the service. Please check the service name and your permissions.
+) else (
+    echo Service restart attempted. Please check the status.
+)
 pause
 goto manage_services
 
 :change_startup_type
-set /p "service_name=Enter the name of the service: "
-call :service_exists "%service_name%"
-if errorlevel 1 (
-    echo Service "%service_name%" not found.
-    pause
-    goto manage_services
-)
+set /p service_name=Enter the name of the service:
 echo Select startup type:
 echo 1. Automatic
 echo 2. Automatic (Delayed Start)
 echo 3. Manual
 echo 4. Disabled
-set /p "startup_choice=Enter your choice (1-4): "
-
-if "%startup_choice%"=="1" set "startup_type=auto"
-if "%startup_choice%"=="2" set "startup_type=delayed-auto"
-if "%startup_choice%"=="3" set "startup_type=demand"
-if "%startup_choice%"=="4" set "startup_type=disabled"
-
-if not defined startup_type (
-    echo Invalid startup type choice.
+set /p startup_choice=Enter your choice (1-4):
+if "%startup_choice%"=="1" (
+    sc config "%service_name%" start= auto
+) else if "%startup_choice%"=="2" (
+    sc config "%service_name%" start= delayed-auto
+) else if "%startup_choice%"=="3" (
+    sc config "%service_name%" start= demand
+) else if "%startup_choice%"=="4" (
+    sc config "%service_name%" start= disabled
+) else (
+    echo Invalid choice.
     pause
     goto manage_services
 )
+if %errorlevel% neq 0 (
+    echo Failed to change startup type. Please check the service name and your permissions.
+) else (
+    echo Startup type changed successfully.
+)
+pause
+goto manage_services
 
-sc config "%service_name%" start= %startup_type%
-echo Service "%service_name%" startup type changed to %startup_type%.
+:search_service
+set /p search_term=Enter search term for service name:
+sc query state= all | findstr /i "%search_term%"
+pause
+goto manage_services
+
+:view_service_details
+set /p service_name=Enter the name of the service to view details:
+sc qc "%service_name%"
+echo.
+echo Current Status:
+sc query "%service_name%"
 pause
 goto manage_services
 
 :option_21
-:optimize_privacy
-echo Optimizing privacy settings...
-
-:: Disable Telemetry (Basic)
-call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
-
-:: Disable Advertising ID
-call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" "Enabled" "REG_DWORD" "0"
-
-:: Disable Location Tracking
-call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Services\lfsvc" "Start" "REG_DWORD" "4"
-sc stop lfsvc
-
-:: Disable Feedback Notifications
-call :modify_registry "HKCU\SOFTWARE\Microsoft\Siuf\Rules" "NumberOfSIUFInPeriod" "REG_DWORD" "0"
-
-:: Disable Web Search in Start Menu
-call :modify_registry "HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer" "DisableSearchBoxSuggestions" "REG_DWORD" "1"
-
-:: Disable Cortana
-call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" "0"
-
-echo Privacy settings optimized.
-pause
-goto menu
-
-:option_22
-:network_reset
+:network_optimization
 cls
-echo ==================================================================
-echo Network Reset and Advanced Optimization (USE WITH CAUTION)
-echo ==================================================================
-echo WARNING: Resetting network settings will remove all network
-echo          adapters and their configurations. You will need to
-echo          reconfigure your network connections after this.
-echo.
-echo 1. Reset Network Settings (Requires Restart)
-echo 2. Advanced TCP Optimizations (For experienced users)
-echo 3. Return to Main Menu
-echo ==================================================================
-set /p net_choice=Enter your choice (1-3):
+echo ==================================================
+echo Network Optimization
+echo ==================================================
+echo 1. Optimize TCP settings
+echo 2. Reset Windows Sockets
+echo 3. Clear DNS cache
+echo 4. Optimize network adapter settings
+echo 5. Disable IPv6 (caution)
+echo 6. Enable QoS packet scheduler
+echo 7. Set static DNS servers
+echo 8. Reset all network settings
+echo 9. Return to main menu
+echo ==================================================
+set /p net_choice=Enter your choice (1-9):
 
-if "%net_choice%"=="1" goto reset_network
-if "%net_choice%"=="2" goto advanced_tcp
-if "%net_choice%"=="3" goto menu
+if "%net_choice%"=="1" goto optimize_tcp
+if "%net_choice%"=="2" goto reset_winsock
+if "%net_choice%"=="3" goto clear_dns
+if "%net_choice%"=="4" goto optimize_adapter
+if "%net_choice%"=="5" goto disable_ipv6
+if "%net_choice%"=="6" goto enable_qos
+if "%net_choice%"=="7" goto set_static_dns
+if "%net_choice%"=="8" goto reset_network
+if "%net_choice%"=="9" goto menu
 echo Invalid choice. Please try again.
 pause
-goto network_reset
+goto network_optimization
 
-:reset_network
-set /p "confirm=Are you SURE you want to reset network settings (Y/N)? "
-if /I "%confirm%"=="Y" (
-    echo Resetting network settings...
-    netsh winsock reset
-    netsh int ip reset
-    netsh advfirewall reset
-    ipconfig /release
-    ipconfig /renew
-    ipconfig /flushdns
-    echo Network settings reset.  Restart required.
-) else (
-    echo Network reset cancelled.
-)
-pause
-goto network_reset
-
-:advanced_tcp
-echo Applying Advanced TCP Optimizations...
-:: (These settings are generally beneficial, but results may vary)
+:optimize_tcp
+echo Optimizing TCP settings...
 netsh int tcp set global autotuninglevel=normal
 netsh int tcp set global congestionprovider=ctcp
 netsh int tcp set global ecncapability=enabled
+netsh int tcp set heuristics disabled
+netsh int tcp set global rss=enabled
+netsh int tcp set global fastopen=enabled
 netsh int tcp set global timestamps=disabled
-echo Advanced TCP optimizations applied.
+netsh int tcp set global initialRto=2000
+netsh int tcp set global nonsackrttresiliency=disabled
+echo TCP settings optimized.
 pause
-goto network_reset
+goto network_optimization
+
+:reset_winsock
+echo Resetting Windows Sockets...
+netsh winsock reset
+echo Windows Sockets reset. Please restart your computer for changes to take effect.
+pause
+goto network_optimization
+
+:clear_dns
+echo Clearing DNS cache...
+ipconfig /flushdns
+echo DNS cache cleared.
+pause
+goto network_optimization
+
+:optimize_adapter
+echo Optimizing network adapter settings...
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    netsh int ip set interface "%%j" dadtransmits=0 store=persistent
+    netsh int ip set interface "%%j" routerdiscovery=disabled store=persistent
+    netsh int tcp set security mpp=disabled
+    netsh int tcp set security profiles=disabled
+)
+echo Network adapter settings optimized.
+pause
+goto network_optimization
+
+:disable_ipv6
+echo WARNING: Disabling IPv6 may cause issues with some networks.
+set /p confirm=Are you sure you want to disable IPv6? (Y/N):
+if /i "%confirm%"=="Y" (
+    netsh interface ipv6 set global randomizeidentifiers=disabled
+    netsh interface ipv6 set privacy state=disabled
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d 255 /f
+    echo IPv6 disabled. Please restart your computer for changes to take effect.
+) else (
+    echo Operation cancelled.
+)
+pause
+goto network_optimization
+
+:enable_qos
+echo Enabling QoS packet scheduler...
+netsh int tcp set global packetcoalescinginbound=disabled
+sc config "Qwave" start= auto
+net start Qwave
+echo QoS packet scheduler enabled.
+pause
+goto network_optimization
+
+:set_static_dns
+echo Setting static DNS servers...
+set /p primary_dns=Enter primary DNS server (e.g., 8.8.8.8):
+set /p secondary_dns=Enter secondary DNS server (e.g., 8.8.4.4):
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    netsh interface ip set dns "%%j" static %primary_dns% primary
+    netsh interface ip add dns "%%j" %secondary_dns% index=2
+)
+echo Static DNS servers set.
+pause
+goto network_optimization
+
+:reset_network
+echo Resetting all network settings...
+netsh winsock reset
+netsh int ip reset
+netsh advfirewall reset
+ipconfig /release
+ipconfig /renew
+ipconfig /flushdns
+echo All network settings reset. Please restart your computer for changes to take effect.
+pause
+goto network_optimization
+
+:option_22
+:windows11_features
+cls
+echo ==================================================
+echo Windows 11 Features Management
+echo ==================================================
+echo 1. Enable Focus Assist
+echo 2. Disable Focus Assist
+echo 3. Configure Focus Assist
+echo 4. Manage Snap Layouts
+echo 5. Manage Widgets
+echo 6. Return to main menu
+echo ==================================================
+set /p win11_choice=Enter your choice (1-6):
+
+if "%win11_choice%"=="1" goto enable_focus_assist
+if "%win11_choice%"=="2" goto disable_focus_assist
+if "%win11_choice%"=="3" goto config_focus_assist
+if "%win11_choice%"=="4" goto manage_snap_layouts
+if "%win11_choice%"=="5" goto manage_widgets
+if "%win11_choice%"=="6" goto menu
+echo Invalid choice. Please try again.
+pause
+goto windows11_features
+
+:enable_focus_assist
+echo Enabling Focus Assist...
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\FocusAssist" " состоянии" "REG_DWORD" "1"
+echo Focus Assist enabled.
+pause
+goto windows11_features
+
+:disable_focus_assist
+echo Disabling Focus Assist...
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\FocusAssist" " состоянии" "REG_DWORD" "3"
+echo Focus Assist disabled.
+pause
+goto windows11_features
+
+:config_focus_assist
+echo Configuring Focus Assist...
+echo 1. Priority only
+echo 2. Alarms only
+echo 3. Off
+set /p focus_choice=Enter Focus Assist mode (1-3):
+if "%focus_choice%"=="1" set focus_val=1
+if "%focus_choice%"=="2" set focus_val=2
+if "%focus_choice%"=="3" set focus_val=3
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\FocusAssist" " состоянии" "REG_DWORD" "%focus_val%"
+echo Focus Assist mode configured.
+pause
+goto windows11_features
+
+:manage_snap_layouts
+echo Managing Snap Layouts...
+echo 1. Enable Snap Layouts
+echo 2. Disable Snap Layouts
+set /p snap_choice=Enable or Disable Snap Layouts? (1/2):
+if "%snap_choice%"=="1" (
+    call :modify_registry "HKCU\Control Panel\Desktop" "WindowArrangementActive" "REG_DWORD" "1"
+    echo Snap Layouts enabled.
+) else if "%snap_choice%"=="2" (
+    call :modify_registry "HKCU\Control Panel\Desktop" "WindowArrangementActive" "REG_DWORD" "0"
+    echo Snap Layouts disabled.
+) else (
+    echo Invalid choice.
+)
+pause
+goto windows11_features
+
+:manage_widgets
+echo Managing Widgets...
+echo 1. Enable Widgets
+echo 2. Disable Widgets
+set /p widget_choice=Enable or Disable Widgets? (1/2):
+if "%widget_choice%"=="1" (
+    call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ShowWidgetsButton" "REG_DWORD" "1"
+    echo Widgets enabled.
+) else if "%widget_choice%"=="2" (
+    call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ShowWidgetsButton" "REG_DWORD" "0"
+    echo Widgets disabled.
+) else (
+    echo Invalid choice.
+)
+pause
+goto windows11_features
+
 
 :option_23
-:manage_installed_applications
-cls
-echo ==================================================
-echo Manage Installed Applications
-echo ==================================================
-echo 1. List Installed Applications
-echo 2. Uninstall Application (Requires Exact Name)
-echo 3. Return to Main Menu
-echo ==================================================
-
-set /p app_choice=Enter your choice (1-3):
-
-if "%app_choice%"=="1" goto list_installed_apps
-if "%app_choice%"=="2" goto uninstall_app
-if "%app_choice%"=="3" goto menu
-echo Invalid choice.
-pause
-goto manage_installed_applications
-
-:list_installed_apps
-echo Listing installed applications...
-echo This may take a few moments.
-powershell -Command "Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table -AutoSize"
-pause
-goto manage_installed_applications
-
-:uninstall_app
-echo WARNING:  Uninstalling applications incorrectly can cause problems.
-echo           Ensure you have the correct application name.
-set /p "uninstall_name=Enter the EXACT name of the application to uninstall: "
-
-:: Find the uninstall string using WMIC (more reliable)
-for /f "tokens=2 delims==" %%a in ('wmic product where "name='%uninstall_name%'" get UninstallString /value') do (
-  set "uninstall_string=%%a"
-)
-::Remove the extra returns.
-for /f "delims=" %%a in ("%uninstall_string%") do set "uninstall_string=%%a"
-
-if defined uninstall_string (
-    echo Found uninstall string: %uninstall_string%
-    call :get_confirmation "Are you sure you want to uninstall '%uninstall_name%'"
-     if errorlevel 1 (
-        echo Uninstall cancelled.
-        pause
-        goto manage_installed_applications
-    )
-    echo Uninstalling %uninstall_name%...
-    %uninstall_string%
-    echo Uninstallation process initiated.
-) else (
-    echo Could not find uninstall string for "%uninstall_name%".
-    echo Please check the application name and try again.
-)
-pause
-goto manage_installed_applications
-
-:option_24
-:advanced_registry_tweaks
-cls
-echo =========================================================
-echo Advanced Registry Tweaks (EXPERTS ONLY!)
-echo =========================================================
-echo WARNING:  Modifying the registry incorrectly can cause serious
-echo           system instability or data loss.  Proceed with
-echo           EXTREME CAUTION and only if you understand the
-echo           implications of each change.  Create a system
-echo           restore point before making any changes.
-echo.
-echo 1. Disable Windows Error Reporting
-echo 2. Disable Hibernation
-echo 3. Enable Long Paths (Windows 10, version 1607 and later)
-echo 4. Return to Main Menu
-echo =========================================================
-set /p reg_tweak_choice=Enter your choice (1-4):
-
-if "%reg_tweak_choice%"=="1" goto disable_wer
-if "%reg_tweak_choice%"=="2" goto disable_hibernation_tweak
-if "%reg_tweak_choice%"=="3" goto enable_long_paths
-if "%reg_tweak_choice%"=="4" goto menu
-echo Invalid choice.
-pause
-goto advanced_registry_tweaks
-
-:disable_wer
-echo WARNING: Disabling Windows Error Reporting will prevent error
-echo          reports from being sent to Microsoft.
-call :get_confirmation "Are you sure you want to disable WER?"
-if errorlevel 1 (
-    echo Operation cancelled.
-    pause
-    goto advanced_registry_tweaks
-)
-call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting" "Disabled" "REG_DWORD" "1"
-echo Windows Error Reporting disabled.
-pause
-goto advanced_registry_tweaks
-
-:disable_hibernation_tweak
-echo WARNING: Disabling hibernation will prevent your computer from
-echo          saving its state to disk when you shut down.  You
-echo          will lose any unsaved work.
-call :get_confirmation "Are you sure you want to disable hibernation?"
-if errorlevel 1 (
-    echo Operation cancelled.
-    pause
-    goto advanced_registry_tweaks
-)
-
-powercfg /hibernate off
-echo Hibernation disabled.
-pause
-goto advanced_registry_tweaks
-
-:enable_long_paths
-echo Enabling long paths (allows paths longer than 260 characters).
-call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" "LongPathsEnabled" "REG_DWORD" "1"
-echo Long paths enabled.  A restart may be required.
-pause
-goto advanced_registry_tweaks
-
-:option_25
-:hardware_diagnostics
-cls
-echo ==================================================
-echo Hardware Diagnostics
-echo ==================================================
-echo 1. Check Disk Health (SMART Status)
-echo 2. Memory Diagnostic (Requires Restart)
-echo 3. Return to Main Menu
-echo ==================================================
-
-set /p diag_choice=Enter your choice (1-3):
-
-if "%diag_choice%"=="1" goto check_disk_health
-if "%diag_choice%"=="2" goto memory_diagnostic
-if "%diag_choice%"=="3" goto menu
-echo Invalid choice.
-pause
-goto hardware_diagnostics
-
-:check_disk_health
-echo Checking disk health (SMART status)...
-wmic diskdrive get status
-pause
-goto hardware_diagnostics
-
-:memory_diagnostic
-echo Running Windows Memory Diagnostic...
-echo This will restart your computer and run a memory test.
-echo WARNING: Save all your work before proceeding.
-call :get_confirmation "Are you sure you want to run the memory diagnostic?"
-if errorlevel 1 (
-    echo Operation cancelled.
-    pause
-    goto hardware_diagnostics
-)
-mdsched.exe
-echo Memory Diagnostic scheduled.  Restart your computer.
-pause
-goto hardware_diagnostics
-
-:option_26
-:exit
-echo Thank you for using the Windows Optimization and Management Script!
+:endexit
+echo Thank you for using the Windows Optimization Script!
 echo Script developed by [Your Name/Organization]
-echo Version 5.0 (Comprehensive)
+echo Version 4.0
 pause
 exit
+
+:: Function to modify registry with error handling
+:modify_registry
+reg add %1 /v %2 /t %3 /d %4 /f
+if %errorlevel% neq 0 (
+    echo Failed to modify registry key: %1\%2
+    pause
+)
+exit /b 0
