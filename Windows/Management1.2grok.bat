@@ -4,6 +4,7 @@ setlocal enabledelayedexpansion
 :: Initialize variables
 set "logfile=%userprofile%\Desktop\optimization_log.txt"
 set "restart_required=0"
+set "script_version=3.2"
 
 :: Check for administrator privileges
 :check_admin
@@ -20,9 +21,9 @@ echo Started: %date% %time% >>"%logfile%"
 :menu
 cls
 echo ==================================================
-echo Windows Optimization Script v3.1
+echo Windows Optimization Script v%script_version%
 echo Purpose: Optimize and manage Windows settings
-echo Version: 3.1 - Enhanced safety and usability
+echo Version: %script_version% - Enhanced safety, usability, and features
 echo ==================================================
 echo 1. Optimize display performance
 echo 2. Manage Windows Defender
@@ -71,11 +72,59 @@ goto option_!choice!
 :option_1
 :optimize_display
 cls
-echo WARNING: This will disable visual effects to boost performance but may reduce visual quality.
-set /p confirm=Proceed? (Y/N): 
-if /i "!confirm!" neq "Y" goto menu
-echo Optimizing display performance...
-echo [%date% %time%] Optimizing display performance >>"%logfile%"
+echo ==================================================
+echo Optimize Display Performance
+echo ==================================================
+echo This will disable selected visual effects to boost performance but may reduce visual quality.
+echo Select the visual effects to disable:
+echo 1. Disable Aero Peek
+echo 2. Disable Animations in the taskbar
+echo 3. Disable Shadows under mouse
+echo 4. Disable Transparency effects
+echo 5. Disable All (Recommended for maximum performance)
+echo 6. Return to main menu
+echo ==================================================
+set /p display_choice=Enter your choice (1-6): 
+
+if "!display_choice!"=="1" goto disable_aero_peek
+if "!display_choice!"=="2" goto disable_animations
+if "!display_choice!"=="3" goto disable_shadows
+if "!display_choice!"=="4" goto disable_transparency
+if "!display_choice!"=="5" goto disable_all_display
+if "!display_choice!"=="6" goto menu
+echo Invalid choice. Please try again.
+pause
+goto optimize_display
+
+:disable_aero_peek
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "DisablePreviewDesktop" "REG_DWORD" "1"
+echo Aero Peek disabled.
+echo [%date% %time%] Disabled Aero Peek >>"%logfile%"
+pause
+goto optimize_display
+
+:disable_animations
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "TaskbarAnimations" "REG_DWORD" "0"
+echo Animations in the taskbar disabled.
+echo [%date% %time%] Disabled taskbar animations >>"%logfile%"
+pause
+goto optimize_display
+
+:disable_shadows
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ListviewShadow" "REG_DWORD" "0"
+echo Shadows under mouse disabled.
+echo [%date% %time%] Disabled mouse shadows >>"%logfile%"
+pause
+goto optimize_display
+
+:disable_transparency
+call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" "EnableTransparency" "REG_DWORD" "0"
+echo Transparency effects disabled.
+echo [%date% %time%] Disabled transparency effects >>"%logfile%"
+pause
+goto optimize_display
+
+:disable_all_display
 call :modify_registry "HKCU\Control Panel\Desktop" "UserPreferencesMask" "REG_BINARY" "9012078010000000"
 call :modify_registry "HKCU\Control Panel\Desktop" "MenuShowDelay" "REG_SZ" "0"
 call :modify_registry "HKCU\Control Panel\Desktop\WindowMetrics" "MinAnimate" "REG_SZ" "0"
@@ -83,10 +132,10 @@ call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersi
 call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "ListviewShadow" "REG_DWORD" "0"
 call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" "TaskbarAnimations" "REG_DWORD" "0"
 call :modify_registry "HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM" "EnableAeroPeek" "REG_DWORD" "0"
-echo Display performance optimized.
-echo [%date% %time%] Display optimization completed >>"%logfile%"
+echo All selected visual effects disabled for maximum performance.
+echo [%date% %time%] Disabled all selected visual effects >>"%logfile%"
 pause
-goto menu
+goto optimize_display
 
 :option_2
 :manage_defender
@@ -104,9 +153,10 @@ echo 7. Manage real-time protection
 echo 8. Manage cloud-delivered protection
 echo 9. Manage automatic sample submission
 echo 10. View threat history
-echo 11. Return to main menu
+echo 11. Set Exclusion
+echo 12. Return to main menu
 echo ===================================================
-set /p def_choice=Enter your choice (1-11): 
+set /p def_choice=Enter your choice (1-12): 
 
 if "!def_choice!"=="1" goto check_defender
 if "!def_choice!"=="2" goto enable_defender
@@ -118,7 +168,8 @@ if "!def_choice!"=="7" goto manage_realtime
 if "!def_choice!"=="8" goto manage_cloud
 if "!def_choice!"=="9" goto manage_samples
 if "!def_choice!"=="10" goto view_history
-if "!def_choice!"=="11" goto menu
+if "!def_choice!"=="11" goto set_exclusion
+if "!def_choice!"=="12" goto menu
 echo Invalid choice. Please try again.
 pause
 goto manage_defender
@@ -223,7 +274,7 @@ if /i "!cloud_choice!"=="E" (
     echo [%date% %time%] Cloud-delivered protection enabled >>"%logfile%"
 ) else if /i "!cloud_choice!"=="D" (
     call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet" "SpynetReporting" "REG_DWORD" "0"
-    echo Cloud-delivered protection disabled. It is recommended to keep it enabled for better protection.
+    echo Cloud-delivered protection disabled. It is recommended to keep it enabled.
     echo [%date% %time%] Cloud-delivered protection disabled >>"%logfile%"
 ) else (
     echo Invalid choice.
@@ -257,82 +308,107 @@ echo [%date% %time%] Viewed threat history >>"%logfile%"
 pause
 goto manage_defender
 
+:set_exclusion
+set /p exclusion_path=Enter the path to exclude (e.g., C:\Path\To\Folder): 
+powershell -Command "Add-MpPreference -ExclusionPath '!exclusion_path!'"
+if %errorlevel% neq 0 (
+    echo Failed to set exclusion. Please check the path and try again.
+    echo [%date% %time%] Failed to set exclusion for !exclusion_path! >>"%logfile%"
+) else (
+    echo Exclusion set for !exclusion_path!.
+    echo [%date% %time%] Set exclusion for !exclusion_path! >>"%logfile%"
+)
+pause
+goto manage_defender
+
 :option_3
 :optimize_features
 cls
-echo Optimizing system features...
-echo This will disable certain features to improve performance. You can choose which ones to disable.
-echo.
+echo ==================================================
+echo Optimize System Features
+echo ==================================================
+echo Select features to disable/enable for better performance:
+echo 1. Disable Activity Feed
+echo 2. Disable Background Apps
+echo 3. Disable Cortana
+echo 4. Disable Game DVR and Game Bar
+echo 5. Disable Sticky Keys prompt
+echo 6. Disable Windows Tips
+echo 7. Disable Start Menu suggestions
+echo 8. Enable Fast Startup
+echo 9. Return to main menu
+echo ==================================================
+set /p feature_choice=Enter your choice (1-9): 
 
-:: Disable Activity Feed
-set /p disable_activity=Disable Activity Feed? (Y/N): 
-if /i "!disable_activity!"=="Y" (
-    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" "EnableActivityFeed" "REG_DWORD" "0"
-    echo Activity Feed disabled.
-    echo [%date% %time%] Activity Feed disabled >>"%logfile%"
-)
-
-:: Disable background apps
-set /p disable_bgapps=Disable background apps? (Y/N): 
-if /i "!disable_bgapps!"=="Y" (
-    call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" "GlobalUserDisabled" "REG_DWORD" "1"
-    echo Background apps disabled.
-    echo [%date% %time%] Background apps disabled >>"%logfile%"
-)
-
-:: Disable Cortana
-set /p disable_cortana=Disable Cortana? (Y/N): 
-if /i "!disable_cortana!"=="Y" (
-    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" "0"
-    echo Cortana disabled.
-    echo [%date% %time%] Cortana disabled >>"%logfile%"
-)
-
-:: Disable Game DVR and Game Bar
-set /p disable_gamedvr=Disable Game DVR and Game Bar? (Y/N): 
-if /i "!disable_gamedvr!"=="Y" (
-    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" "AllowGameDVR" "REG_DWORD" "0"
-    call :modify_registry "HKCU\System\GameConfigStore" "GameDVR_Enabled" "REG_DWORD" "0"
-    echo Game DVR and Game Bar disabled.
-    echo [%date% %time%] Game DVR and Game Bar disabled >>"%logfile%"
-)
-
-:: Disable Sticky Keys prompt
-set /p disable_sticky=Disable Sticky Keys prompt? (Y/N): 
-if /i "!disable_sticky!"=="Y" (
-    call :modify_registry "HKCU\Control Panel\Accessibility\StickyKeys" "Flags" "REG_SZ" "506"
-    echo Sticky Keys prompt disabled.
-    echo [%date% %time%] Sticky Keys prompt disabled >>"%logfile%"
-)
-
-:: Disable Windows Tips
-set /p disable_tips=Disable Windows Tips? (Y/N): 
-if /i "!disable_tips!"=="Y" (
-    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableSoftLanding" "REG_DWORD" "1"
-    echo Windows Tips disabled.
-    echo [%date% %time%] Windows Tips disabled >>"%logfile%"
-)
-
-:: Disable Start Menu suggestions
-set /p disable_suggestions=Disable Start Menu suggestions? (Y/N): 
-if /i "!disable_suggestions!"=="Y" (
-    call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SystemPaneSuggestionsEnabled" "REG_DWORD" "0"
-    echo Start Menu suggestions disabled.
-    echo [%date% %time%] Start Menu suggestions disabled >>"%logfile%"
-)
-
-:: Enable Fast Startup
-set /p enable_faststartup=Enable Fast Startup? (Y/N): 
-if /i "!enable_faststartup!"=="Y" (
-    call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" "HiberbootEnabled" "REG_DWORD" "1"
-    echo Fast Startup enabled.
-    echo [%date% %time%] Fast Startup enabled >>"%logfile%"
-)
-
-echo System features optimized based on your choices.
-echo [%date% %time%] System features optimization completed >>"%logfile%"
+if "!feature_choice!"=="1" goto disable_activity_feed
+if "!feature_choice!"=="2" goto disable_bgapps
+if "!feature_choice!"=="3" goto disable_cortana
+if "!feature_choice!"=="4" goto disable_gamedvr
+if "!feature_choice!"=="5" goto disable_sticky
+if "!feature_choice!"=="6" goto disable_tips
+if "!feature_choice!"=="7" goto disable_suggestions
+if "!feature_choice!"=="8" goto enable_faststartup
+if "!feature_choice!"=="9" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto optimize_features
+
+:disable_activity_feed
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" "EnableActivityFeed" "REG_DWORD" "0"
+echo Activity Feed disabled.
+echo [%date% %time%] Disabled Activity Feed >>"%logfile%"
+pause
+goto optimize_features
+
+:disable_bgapps
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" "GlobalUserDisabled" "REG_DWORD" "1"
+echo Background apps disabled.
+echo [%date% %time%] Disabled Background apps >>"%logfile%"
+pause
+goto optimize_features
+
+:disable_cortana
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" "AllowCortana" "REG_DWORD" "0"
+echo Cortana disabled.
+echo [%date% %time%] Disabled Cortana >>"%logfile%"
+pause
+goto optimize_features
+
+:disable_gamedvr
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" "AllowGameDVR" "REG_DWORD" "0"
+call :modify_registry "HKCU\System\GameConfigStore" "GameDVR_Enabled" "REG_DWORD" "0"
+echo Game DVR and Game Bar disabled.
+echo [%date% %time%] Disabled Game DVR and Game Bar >>"%logfile%"
+pause
+goto optimize_features
+
+:disable_sticky
+call :modify_registry "HKCU\Control Panel\Accessibility\StickyKeys" "Flags" "REG_SZ" "506"
+echo Sticky Keys prompt disabled.
+echo [%date% %time%] Disabled Sticky Keys prompt >>"%logfile%"
+pause
+goto optimize_features
+
+:disable_tips
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableSoftLanding" "REG_DWORD" "1"
+echo Windows Tips disabled.
+echo [%date% %time%] Disabled Windows Tips >>"%logfile%"
+pause
+goto optimize_features
+
+:disable_suggestions
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" "SystemPaneSuggestionsEnabled" "REG_DWORD" "0"
+echo Start Menu suggestions disabled.
+echo [%date% %time%] Disabled Start Menu suggestions >>"%logfile%"
+pause
+goto optimize_features
+
+:enable_faststartup
+call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" "HiberbootEnabled" "REG_DWORD" "1"
+echo Fast Startup enabled.
+echo [%date% %time%] Enabled Fast Startup >>"%logfile%"
+pause
+goto optimize_features
 
 :option_4
 :optimize_cpu
@@ -348,9 +424,10 @@ echo 5. Adjust processor power management
 echo 6. Enable hardware-accelerated GPU scheduling
 echo 7. Disable unnecessary system services
 echo 8. Adjust visual effects for performance
-echo 9. Return to main menu
+echo 9. Set Processor Scheduling
+echo 10. Return to main menu
 echo ==================================================
-set /p cpu_choice=Enter your choice (1-9): 
+set /p cpu_choice=Enter your choice (1-10): 
 
 if "!cpu_choice!"=="1" goto set_high_performance
 if "!cpu_choice!"=="2" goto disable_throttling
@@ -360,13 +437,13 @@ if "!cpu_choice!"=="5" goto adjust_power_management
 if "!cpu_choice!"=="6" goto enable_gpu_scheduling
 if "!cpu_choice!"=="7" goto disable_services
 if "!cpu_choice!"=="8" goto adjust_visual_effects
-if "!cpu_choice!"=="9" goto menu
+if "!cpu_choice!"=="9" goto set_processor_scheduling
+if "!cpu_choice!"=="10" goto menu
 echo Invalid choice. Please try again.
 pause
 goto optimize_cpu
 
 :set_high_performance
-cls
 echo Setting High Performance power plan...
 powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
 if %errorlevel% neq 0 (
@@ -422,7 +499,7 @@ goto optimize_cpu
 :enable_gpu_scheduling
 echo Enabling hardware-accelerated GPU scheduling...
 call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "REG_DWORD" "2"
-echo Hardware-accelerated GPU scheduling enabled. Please restart your computer for changes to take effect.
+echo Hardware-accelerated GPU scheduling enabled. Restart required.
 set restart_required=1
 echo [%date% %time%] Enabled hardware-accelerated GPU scheduling >>"%logfile%"
 pause
@@ -431,7 +508,7 @@ goto optimize_cpu
 :disable_services
 cls
 echo Disabling unnecessary system services...
-echo This may affect system functionality. Proceed with caution.
+echo This may affect functionality. Proceed with caution.
 set /p confirm=Continue? (Y/N): 
 if /i "!confirm!" neq "Y" goto optimize_cpu
 sc config "SysMain" start= disabled
@@ -453,6 +530,25 @@ echo [%date% %time%] Adjusted visual effects for performance >>"%logfile%"
 pause
 goto optimize_cpu
 
+:set_processor_scheduling
+echo Select Processor Scheduling:
+echo 1. Adjust for best performance of Programs
+echo 2. Adjust for best performance of Background Services
+set /p scheduling_choice=Enter your choice (1-2): 
+if "!scheduling_choice!"=="1" (
+    call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "38"
+    echo Processor scheduling set for Programs.
+    echo [%date% %time%] Set processor scheduling for Programs >>"%logfile%"
+) else if "!scheduling_choice!"=="2" (
+    call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "REG_DWORD" "24"
+    echo Processor scheduling set for Background Services.
+    echo [%date% %time%] Set processor scheduling for Background Services >>"%logfile%"
+) else (
+    echo Invalid choice.
+)
+pause
+goto optimize_cpu
+
 :option_5
 :optimize_internet
 cls
@@ -464,16 +560,18 @@ echo 2. Advanced TCP optimizations
 echo 3. DNS optimization
 echo 4. Network adapter tuning
 echo 5. Clear network cache
-echo 6. Return to main menu
+echo 6. Set DNS Server
+echo 7. Return to main menu
 echo ==================================================
-set /p net_choice=Enter your choice (1-6): 
+set /p net_choice=Enter your choice (1-7): 
 
 if "!net_choice!"=="1" goto basic_optimizations
 if "!net_choice!"=="2" goto advanced_tcp
 if "!net_choice!"=="3" goto dns_optimization
 if "!net_choice!"=="4" goto adapter_tuning
 if "!net_choice!"=="5" goto clear_network_cache
-if "!net_choice!"=="6" goto menu
+if "!net_choice!"=="6" goto set_dns_server
+if "!net_choice!"=="7" goto menu
 echo Invalid choice. Please try again.
 pause
 goto optimize_internet
@@ -525,8 +623,6 @@ for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr "Connected"') do
     netsh int ip set interface "%%j" routerdiscovery=disabled store=persistent
     powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*FlowControl' -RegistryValue 0"
     powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*InterruptModeration' -RegistryValue 0"
-    powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*PriorityVLANTag' -RegistryValue 3"
-    powershell "Set-NetAdapterAdvancedProperty -Name '%%j' -RegistryKeyword '*SpeedDuplex' -RegistryValue 0"
 )
 echo Network adapter tuned for optimal performance.
 echo [%date% %time%] Tuned network adapter >>"%logfile%"
@@ -541,30 +637,54 @@ nbtstat -R
 nbtstat -RR
 netsh int ip reset
 netsh winsock reset
-echo Network cache cleared.
-echo [%date% %time%] Cleared network cache >>"%logfile%"
+echo Network cache cleared. Restart required.
+set restart_required=1
+echo [%date% %time%] CLEARED NETWORK CACHE >>"%logfile%"
+pause
+goto optimize_internet
+
+:set_dns_server
+echo Setting DNS Server...
+set /p primary_dns=Enter primary DNS server (e.g., 8.8.8.8): 
+set /p secondary_dns=Enter secondary DNS server (e.g., 8.8.4.4): 
+for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
+    netsh interface ip set dns "%%j" static !primary_dns! primary
+    netsh interface ip add dns "%%j" !secondary_dns! index=2
+)
+echo DNS servers set to !primary_dns! and !secondary_dns!.
+echo [%date% %time%] Set DNS servers to !primary_dns! and !secondary_dns! >>"%logfile%"
 pause
 goto optimize_internet
 
 :option_6
 :windows_update
 cls
+echo ==================================================
 echo Windows Update Management
+echo ==================================================
 echo 1. Enable Windows Update
 echo 2. Disable Windows Update
 echo 3. Check for updates
-set /p update_choice=Enter your choice (1-3): 
+echo 4. Set update mode (Automatic/Manual)
+echo 5. Return to main menu
+echo ==================================================
+set /p update_choice=Enter your choice (1-5): 
+
 if "!update_choice!"=="1" goto enable_windows_update
 if "!update_choice!"=="2" goto disable_windows_update
 if "!update_choice!"=="3" goto check_updates
-goto menu
+if "!update_choice!"=="4" goto set_update_mode
+if "!update_choice!"=="5" goto menu
+echo Invalid choice. Please try again.
+pause
+goto windows_update
 
 :enable_windows_update
 echo Enabling Windows Update...
 sc config wuauserv start= auto
 sc start wuauserv
 if %errorlevel% neq 0 (
-    echo Failed to enable Windows Update. Please check your permissions.
+    echo Failed to enable Windows Update.
     echo [%date% %time%] Failed to enable Windows Update >>"%logfile%"
 ) else (
     echo Windows Update enabled.
@@ -575,8 +695,7 @@ goto windows_update
 
 :disable_windows_update
 cls
-echo WARNING: Disabling Windows Update may leave your system vulnerable to security threats.
-echo Are you sure you want to proceed?
+echo WARNING: Disabling Windows Update may leave your system vulnerable.
 set /p confirm=Type YES to confirm: 
 if /i "!confirm!" neq "YES" (
     echo Operation cancelled.
@@ -587,7 +706,7 @@ echo Disabling Windows Update...
 sc config wuauserv start= disabled
 sc stop wuauserv
 if %errorlevel% neq 0 (
-    echo Failed to disable Windows Update. Please check your permissions.
+    echo Failed to disable Windows Update.
     echo [%date% %time%] Failed to disable Windows Update >>"%logfile%"
 ) else (
     echo Windows Update disabled.
@@ -599,37 +718,130 @@ goto windows_update
 :check_updates
 echo Checking for Windows updates...
 powershell -Command "(New-Object -ComObject Microsoft.Update.AutoUpdate).DetectNow()"
-echo Update check initiated. Please check Windows Update in Settings for results.
+echo Update check initiated. Check Windows Update in Settings.
 echo [%date% %time%] Checked for Windows updates >>"%logfile%"
+pause
+goto windows_update
+
+:set_update_mode
+echo Select update mode:
+echo 1. Automatic
+echo 2. Manual
+set /p mode_choice=Enter your choice (1-2): 
+if "!mode_choice!"=="1" (
+    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" "NoAutoUpdate" "REG_DWORD" "0"
+    echo Windows Update set to Automatic.
+    echo [%date% %time%] Set Windows Update to Automatic >>"%logfile%"
+) else if "!mode_choice!"=="2" (
+    call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" "NoAutoUpdate" "REG_DWORD" "1"
+    echo Windows Update set to Manual.
+    echo [%date% %time%] Set Windows Update to Manual >>"%logfile%"
+) else (
+    echo Invalid choice.
+)
 pause
 goto windows_update
 
 :option_7
 :auto_login
 cls
-echo Configuring Auto-login...
-echo WARNING: This will store your password in plain text in the registry, which is a security risk.
-set /p confirm=Proceed? (Y/N): 
-if /i "!confirm!" neq "Y" goto menu
+echo ==================================================
+echo Configure Auto-login
+echo ==================================================
+echo WARNING: This stores your password in plain text, posing a security risk.
+echo 1. Enable Auto-login
+echo 2. Disable Auto-login
+echo 3. Return to main menu
+echo ==================================================
+set /p auto_choice=Enter your choice (1-3): 
+
+if "!auto_choice!"=="1" goto enable_auto_login
+if "!auto_choice!"=="2" goto disable_auto_login
+if "!auto_choice!"=="3" goto menu
+echo Invalid choice. Please try again.
+pause
+goto auto_login
+
+:enable_auto_login
 set /p username=Enter username: 
 set /p password=Enter password: 
 call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultUserName" "REG_SZ" "!username!"
 call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "DefaultPassword" "REG_SZ" "!password!"
 call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon" "REG_SZ" "1"
-echo Auto-login configured.
-echo [%date% %time%] Configured auto-login >>"%logfile%"
+echo Auto-login enabled.
+echo [%date% %time%] Enabled Auto-login >>"%logfile%"
 pause
-goto menu
+goto auto_login
+
+:disable_auto_login
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon" "REG_SZ" "0"
+reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /f 2>nul
+echo Auto-login disabled.
+echo [%date% %time%] Disabled Auto-login >>"%logfile%"
+pause
+goto auto_login
 
 :option_8
 :clear_cache
-echo Clearing system cache...
+cls
+echo ==================================================
+echo Clear System Cache
+echo ==================================================
+echo 1. Clear system temporary files
+echo 2. Clear browser cache (Chrome, Firefox, Edge)
+echo 3. Clear all caches
+echo 4. Return to main menu
+echo ==================================================
+set /p cache_choice=Enter your choice (1-4): 
+
+if "!cache_choice!"=="1" goto clear_system_cache
+if "!cache_choice!"=="2" goto clear_browser_cache
+if "!cache_choice!"=="3" goto clear_all_cache
+if "!cache_choice!"=="4" goto menu
+echo Invalid choice. Please try again.
+pause
+goto clear_cache
+
+:clear_system_cache
+echo Clearing system temporary files...
 del /q /f /s %TEMP%\* 2>nul
 del /q /f /s C:\Windows\Temp\* 2>nul
-echo System cache cleared.
-echo [%date% %time%] Cleared system cache >>"%logfile%"
+echo System temporary files cleared.
+echo [%date% %time%] Cleared system temporary files >>"%logfile%"
 pause
-goto menu
+goto clear_cache
+
+:clear_browser_cache
+echo Clearing browser cache...
+for %%b in ("Chrome" "Firefox" "Edge") do (
+    if "%%b"=="Chrome" set "cache_path=%LocalAppData%\Google\Chrome\User Data\Default\Cache"
+    if "%%b"=="Firefox" set "cache_path=%AppData%\Mozilla\Firefox\Profiles\*.default-release\cache"
+    if "%%b"=="Edge" set "cache_path=%LocalAppData%\Microsoft\Edge\User Data\Default\Cache"
+    if exist "!cache_path!" (
+        del /q /f /s "!cache_path!\*" 2>nul
+        echo %%b cache cleared.
+        echo [%date% %time%] Cleared %%b cache >>"%logfile%"
+    )
+)
+pause
+goto clear_cache
+
+:clear_all_cache
+echo Clearing all caches...
+del /q /f /s %TEMP%\* 2>nul
+del /q /f /s C:\Windows\Temp\* 2>nul
+for %%b in ("Chrome" "Firefox" "Edge") do (
+    if "%%b"=="Chrome" set "cache_path=%LocalAppData%\Google\Chrome\User Data\Default\Cache"
+    if "%%b"=="Firefox" set "cache_path=%AppData%\Mozilla\Firefox\Profiles\*.default-release\cache"
+    if "%%b"=="Edge" set "cache_path=%LocalAppData%\Microsoft\Edge\User Data\Default\Cache"
+    if exist "!cache_path!" (
+        del /q /f /s "!cache_path!\*" 2>nul
+    )
+)
+echo All caches cleared.
+echo [%date% %time%] Cleared all caches >>"%logfile%"
+pause
+goto clear_cache
 
 :option_9
 :optimize_disk
@@ -642,16 +854,18 @@ echo 2. Optimize/Defragment disk
 echo 3. Check disk for errors
 echo 4. Trim SSD
 echo 5. Clean up system files
-echo 6. Return to main menu
+echo 6. Check disk health
+echo 7. Return to main menu
 echo ==================================================
-set /p disk_choice=Enter your choice (1-6): 
+set /p disk_choice=Enter your choice (1-7): 
 
 if "!disk_choice!"=="1" goto analyze_disk
 if "!disk_choice!"=="2" goto optimize_defrag
 if "!disk_choice!"=="3" goto check_disk
 if "!disk_choice!"=="4" goto trim_ssd
 if "!disk_choice!"=="5" goto cleanup_system
-if "!disk_choice!"=="6" goto menu
+if "!disk_choice!"=="6" goto check_disk_health_opt
+if "!disk_choice!"=="7" goto menu
 echo Invalid choice. Please try again.
 pause
 goto optimize_disk
@@ -674,9 +888,9 @@ goto optimize_disk
 
 :check_disk
 echo Checking disk for errors...
-echo This process will schedule a disk check on the next system restart.
+echo This will schedule a disk check on the next restart.
 chkdsk C: /F /R /X
-echo Disk check scheduled. Please restart your computer to perform the check.
+echo Disk check scheduled. Restart required.
 set restart_required=1
 echo [%date% %time%] Scheduled disk check >>"%logfile%"
 pause
@@ -699,6 +913,14 @@ echo [%date% %time%] Cleaned up system files >>"%logfile%"
 pause
 goto optimize_disk
 
+:check_disk_health_opt
+echo Checking disk health...
+wmic diskdrive get status
+echo Disk health check completed.
+echo [%date% %time%] Checked disk health >>"%logfile%"
+pause
+goto optimize_disk
+
 :option_10
 :check_repair
 cls
@@ -709,15 +931,17 @@ echo 1. Run SFC (System File Checker)
 echo 2. Run DISM (Deployment Image Servicing and Management)
 echo 3. Check disk health
 echo 4. Verify system files
-echo 5. Return to main menu
+echo 5. Repair Registry
+echo 6. Return to main menu
 echo ==================================================
-set /p repair_choice=Enter your choice (1-5): 
+set /p repair_choice=Enter your choice (1-6): 
 
 if "!repair_choice!"=="1" goto run_sfc
 if "!repair_choice!"=="2" goto run_dism
 if "!repair_choice!"=="3" goto check_disk_health
 if "!repair_choice!"=="4" goto verify_files
-if "!repair_choice!"=="5" goto menu
+if "!repair_choice!"=="5" goto repair_registry
+if "!repair_choice!"=="6" goto menu
 echo Invalid choice. Please try again.
 pause
 goto check_repair
@@ -748,9 +972,21 @@ goto check_repair
 
 :verify_files
 echo Verifying system files...
-Findstr /c:"[SR]" %windir%\Logs\CBS\CBS.log >"%userprofile%\Desktop\sfcdetails.txt"
+findstr /c:"[SR]" %windir%\Logs\CBS\CBS.log >"%userprofile%\Desktop\sfcdetails.txt"
 echo Verification completed. Results saved to sfcdetails.txt on your desktop.
 echo [%date% %time%] Verified system files >>"%logfile%"
+pause
+goto check_repair
+
+:repair_registry
+echo Repairing Registry...
+echo Backing up Registry first...
+reg export HKLM "%userprofile%\Desktop\HKLM_Backup.reg" /y 2>nul
+reg export HKCU "%userprofile%\Desktop\HKCU_Backup.reg" /y 2>nul
+echo Running Registry repair...
+sfc /scannow
+echo Registry repair completed. Backup saved to Desktop.
+echo [%date% %time%] Repaired Registry >>"%logfile%"
 pause
 goto check_repair
 
@@ -865,9 +1101,10 @@ echo 6. Configure hibernation
 echo 7. Adjust display and sleep timeouts
 echo 8. Configure lid close action
 echo 9. Configure power button action
-echo 10. Return to main menu
+echo 10. Set High Performance/Balanced plan
+echo 11. Return to main menu
 echo ==================================================
-set /p power_choice=Enter your choice (1-10): 
+set /p power_choice=Enter your choice (1-11): 
 
 if "!power_choice!"=="1" goto list_power_plans
 if "!power_choice!"=="2" goto set_power_plan
@@ -878,7 +1115,8 @@ if "!power_choice!"=="6" goto configure_hibernate
 if "!power_choice!"=="7" goto adjust_timeouts
 if "!power_choice!"=="8" goto lid_action
 if "!power_choice!"=="9" goto power_button_action
-if "!power_choice!"=="10" goto menu
+if "!power_choice!"=="10" goto set_hp_balanced
+if "!power_choice!"=="11" goto menu
 echo Invalid choice. Please try again.
 pause
 goto manage_power
@@ -892,10 +1130,10 @@ goto manage_power
 :set_power_plan
 echo Available power plans:
 powercfg /list
-set /p plan_guid=Enter the GUID of the power plan you want to set: 
+set /p plan_guid=Enter the GUID of the power plan: 
 powercfg /setactive !plan_guid!
 if %errorlevel% neq 0 (
-    echo Failed to set power plan. Please check the GUID and try again.
+    echo Failed to set power plan.
     echo [%date% %time%] Failed to set power plan >>"%logfile%"
 ) else (
     echo Power plan set successfully.
@@ -921,10 +1159,10 @@ goto manage_power
 :delete_power_plan
 echo Available power plans:
 powercfg /list
-set /p del_guid=Enter the GUID of the power plan you want to delete: 
+set /p del_guid=Enter the GUID of the power plan to delete: 
 powercfg /delete !del_guid!
 if %errorlevel% neq 0 (
-    echo Failed to delete power plan. Please check the GUID and try again.
+    echo Failed to delete power plan.
     echo [%date% %time%] Failed to delete power plan >>"%logfile%"
 ) else (
     echo Power plan deleted successfully.
@@ -934,7 +1172,7 @@ pause
 goto manage_power
 
 :adjust_sleep
-set /p sleep_time=Enter the number of minutes before the system goes to sleep (0 to never sleep): 
+set /p sleep_time=Enter minutes before sleep (0 to never): 
 powercfg /change standby-timeout-ac !sleep_time!
 powercfg /change standby-timeout-dc !sleep_time!
 echo Sleep settings adjusted.
@@ -961,10 +1199,10 @@ pause
 goto manage_power
 
 :adjust_timeouts
-set /p display_ac=Enter minutes before turning off the display (AC power): 
-set /p display_dc=Enter minutes before turning off the display (battery): 
-set /p sleep_ac=Enter minutes before sleep (AC power): 
-set /p sleep_dc=Enter minutes before sleep (battery): 
+set /p display_ac=Enter minutes before display off (AC): 
+set /p display_dc=Enter minutes before display off (DC): 
+set /p sleep_ac=Enter minutes before sleep (AC): 
+set /p sleep_dc=Enter minutes before sleep (DC): 
 powercfg /change monitor-timeout-ac !display_ac!
 powercfg /change monitor-timeout-dc !display_dc!
 powercfg /change standby-timeout-ac !sleep_ac!
@@ -979,7 +1217,7 @@ echo 1. Do nothing
 echo 2. Sleep
 echo 3. Hibernate
 echo 4. Shut down
-set /p lid_choice=Enter your choice for lid close action (1-4): 
+set /p lid_choice=Enter lid close action (1-4): 
 if "!lid_choice!"=="1" set action=0
 if "!lid_choice!"=="2" set action=1
 if "!lid_choice!"=="3" set action=2
@@ -997,7 +1235,7 @@ echo 1. Do nothing
 echo 2. Sleep
 echo 3. Hibernate
 echo 4. Shut down
-set /p button_choice=Enter your choice for power button action (1-4): 
+set /p button_choice=Enter power button action (1-4): 
 if "!button_choice!"=="1" set action=0
 if "!button_choice!"=="2" set action=1
 if "!button_choice!"=="3" set action=2
@@ -1010,33 +1248,84 @@ echo [%date% %time%] Configured power button action >>"%logfile%"
 pause
 goto manage_power
 
+:set_hp_balanced
+echo 1. High Performance
+echo 2. Balanced
+set /p plan_choice=Enter your choice (1-2): 
+if "!plan_choice!"=="1" (
+    powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+    echo High Performance plan set.
+    echo [%date% %time%] Set High Performance plan >>"%logfile%"
+) else if "!plan_choice!"=="2" (
+    powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
+    echo Balanced plan set.
+    echo [%date% %time%] Set Balanced plan >>"%logfile%"
+) else (
+    echo Invalid choice.
+)
+pause
+goto manage_power
+
 :option_13
+:dark_mode
+cls
+echo ==================================================
+echo Dark Mode Management
+echo ==================================================
+echo 1. Enable Dark Mode
+echo 2. Disable Dark Mode
+echo 3. Return to main menu
+echo ==================================================
+set /p dark_choice=Enter your choice (1-3): 
+
+if "!dark_choice!"=="1" goto enable_dark_mode
+if "!dark_choice!"=="2" goto disable_dark_mode
+if "!dark_choice!"=="3" goto menu
+echo Invalid choice. Please try again.
+pause
+goto dark_mode
+
 :enable_dark_mode
-echo Enabling Dark Mode...
 call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme" "REG_DWORD" "0"
 call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "SystemUsesLightTheme" "REG_DWORD" "0"
 echo Dark Mode enabled.
 echo [%date% %time%] Enabled Dark Mode >>"%logfile%"
 pause
-goto menu
+goto dark_mode
+
+:disable_dark_mode
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "AppsUseLightTheme" "REG_DWORD" "1"
+call :modify_registry "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" "SystemUsesLightTheme" "REG_DWORD" "1"
+echo Dark Mode disabled.
+echo [%date% %time%] Disabled Dark Mode >>"%logfile%"
+pause
+goto dark_mode
 
 :option_14
 :manage_partitions
 cls
+echo ==================================================
 echo Partition Management
-echo WARNING: Modifying partitions can lead to data loss. Proceed with caution.
-set /p confirm=Continue? (Y/N): 
-if /i "!confirm!" neq "Y" goto menu
+echo WARNING: Modifying partitions can lead to data loss.
+echo ==================================================
 echo 1. List Partitions
 echo 2. Create Partition
 echo 3. Delete Partition
 echo 4. Format Partition
-set /p part_choice=Enter your choice (1-4): 
+echo 5. Resize Partition
+echo 6. Return to main menu
+echo ==================================================
+set /p part_choice=Enter your choice (1-6): 
+
 if "!part_choice!"=="1" goto list_partitions
 if "!part_choice!"=="2" goto create_partition
 if "!part_choice!"=="3" goto delete_partition
 if "!part_choice!"=="4" goto format_partition
-goto menu
+if "!part_choice!"=="5" goto resize_partition
+if "!part_choice!"=="6" goto menu
+echo Invalid choice. Please try again.
+pause
+goto manage_partitions
 
 :list_partitions
 echo Listing Partitions...
@@ -1064,7 +1353,7 @@ goto manage_partitions
 
 :delete_partition
 cls
-echo WARNING: Deleting a partition will erase all data on it. This action cannot be undone.
+echo WARNING: Deleting a partition will erase all data on it.
 set /p confirm=Type DELETE to confirm: 
 if /i "!confirm!" neq "DELETE" (
     echo Operation cancelled.
@@ -1102,34 +1391,131 @@ echo [%date% %time%] Formatted partition !part_num! on disk !disk_num! with !fs!
 pause
 goto manage_partitions
 
+:resize_partition
+echo Resizing Partition...
+set /p disk_num=Enter disk number: 
+set /p part_num=Enter partition number: 
+set /p new_size=Enter new size in MB: 
+(
+echo select disk !disk_num!
+echo select partition !part_num!
+echo shrink desired=!new_size!
+) > resize_part.txt
+diskpart /s resize_part.txt
+del resize_part.txt
+echo Partition resized.
+echo [%date% %time%] Resized partition !part_num! on disk !disk_num! to !new_size! MB >>"%logfile%"
+pause
+goto manage_partitions
+
 :option_15
 :clean_disk
-echo Cleaning up disk space...
+cls
+echo ==================================================
+echo Clean Up Disk Space
+echo ==================================================
+echo 1. Run standard disk cleanup
+echo 2. Clean additional temp files
+echo 3. Return to main menu
+echo ==================================================
+set /p clean_choice=Enter your choice (1-3): 
+
+if "!clean_choice!"=="1" goto standard_cleanup
+if "!clean_choice!"=="2" goto clean_temp_files
+if "!clean_choice!"=="3" goto menu
+echo Invalid choice. Please try again.
+pause
+goto clean_disk
+
+:standard_cleanup
+echo Running standard disk cleanup...
 cleanmgr /sagerun:1
 echo Disk cleanup completed.
-echo [%date% %time%] Cleaned up disk space >>"%logfile%"
+echo [%date% %time%] Ran standard disk cleanup >>"%logfile%"
 pause
-goto menu
+goto clean_disk
+
+:clean_temp_files
+echo Cleaning additional temp files...
+del /q /f /s %TEMP%\* 2>nul
+del /q /f /s C:\Windows\Temp\* 2>nul
+del /q /f /s C:\Windows\Logs\*.log 2>nul
+echo Additional temp files cleaned.
+echo [%date% %time%] Cleaned additional temp files >>"%logfile%"
+pause
+goto clean_disk
 
 :option_16
 :manage_startup
-echo Managing startup programs...
-start msconfig
-echo Please use the System Configuration utility to manage startup programs.
-echo [%date% %time%] Opened System Configuration for startup management >>"%logfile%"
+cls
+echo ==================================================
+echo Manage Startup Programs
+echo ==================================================
+echo 1. Open System Configuration
+echo 2. Disable startup program
+echo 3. Enable startup program
+echo 4. Return to main menu
+echo ==================================================
+set /p startup_choice=Enter your choice (1-4): 
+
+if "!startup_choice!"=="1" goto open_msconfig
+if "!startup_choice!"=="2" goto disable_startup
+if "!startup_choice!"=="3" goto enable_startup
+if "!startup_choice!"=="4" goto menu
+echo Invalid choice. Please try again.
 pause
-goto menu
+goto manage_startup
+
+:open_msconfig
+echo Opening System Configuration...
+start msconfig
+echo Use System Configuration to manage startup programs.
+echo [%date% %time%] Opened System Configuration >>"%logfile%"
+pause
+goto manage_startup
+
+:disable_startup
+set /p prog_name=Enter the name of the startup program: 
+reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "!prog_name!" 2>nul
+if %errorlevel% equ 0 (
+    reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "!prog_name!" /f
+    echo Program disabled from startup.
+    echo [%date% %time%] Disabled !prog_name! from startup >>"%logfile%"
+) else (
+    echo Program not found in startup.
+)
+pause
+goto manage_startup
+
+:enable_startup
+set /p prog_name=Enter the name of the program: 
+set /p prog_path=Enter the full path to the program executable: 
+call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" "!prog_name!" "REG_SZ" "!prog_path!"
+echo Program enabled in startup.
+echo [%date% %time%] Enabled !prog_name! in startup >>"%logfile%"
+pause
+goto manage_startup
 
 :option_17
 :backup_restore
 cls
+echo ==================================================
 echo Backup and Restore Settings
+echo ==================================================
 echo 1. Create system restore point
 echo 2. Restore from a restore point
-set /p backup_choice=Enter your choice (1-2): 
+echo 3. Backup Registry
+echo 4. Return to main menu
+echo ==================================================
+set /p backup_choice=Enter your choice (1-4): 
+
 if "!backup_choice!"=="1" goto create_restore
 if "!backup_choice!"=="2" goto restore_point
-goto menu
+if "!backup_choice!"=="3" goto backup_registry
+if "!backup_choice!"=="4" goto menu
+echo Invalid choice. Please try again.
+pause
+goto backup_restore
 
 :create_restore
 echo Creating system restore point...
@@ -1137,33 +1523,103 @@ wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "M
 echo System restore point created.
 echo [%date% %time%] Created system restore point >>"%logfile%"
 pause
-goto menu
+goto backup_restore
 
 :restore_point
 echo Restoring from a restore point...
 rstrui.exe
-echo Please follow the on-screen instructions to restore your system.
+echo Follow the on-screen instructions to restore.
 echo [%date% %time%] Initiated system restore >>"%logfile%"
 pause
-goto menu
+goto backup_restore
+
+:backup_registry
+echo Backing up Registry...
+reg export HKLM "%userprofile%\Desktop\HKLM_Backup.reg" /y 2>nul
+reg export HKCU "%userprofile%\Desktop\HKCU_Backup.reg" /y 2>nul
+echo Registry backed up to Desktop.
+echo [%date% %time%] Backed up Registry >>"%logfile%"
+pause
+goto backup_restore
 
 :option_18
 :system_info
-echo Displaying system information...
+cls
+echo ==================================================
+echo System Information
+echo ==================================================
+echo 1. Display basic system info
+echo 2. Display hardware info
+echo 3. Return to main menu
+echo ==================================================
+set /p info_choice=Enter your choice (1-3): 
+
+if "!info_choice!"=="1" goto basic_info
+if "!info_choice!"=="2" goto hardware_info
+if "!info_choice!"=="3" goto menu
+echo Invalid choice. Please try again.
+pause
+goto system_info
+
+:basic_info
+echo Displaying basic system information...
 systeminfo
 pause
-goto menu
+goto system_info
+
+:hardware_info
+echo Displaying hardware information...
+wmic cpu get name
+wmic memorychip get capacity
+wmic path win32_videocontroller get name
+echo Hardware info displayed.
+echo [%date% %time%] Displayed hardware info >>"%logfile%"
+pause
+goto system_info
 
 :option_19
 :optimize_privacy
-echo Optimizing privacy settings...
+cls
+echo ==================================================
+echo Optimize Privacy Settings
+echo ==================================================
+echo 1. Disable Telemetry
+echo 2. Disable Advertising ID
+echo 3. Optimize all privacy settings
+echo 4. Return to main menu
+echo ==================================================
+set /p privacy_choice=Enter your choice (1-4): 
+
+if "!privacy_choice!"=="1" goto disable_telemetry
+if "!privacy_choice!"=="2" goto disable_ad_id
+if "!privacy_choice!"=="3" goto optimize_all_privacy
+if "!privacy_choice!"=="4" goto menu
+echo Invalid choice. Please try again.
+pause
+goto optimize_privacy
+
+:disable_telemetry
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
+echo Telemetry disabled.
+echo [%date% %time%] Disabled Telemetry >>"%logfile%"
+pause
+goto optimize_privacy
+
+:disable_ad_id
+call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" "1"
+echo Advertising ID disabled.
+echo [%date% %time%] Disabled Advertising ID >>"%logfile%"
+pause
+goto optimize_privacy
+
+:optimize_all_privacy
 call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
 call :modify_registry "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" "DisabledByGroupPolicy" "REG_DWORD" "1"
-call :modify_registry "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" "AllowTelemetry" "REG_DWORD" "0"
-echo Privacy settings optimized.
-echo [%date% %time%] Optimized privacy settings >>"%logfile%"
+call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace" "ShowCollectionPane" "REG_DWORD" "0"
+echo All privacy settings optimized.
+echo [%date% %time%] Optimized all privacy settings >>"%logfile%"
 pause
-goto menu
+goto optimize_privacy
 
 :option_20
 :manage_services
@@ -1217,42 +1673,42 @@ pause
 goto manage_services
 
 :start_service
-set /p service_name=Enter the name of the service to start: 
+set /p service_name=Enter the name of the service: 
 sc start "!service_name!"
 if %errorlevel% neq 0 (
-    echo Failed to start the service. Please check the service name and your permissions.
+    echo Failed to start the service.
     echo [%date% %time%] Failed to start service !service_name! >>"%logfile%"
 ) else (
-    echo Service start attempted. Please check the status.
-    echo [%date% %time%] Attempted to start service !service_name! >>"%logfile%"
+    echo Service started.
+    echo [%date% %time%] Started service !service_name! >>"%logfile%"
 )
 pause
 goto manage_services
 
 :stop_service
-set /p service_name=Enter the name of the service to stop: 
+set /p service_name=Enter the name of the service: 
 sc stop "!service_name!"
 if %errorlevel% neq 0 (
-    echo Failed to stop the service. Please check the service name and your permissions.
+    echo Failed to stop the service.
     echo [%date% %time%] Failed to stop service !service_name! >>"%logfile%"
 ) else (
-    echo Service stop attempted. Please check the status.
-    echo [%date% %time%] Attempted to stop service !service_name! >>"%logfile%"
+    echo Service stopped.
+    echo [%date% %time%] Stopped service !service_name! >>"%logfile%"
 )
 pause
 goto manage_services
 
 :restart_service
-set /p service_name=Enter the name of the service to restart: 
+set /p service_name=Enter the name of the service: 
 sc stop "!service_name!"
 timeout /t 2 >nul
 sc start "!service_name!"
 if %errorlevel% neq 0 (
-    echo Failed to restart the service. Please check the service name and your permissions.
+    echo Failed to restart the service.
     echo [%date% %time%] Failed to restart service !service_name! >>"%logfile%"
 ) else (
-    echo Service restart attempted. Please check the status.
-    echo [%date% %time%] Attempted to restart service !service_name! >>"%logfile%"
+    echo Service restarted.
+    echo [%date% %time%] Restarted service !service_name! >>"%logfile%"
 )
 pause
 goto manage_services
@@ -1279,23 +1735,23 @@ if "!startup_choice!"=="1" (
     goto manage_services
 )
 if %errorlevel% neq 0 (
-    echo Failed to change startup type. Please check the service name and your permissions.
+    echo Failed to change startup type.
     echo [%date% %time%] Failed to change startup type for !service_name! >>"%logfile%"
 ) else (
-    echo Startup type changed successfully.
+    echo Startup type changed.
     echo [%date% %time%] Changed startup type for !service_name! >>"%logfile%"
 )
 pause
 goto manage_services
 
 :search_service
-set /p search_term=Enter search term for service name: 
+set /p search_term=Enter search term for service: 
 sc query state= all | findstr /i "!search_term!"
 pause
 goto manage_services
 
 :view_service_details
-set /p service_name=Enter the name of the service to view details: 
+set /p service_name=Enter the name of the service: 
 sc qc "!service_name!"
 echo.
 echo Current Status:
@@ -1317,9 +1773,10 @@ echo 5. Disable IPv6 (caution)
 echo 6. Enable QoS packet scheduler
 echo 7. Set static DNS servers
 echo 8. Reset all network settings
-echo 9. Return to main menu
+echo 9. Configure Proxy/VPN
+echo 10. Return to main menu
 echo ==================================================
-set /p net_choice=Enter your choice (1-9): 
+set /p net_choice=Enter your choice (1-10): 
 
 if "!net_choice!"=="1" goto optimize_tcp
 if "!net_choice!"=="2" goto reset_winsock
@@ -1329,7 +1786,8 @@ if "!net_choice!"=="5" goto disable_ipv6
 if "!net_choice!"=="6" goto enable_qos
 if "!net_choice!"=="7" goto set_static_dns
 if "!net_choice!"=="8" goto reset_network
-if "!net_choice!"=="9" goto menu
+if "!net_choice!"=="9" goto configure_proxy_vpn
+if "!net_choice!"=="10" goto menu
 echo Invalid choice. Please try again.
 pause
 goto network_optimization
@@ -1343,8 +1801,6 @@ netsh int tcp set heuristics disabled
 netsh int tcp set global rss=enabled
 netsh int tcp set global fastopen=enabled
 netsh int tcp set global timestamps=disabled
-netsh int tcp set global initialRto=2000
-netsh int tcp set global nonsackrttresiliency=disabled
 echo TCP settings optimized.
 echo [%date% %time%] Optimized TCP settings >>"%logfile%"
 pause
@@ -1353,7 +1809,7 @@ goto network_optimization
 :reset_winsock
 echo Resetting Windows Sockets...
 netsh winsock reset
-echo Windows Sockets reset. Please restart your computer for changes to take effect.
+echo Windows Sockets reset. Restart required.
 set restart_required=1
 echo [%date% %time%] Reset Windows Sockets >>"%logfile%"
 pause
@@ -1372,8 +1828,6 @@ echo Optimizing network adapter settings...
 for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr /i "connected"') do (
     netsh int ip set interface "%%j" dadtransmits=0 store=persistent
     netsh int ip set interface "%%j" routerdiscovery=disabled store=persistent
-    netsh int tcp set security mpp=disabled
-    netsh int tcp set security profiles=disabled
 )
 echo Network adapter settings optimized.
 echo [%date% %time%] Optimized network adapter settings >>"%logfile%"
@@ -1382,13 +1836,13 @@ goto network_optimization
 
 :disable_ipv6
 cls
-echo WARNING: Disabling IPv6 may cause issues with some networks.
-set /p confirm=Are you sure you want to disable IPv6? (Y/N): 
+echo WARNING: Disabling IPv6 may cause network issues.
+set /p confirm=Are you sure? (Y/N): 
 if /i "!confirm!"=="Y" (
     netsh interface ipv6 set global randomizeidentifiers=disabled
     netsh interface ipv6 set privacy state=disabled
-    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d 255 /f
-    echo IPv6 disabled. Please restart your computer for changes to take effect.
+    call :modify_registry "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" "DisabledComponents" "REG_DWORD" "255"
+    echo IPv6 disabled. Restart required.
     set restart_required=1
     echo [%date% %time%] Disabled IPv6 >>"%logfile%"
 ) else (
@@ -1428,16 +1882,51 @@ netsh advfirewall reset
 ipconfig /release
 ipconfig /renew
 ipconfig /flushdns
-echo All network settings reset. Please restart your computer for changes to take effect.
+echo All network settings reset. Restart required.
 set restart_required=1
 echo [%date% %time%] Reset all network settings >>"%logfile%"
 pause
 goto network_optimization
 
+:configure_proxy_vpn
+echo Configure Proxy or VPN...
+set /p use_proxy=Use Proxy? (Y/N): 
+if /i "!use_proxy!"=="Y" (
+    set /p proxy_server=Enter proxy server (e.g., 192.168.1.1:8080): 
+    call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" "ProxyEnable" "REG_DWORD" "1"
+    call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" "ProxyServer" "REG_SZ" "!proxy_server!"
+    echo Proxy configured.
+    echo [%date% %time%] Configured proxy >>"%logfile%"
+) else (
+    call :modify_registry "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" "ProxyEnable" "REG_DWORD" "0"
+    echo Proxy disabled.
+    echo [%date% %time%] Disabled proxy >>"%logfile%"
+)
+pause
+goto network_optimization
+
 :option_22
 :endexit
+cls
+echo ==================================================
+echo Exit Options
+echo ==================================================
+echo 1. Exit without restart
+echo 2. Restart system
+echo 3. Shutdown system
+echo ==================================================
+set /p exit_choice=Enter your choice (1-3): 
+
+if "!exit_choice!"=="1" goto exit_no_restart
+if "!exit_choice!"=="2" goto restart_system
+if "!exit_choice!"=="3" goto shutdown_system
+echo Invalid choice. Returning to main menu.
+pause
+goto menu
+
+:exit_no_restart
 if !restart_required! equ 1 (
-    echo Some changes require a system restart to take effect.
+    echo Some changes require a restart to take effect.
     set /p restart=Restart now? (Y/N): 
     if /i "!restart!"=="Y" shutdown /r /t 0
 )
@@ -1446,43 +1935,50 @@ echo Log saved to: %logfile%
 pause
 exit
 
-:modify_registry
-reg add %1 /v %2 /t %3 /d %4 /f >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Failed to modify registry: %1\%2 with value %4
-    echo [%date% %time%] FAILED: reg add %1 /v %2 /t %3 /d %4 >>"%logfile%"
-    pause
-) else (
-    echo [%date% %time%] SUCCESS: reg add %1 /v %2 /t %3 /d %4 >>"%logfile%"
-)
-exit /b 0
+:restart_system
+echo Restarting system...
+shutdown /r /t 0
+
+:shutdown_system
+echo Shutting down system...
+shutdown /s /t 0
 
 :option_23
 :help
 cls
 echo === Help: Option Descriptions ===
-echo 1. Optimize display performance - Disables visual effects to improve speed.
-echo 2. Manage Windows Defender - Controls Defender settings and scans.
-echo 3. Optimize system features - Disables unnecessary features for performance.
-echo 4. Optimize CPU performance - Tweaks CPU settings for better performance.
-echo 5. Optimize Internet performance - Enhances network settings.
-echo 6. Manage Windows Update - Controls Windows Update service.
-echo 7. Configure Auto-login - Sets up automatic login (security risk).
-echo 8. Clear system cache - Removes temporary files.
-echo 9. Optimize disk - Analyzes, defrags, or trims disks.
-echo 10. Check and repair system files - Runs SFC and DISM.
-echo 11. Activate Windows - Manages Windows activation.
-echo 12. Manage power settings - Adjusts power plans and settings.
-echo 13. Enable Dark Mode - Switches to dark theme.
-echo 14. Manage partitions - Lists, creates, deletes, or formats partitions.
-echo 15. Clean up disk space - Runs disk cleanup utility.
-echo 16. Manage startup programs - Opens System Configuration.
-echo 17. Backup and restore settings - Creates or restores system restore points.
-echo 18. System information - Displays system details.
-echo 19. Optimize privacy settings - Adjusts telemetry and advertising settings.
-echo 20. Manage Windows services - Controls system services.
-echo 21. Network optimization - Tweaks network settings.
-echo 22. Exit - Closes the script.
-echo 23. Help - Displays this menu.
+echo 1. Optimize display performance - Customize visual effects for speed.
+echo 2. Manage Windows Defender - Control Defender with exclusion options.
+echo 3. Optimize system features - Select features to disable/enable.
+echo 4. Optimize CPU performance - Enhance CPU settings with scheduling.
+echo 5. Optimize Internet performance - Boost network with DNS options.
+echo 6. Manage Windows Update - Control updates with auto/manual modes.
+echo 7. Configure Auto-login - Enable/disable auto-login securely.
+echo 8. Clear system cache - Clear system and browser caches.
+echo 9. Optimize disk - Analyze, defrag, trim, and check disk health.
+echo 10. Check and repair system files - SFC, DISM, and Registry repair.
+echo 11. Activate Windows - Manage activation status.
+echo 12. Manage power settings - Customize power plans and timeouts.
+echo 13. Enable Dark Mode - Toggle Dark Mode.
+echo 14. Manage partitions - Create, delete, format, resize partitions.
+echo 15. Clean up disk space - Standard and temp file cleanup.
+echo 16. Manage startup programs - Enable/disable startup items.
+echo 17. Backup and restore settings - Restore points and Registry backup.
+echo 18. System information - View system and hardware details.
+echo 19. Optimize privacy settings - Disable telemetry and ads.
+echo 20. Manage Windows services - Control service states.
+echo 21. Network optimization - Enhance network with proxy/VPN options.
+echo 22. Exit - Exit with restart/shutdown options.
+echo 23. Help - Display this menu.
 pause
 goto menu
+
+:modify_registry
+reg add %1 /v %2 /t %3 /d %4 /f >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to modify registry: %1\%2 with value %4
+    echo [%date% %time%] FAILED: reg add %1 /v %2 /t %3 /d %4 >>"%logfile%"
+) else (
+    echo [%date% %time%] SUCCESS: reg add %1 /v %2 /t %3 /d %4 >>"%logfile%"
+)
+exit /b 0
