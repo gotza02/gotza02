@@ -11,7 +11,6 @@ echo Warning: This is an advanced optimization tool. Backup your data before pro
 echo Press any key to start or CTRL+C to exit...
 pause >nul
 
-:: ตั้งค่าตัวแปรสภาพแวดล้อม
 setlocal EnableDelayedExpansion
 set "VERSION=3.0"
 set "LOGFILE=%USERPROFILE%\Desktop\Optimization_Log_v%VERSION%.txt"
@@ -22,7 +21,6 @@ if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%"
 echo Optimization Log v%VERSION% > "%LOGFILE%"
 echo Start Time: %date% %time% >> "%LOGFILE%"
 
-:: ตรวจสอบสิทธิ์ Administrator
 net session >nul 2>&1
 if %errorlevel% neq 0 (
     echo Error: Administrator privileges required!
@@ -32,7 +30,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: ส่วนที่ 1: ตรวจสอบและบันทึกข้อมูลระบบ
 echo [1/25] Analyzing System Configuration...
 echo Analyzing System... >> "%LOGFILE%"
 systeminfo > "%BACKUP_DIR%\SystemInfo.txt" 2>nul
@@ -50,7 +47,6 @@ echo RAM: !RAM_GB! GB >> "%LOGFILE%"
 echo CPU: !CPU_TYPE! with !CPU_CORES! cores >> "%LOGFILE%"
 echo GPU: !GPU_TYPE! >> "%LOGFILE%"
 
-:: ส่วนที่ 2: สร้าง System Restore Point
 echo [2/25] Creating System Restore Point...
 wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "Pre-Optimization v%VERSION%", 100, 7 >nul 2>&1
 if %errorlevel% neq 0 (
@@ -60,7 +56,6 @@ if %errorlevel% neq 0 (
     echo Restore Point Created >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 3: สำรองข้อมูลระบบ
 echo [3/25] Backing Up System Settings...
 reg export HKLM\Software "%BACKUP_DIR%\RegBackup_System.reg" /y >nul 2>&1 || echo Error: System Registry Backup Failed >> "%ERROR_LOG%"
 reg export HKCU\Software "%BACKUP_DIR%\RegBackup_User.reg" /y >nul 2>&1 || echo Error: User Registry Backup Failed >> "%ERROR_LOG%"
@@ -68,7 +63,6 @@ if not exist "%BACKUP_DIR%\ConfigBackup" mkdir "%BACKUP_DIR%\ConfigBackup"
 xcopy "C:\Windows\System32\config\*.bak" "%BACKUP_DIR%\ConfigBackup\" /E /H /C /I /Y >nul 2>&1
 echo Backups Saved to %BACKUP_DIR% >> "%LOGFILE%"
 
-:: ส่วนที่ 4: เมนูตัวเลือกสำหรับผู้ใช้
 echo [4/25] Configuring Optimization Profile...
 :PROFILE_SELECTION
 echo Available Profiles:
@@ -88,7 +82,6 @@ if "!PROFILE!"=="1" (set "MODE=GENERAL") else if "!PROFILE!"=="2" (set "MODE=GAM
 )
 echo Profile: !MODE! >> "%LOGFILE%"
 
-:: Advanced Mode Options
 if "!MODE!"=="ADVANCED" (
     echo Advanced Options:
     set "DEFENDER=n"
@@ -101,7 +94,6 @@ if "!MODE!"=="ADVANCED" (
     set /p MULTI_MONITOR="4. Optimize for Multi-Monitor (y/n, default n): "
 )
 
-:: บันทึกการตั้งค่าเป็น Config File
 echo [Config] > "%CONFIG_FILE%"
 echo Profile=!MODE! >> "%CONFIG_FILE%"
 echo Defender=!DEFENDER! >> "%CONFIG_FILE%"
@@ -109,7 +101,6 @@ echo Update=!UPDATE! >> "%CONFIG_FILE%"
 echo Remote=!REMOTE! >> "%CONFIG_FILE%"
 echo MultiMonitor=!MULTI_MONITOR! >> "%CONFIG_FILE%"
 
-:: ส่วนที่ 5: ปรับแต่งโหมดพลังงาน
 echo [5/25] Optimizing Power Settings...
 powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c >nul 2>&1
 powercfg /duplicatescheme 381b4222-f694-41f0-9685-ff5bb260df2e >nul 2>&1
@@ -129,7 +120,6 @@ if defined CPU_CORES if !CPU_CORES! gtr 4 (
 )
 echo Power Plan Optimized for !MODE! >> "%LOGFILE%"
 
-:: ส่วนที่ 6: ปิดแอปพลิเคชันที่ไม่จำเป็น
 echo [6/25] Terminating Unnecessary Applications...
 set "APP_LIST=msedge.exe chrome.exe firefox.exe steam.exe discord.exe"
 if "!MODE!"=="LOW_RESOURCE" set "APP_LIST=!APP_LIST! explorer.exe"
@@ -137,7 +127,6 @@ for %%i in (!APP_LIST!) do (
     taskkill /f /im "%%i" >nul 2>&1 && echo Closed %%i >> "%LOGFILE%" || echo Failed to close %%i >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 7: ปรับแต่งบริการ
 echo [7/25] Optimizing Services...
 set "SERVICES=DiagTrack WSearch Spooler Fax wscsvc"
 if "!MODE!"=="LOW_RESOURCE" set "SERVICES=!SERVICES! SysMain"
@@ -152,7 +141,6 @@ if /i "!UPDATE!"=="y" (
     sc stop "wuauserv" >nul 2>&1 && sc config "wuauserv" start=disabled >nul 2>&1 && echo Disabled Windows Update >> "%LOGFILE%" || echo Failed to disable Windows Update >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 8: ล้างไฟล์ขยะและปรับแต่งดิสก์
 echo [8/25] Cleaning and Optimizing Disk...
 del /q /s /f "%TEMP%\*" >nul 2>&1
 del /q /s /f "C:\Windows\Temp\*" >nul 2>&1
@@ -166,7 +154,6 @@ if "!DISK_TYPE!"=="SSD/NVMe" (
 )
 chkdsk C: /f /r >nul 2>&1 || echo Error: Disk Check Failed >> "%ERROR_LOG%"
 
-:: ส่วนที่ 9: ปรับแต่งเครือข่าย
 echo [9/25] Optimizing Network...
 netsh int tcp set global autotuninglevel=normal rss=enabled ecncapability=enabled chimney=enabled dca=enabled >nul 2>&1
 ipconfig /flushdns >nul 2>&1
@@ -182,7 +169,6 @@ if "!MODE!"=="CLOUD" (
     echo Cloud-Optimized DNS (Google) >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 10: ซ่อมแซมระบบ
 echo [10/25] Repairing System...
 sfc /scannow >nul 2>&1
 if %errorlevel% neq 0 (
@@ -190,14 +176,12 @@ if %errorlevel% neq 0 (
 )
 echo System Repair Completed >> "%LOGFILE%"
 
-:: ส่วนที่ 11: ปรับแต่งความปลอดภัย
 echo [11/25] Optimizing Security...
 if /i "!DEFENDER!"=="y" (
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f >nul 2>&1 && echo Windows Defender Disabled >> "%LOGFILE%" || echo Failed to disable Defender >> "%LOGFILE%"
 )
 netsh advfirewall set allprofiles state off >nul 2>&1 && echo Firewall Disabled >> "%LOGFILE%" || echo Failed to disable Firewall >> "%LOGFILE%"
 
-:: ส่วนที่ 12: ปรับแต่งการแสดงผล
 echo [12/25] Optimizing Display...
 reg add "HKCU\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9012038010000000 /f >nul 2>&1
 if "!MODE!"=="GAMING" || "!MODE!"=="VR" (
@@ -210,7 +194,6 @@ if /i "!MULTI_MONITOR!"=="y" (
     echo Multi-Monitor Support Enabled >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 13: ปรับแต่งหน่วยความจำ
 echo [13/25] Optimizing Memory...
 if !RAM_GB! lss 8 (
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 0 /f >nul 2>&1
@@ -222,7 +205,6 @@ if !RAM_GB! lss 8 (
     echo High RAM Mode (!RAM_GB! GB) >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 14: ปรับแต่ง CPU
 echo [14/25] Optimizing CPU...
 if defined CPU_CORES if !CPU_CORES! gtr 4 (
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v CsEnabled /t REG_DWORD /d 0 /f >nul 2>&1
@@ -230,7 +212,6 @@ if defined CPU_CORES if !CPU_CORES! gtr 4 (
     echo Multi-core Optimization (!CPU_CORES! cores) >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 15: ปรับแต่ง GPU
 echo [15/25] Optimizing GPU...
 if "!GPU_TYPE!"=="NVIDIA" (
     nvidia-smi -pm 1 >nul 2>&1 && nvidia-smi -ac 5000,1500 >nul 2>&1 && echo NVIDIA GPU Optimized >> "%LOGFILE%" || echo NVIDIA GPU optimization failed >> "%LOGFILE%"
@@ -243,14 +224,12 @@ if "!MODE!"=="VR" (
     echo VR Responsiveness Optimized >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 16: ปิด Telemetry
 echo [16/25] Disabling Telemetry...
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f >nul 2>&1
 schtasks /change /tn "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /disable >nul 2>&1
 schtasks /change /tn "Microsoft\Windows\Application Experience\Microsoft Compatibility Telemetry" /disable >nul 2>&1
 echo Telemetry Fully Disabled >> "%LOGFILE%"
 
-:: ส่วนที่ 17: ปรับแต่ง Remote Desktop
 echo [17/25] Configuring Remote Desktop...
 if /i "!REMOTE!"=="y" (
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f >nul 2>&1
@@ -258,7 +237,6 @@ if /i "!REMOTE!"=="y" (
     echo Remote Desktop Enabled >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 18: ปรับแต่งสำหรับ Cloud Sync
 echo [18/25] Optimizing Cloud Sync...
 if "!MODE!"=="CLOUD" (
     reg add "HKCU\Software\Microsoft\OneDrive" /v EnableADAL /t REG_DWORD /d 1 /f >nul 2>&1
@@ -266,7 +244,6 @@ if "!MODE!"=="CLOUD" (
     echo OneDrive Optimized for Cloud >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 19: ปรับแต่งสำหรับเครื่องเก่า
 echo [19/25] Optimizing for Older Hardware...
 if "!MODE!"=="LOW_RESOURCE" (
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 3 /f >nul 2>&1
@@ -274,7 +251,6 @@ if "!MODE!"=="LOW_RESOURCE" (
     echo Low Resource Optimizations Applied >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 20: ปรับแต่งการบูต
 echo [20/25] Optimizing Boot...
 bcdedit /set disabledynamictick yes >nul 2>&1
 bcdedit /set quietboot yes >nul 2>&1
@@ -284,12 +260,10 @@ if "!MODE!"=="GAMING" || "!MODE!"=="VR" (
 )
 echo Boot Optimized >> "%LOGFILE%"
 
-:: ส่วนที่ 21: ปรับแต่งการแจ้งเตือน
 echo [21/25] Disabling Notifications...
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\PushNotifications" /v ToastEnabled /t REG_DWORD /d 0 /f >nul 2>&1
 echo Notifications Disabled >> "%LOGFILE%"
 
-:: ส่วนที่ 22: ปรับแต่งเสียง
 echo [22/25] Optimizing Audio...
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render" /v DisableHWAcceleration /t REG_DWORD /d 1 /f >nul 2>&1
 if "!MODE!"=="VR" (
@@ -297,13 +271,11 @@ if "!MODE!"=="VR" (
     echo Low Latency Audio for VR >> "%LOGFILE%"
 )
 
-:: ส่วนที่ 23: บันทึกสถานะหลังปรับแต่ง
 echo [23/25] Logging Post-Optimization State...
 systeminfo > "%BACKUP_DIR%\SystemInfo_Post.txt" 2>nul
 tasklist /fo csv | sort /r /+3 > "%BACKUP_DIR%\TaskList_Post.csv" 2>nul
 echo Post-Optimization Logs Saved >> "%LOGFILE%"
 
-:: ส่วนที่ 24: คำแนะนำและการตรวจสอบ
 echo [24/25] Final Recommendations...
 echo Recommendations: >> "%LOGFILE%"
 if "!DISK_TYPE!"=="HDD" echo - Consider upgrading to SSD/NVMe for better performance >> "%LOGFILE%"
@@ -312,7 +284,6 @@ if "!GPU_TYPE!"=="Unknown" echo - Update GPU drivers manually >> "%LOGFILE%"
 echo - Enable God Mode: Create folder "GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}" >> "%LOGFILE%"
 echo - Check %BACKUP_DIR%\TaskList_Post.csv for resource usage >> "%LOGFILE%"
 
-:: ส่วนที่ 25: เสร็จสิ้นและตัวเลือกกู้คืน
 echo [25/25] Completing Optimization...
 set "RESTORE=n"
 echo Create a post-optimization restore point? (y/n, default n)
