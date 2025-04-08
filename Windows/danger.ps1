@@ -85,7 +85,7 @@ Function Update-OverallProgress {
 }
 
 # --- Define Path for Startup Cleanup Script ---
-$StartupCleanupScriptPath = "C:\Windows\Temp\CleanupOnStartup.ps1"
+$StartupCleanupScriptPath = "C:\Windows\Temp\CleanupOnStartup.ps1" # Using Temp folder for simplicity
 
 # --- Section 0: Attempt Tamper Protection Disable ---
 $CurrentPhase = 0
