@@ -12,7 +12,7 @@
 
 .NOTES
     Author: AI Assistant (Based on User Specification)
-    Version: 1.0 (Final based on user request)
+    Version: 1.2 (Further Syntax Corrections)
     Requires: Administrator privileges, Internet connection. Edit `$EssentialSoftware` before running.
     Disclaimer: USER ASSUMES ALL RISKS. NO UNDO. WSearch disable breaks search functionality. RUN AS ADMINISTRATOR.
 #>
@@ -222,17 +222,20 @@ foreach ($serviceName in $ServicesToDisable) {
                 Write-Host "  Disabling $serviceName..." -ForegroundColor DarkGray
                 Set-Service -Name $serviceName -StartupType Disabled -ErrorAction Stop
             }
-            Write-Host "- $serviceName: Stopped and Disabled." -ForegroundColor Gray
+            # Use ${} for variable
+            Write-Host "- ${serviceName}: Stopped and Disabled." -ForegroundColor Gray
             $DisabledCount++
         } else {
              Write-Host "- Service not found: $serviceName (Skipping)" -ForegroundColor DarkGray
         }
     } catch {
-        Write-Warning "- FAILED to Stop/Disable $serviceName: $($_.Exception.Message)"
+        # Use ${} for variable
+        Write-Warning "- FAILED to Stop/Disable ${serviceName}: $($_.Exception.Message)"
         $FailedCount++
     }
 }
-Write-Host "- Service Disabling Complete. Disabled: $DisabledCount, Failed: $FailedCount." -ForegroundColor ($FailedCount -eq 0 ? 'Green' : 'Yellow')
+# Replace ternary operator with embedded if
+Write-Host "- Service Disabling Complete. Disabled: $DisabledCount, Failed: $FailedCount." -ForegroundColor $(if ($FailedCount -eq 0) { 'Green' } else { 'Yellow' })
 if ($ServicesToDisable -contains "WSearch") {
     Write-Warning "- CRITICAL WARNING: 'WSearch' service disabled. Windows Search (Taskbar, Explorer) will NOT function."
 }
@@ -252,11 +255,6 @@ try {
     netsh int tcp set global autotuninglevel=disabled | Out-Null
     netsh int tcp set global rss=enabled | Out-Null
     netsh int tcp set global ecncapability=enabled | Out-Null
-    # Additional potentially beneficial tweaks (Use with caution, may not benefit all connections)
-    # netsh int tcp set global chimney=enabled # Offload stateful TCP connections (If NIC supports)
-    # netsh int tcp set global netdma=enabled # If NIC supports Direct Memory Access
-    # netsh int tcp set global dca=enabled # Direct Cache Access (If CPU/Chipset/NIC support)
-    # netsh int tcp set global congestionprovider=ctcp # Compound TCP (Good for high BDP networks)
     Write-Host "- SUCCESS: Network tweaks applied." -ForegroundColor Green
 } catch {
     Write-Warning "- ERROR applying Network Tweaks: $($_.Exception.Message)"
@@ -272,16 +270,14 @@ try {
     $ramBytes = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
     $ramMB = [Math]::Round($ramBytes / 1MB)
     $pagefileSizeMB_Raw = $ramMB * 1.5
-    # Cap the pagefile size at 32768 MB (32 GB) or a lower sensible max if desired
     $pagefileMaxSizeMB = 32768
     $pagefileInitialMB = [int][Math]::Min($pagefileSizeMB_Raw, $pagefileMaxSizeMB)
-    $pagefileMaximumMB = $pagefileInitialMB # Set Initial and Max to the same value for fixed size
+    $pagefileMaximumMB = $pagefileInitialMB
 
     Write-Host "- Total RAM: $ramMB MB. Calculated Pagefile Size: $pagefileInitialMB MB." -ForegroundColor Gray
     Write-Host "- Disabling automatic pagefile management..." -ForegroundColor Gray
     Set-CimInstance -Query "SELECT * FROM Win32_ComputerSystem WHERE Name='$env:COMPUTERNAME'" -Property @{AutomaticManagedPagefile = $false} -ErrorAction Stop
 
-    # Remove existing pagefiles on other drives (optional, but good practice for single pagefile setup)
     $existingPagefiles = Get-CimInstance -ClassName Win32_PageFileSetting
     foreach ($pf in $existingPagefiles) {
         if ($pf.Name -notmatch '^C:') {
@@ -290,7 +286,6 @@ try {
         }
     }
 
-    # Set the new pagefile on C:
     $pagefileName = 'C:\pagefile.sys'
     $pfC = Get-CimInstance -ClassName Win32_PageFileSetting | Where-Object {$_.Name -eq $pagefileName}
     if ($pfC) {
@@ -311,28 +306,23 @@ $CurrentPhase = 5
 Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 6/15: Applying System/Registry Performance Tweaks..." -PhaseNumber $CurrentPhase
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Applying System & Registry Tweaks..." -ForegroundColor Cyan
 try {
-    # Disable problematic Scheduled Tasks
     Write-Host "- Disabling specific non-essential Scheduled Tasks..." -ForegroundColor Gray
     $TasksToDisable = @(
         '\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser',
         '\Microsoft\Windows\Application Experience\ProgramDataUpdater',
         '\Microsoft\Windows\Customer Experience Improvement Program\Consolidator',
         '\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip',
-        # Defender tasks might be re-enabled by Defender itself if it's not fully disabled
         '\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance',
         '\Microsoft\Windows\Windows Defender\Windows Defender Cleanup',
         '\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan',
         '\Microsoft\Windows\Windows Defender\Windows Defender Verification',
-        # Update related tasks (Disabling may prevent automatic checks/installs besides WU phase)
         '\Microsoft\Windows\UpdateOrchestrator\Schedule Scan',
         '\Microsoft\Windows\UpdateOrchestrator\Schedule Wake To Run',
         '\Microsoft\Windows\UpdateOrchestrator\USO_UxBroker',
-        # Maintenance and Diagnostics
         '\Microsoft\Windows\Diagnosis\Scheduled',
         '\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector',
         '\Microsoft\Windows\Maintenance\WinSAT',
         '\Microsoft\Windows\WaaSMedic\PerformRemediation'
-        # Add more task paths here if needed
     )
     $DisabledTaskCount = 0
     $FailedTaskCount = 0
@@ -344,25 +334,19 @@ try {
             Write-Host "- Disabled Task: $taskPath" -ForegroundColor Gray
             $DisabledTaskCount++
         } catch {
-             # Silently ignore if task doesn't exist or error disabling
-             # Write-Warning "- Could not disable task $taskPath : $($_.Exception.Message)"
              $FailedTaskCount++
         }
     }
      Write-Host "- Task Disabling: Disabled $DisabledTaskCount, Failed/Not Found $FailedTaskCount." -ForegroundColor Gray
 
-    # Apply Registry Tweaks
     Write-Host "- Applying Registry tweaks (NTFS Performance, UI Responsiveness)..." -ForegroundColor Gray
-    # File System Tweaks
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsDisableLastAccessUpdate" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsMemoryUsage" -Value 2 -Type DWord -Force -ErrorAction SilentlyContinue # More memory for FS cache
-    # UI Responsiveness Tweaks
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Value "20" -Type String -Force -ErrorAction SilentlyContinue # Faster menu pop-up
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverTime" -Value "20" -Type String -Force -ErrorAction SilentlyContinue # Faster hover pop-up
-    # Shutdown/Timeout Tweaks
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillAppTimeout" -Value "2000" -Type String -Force -ErrorAction SilentlyContinue # Faster app close on shutdown
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "HungAppTimeout" -Value "2000" -Type String -Force -ErrorAction SilentlyContinue # Faster detection of hung apps
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "WaitToKillServiceTimeout" -Value "2000" -Type String -Force -ErrorAction SilentlyContinue # Faster service close on shutdown
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsMemoryUsage" -Value 2 -Type DWord -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Value "20" -Type String -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverTime" -Value "20" -Type String -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillAppTimeout" -Value "2000" -Type String -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "HungAppTimeout" -Value "2000" -Type String -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "WaitToKillServiceTimeout" -Value "2000" -Type String -Force -ErrorAction SilentlyContinue
 
     Write-Host "- SUCCESS: System and Registry tweaks applied." -ForegroundColor Green
 } catch {
@@ -376,21 +360,13 @@ Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 7/15: En
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Enabling Desktop Icons (This PC, Network, Recycle Bin)..." -ForegroundColor Cyan
 try {
     Write-Host "- Setting Registry values to show Desktop Icons..." -ForegroundColor Gray
-    # Delegate folder method (Modern way)
     $delegateFoldersKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
-    # Ensure the key exists
     if (-not (Test-Path $delegateFoldersKey)) { New-Item -Path $delegateFoldersKey -Force | Out-Null }
-    # Set values to 0 to show icons (1 hides them)
-    Set-ItemProperty -Path $delegateFoldersKey -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue # This PC
-    Set-ItemProperty -Path $delegateFoldersKey -Name "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue # Network
-    Set-ItemProperty -Path $delegateFoldersKey -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue # Recycle Bin
+    Set-ItemProperty -Path $delegateFoldersKey -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path $delegateFoldersKey -Name "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path $delegateFoldersKey -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
 
-    # Old method (Just in case, though HideDesktopIcons is preferred)
-    # Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
-
-    # Force refresh explorer (might not always work reliably without logout/restart)
     Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
-    # Start-Process explorer # Explorer usually restarts automatically
 
     Write-Host "- SUCCESS: Desktop icon settings applied. Icons may appear after Explorer restarts or system restart." -ForegroundColor Green
 } catch {
@@ -403,69 +379,40 @@ $CurrentPhase = 7
 Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 8/15: Creating Auto Cache/Temp Cleanup Task for Startup..." -PhaseNumber $CurrentPhase
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Creating Startup Cleanup Task (AutoCacheCleanup)..." -ForegroundColor Magenta
 
-# Define the content of the cleanup script
 $cleanupScriptContent = @'
 # Simple Startup Cleanup Script - Executed as SYSTEM
 Write-Host "Starting automatic cleanup..."
-
-# Paths to clear (SYSTEM context)
 $SystemTemp = $env:windir + '\Temp\*'
 $SoftwareDistributionDownload = $env:windir + '\SoftwareDistribution\Download\*'
-$WindowsOld = 'C:\Windows.old\*' # If exists from upgrades
-
-# User Profile Temp Paths (Requires iterating through user profiles)
+$WindowsOld = 'C:\Windows.old\*'
 $UserProfilesPath = 'C:\Users'
 $UserProfileFolders = Get-ChildItem -Path $UserProfilesPath -Directory | Where-Object { $_.Name -ne 'Public' -and $_.Name -ne 'Default' -and (Test-Path "$($_.FullName)\AppData\Local\Temp") }
-
-# Browser Cache Paths (Common locations - Default profiles mainly)
-# Note: This might not catch all profiles or less common browsers.
 $BrowserCachePatterns = @(
-    '\AppData\Local\Temp\*', # User Temp
+    '\AppData\Local\Temp\*',
     '\AppData\Local\Microsoft\Edge\User Data\Default\Cache\*',
     '\AppData\Local\Google\Chrome\User Data\Default\Cache\*',
-    '\AppData\Roaming\Mozilla\Firefox\Profiles\*\cache2\*', # Firefox new cache path
-    '\AppData\Roaming\Mozilla\Firefox\Profiles\*\cache\*', # Firefox old cache path
+    '\AppData\Roaming\Mozilla\Firefox\Profiles\*\cache2\*',
+    '\AppData\Roaming\Mozilla\Firefox\Profiles\*\cache\*',
     '\AppData\Local\BraveSoftware\Brave-Browser\User Data\Default\Cache\*'
 )
-
-# Function to remove items quietly
-Function Remove-ItemQuietly {
-    param([string]$Path)
-    Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-    #Write-Host "Cleaned: $Path" # Uncomment for debugging the cleanup script itself
-}
-
-# Clean system paths
+Function Remove-ItemQuietly { param([string]$Path) Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue }
 Write-Host "- Cleaning System Temp..."
 Remove-ItemQuietly -Path $SystemTemp
 Write-Host "- Cleaning Software Distribution Downloads..."
 Remove-ItemQuietly -Path $SoftwareDistributionDownload
-if (Test-Path 'C:\Windows.old') {
-    Write-Host "- Cleaning Windows.old..."
-    Remove-ItemQuietly -Path $WindowsOld
-}
-
-# Clean user profile paths
+if (Test-Path 'C:\Windows.old') { Write-Host "- Cleaning Windows.old..."; Remove-ItemQuietly -Path $WindowsOld }
 Write-Host "- Cleaning User Profile Temp & Browser Caches..."
 foreach ($UserProfile in $UserProfileFolders) {
     Write-Host "  - Processing profile: $($UserProfile.FullName)"
-    foreach ($Pattern in $BrowserCachePatterns) {
-        $FullPathPattern = $UserProfile.FullName + $Pattern
-        Remove-ItemQuietly -Path $FullPathPattern
-    }
+    foreach ($Pattern in $BrowserCachePatterns) { $FullPathPattern = $UserProfile.FullName + $Pattern; Remove-ItemQuietly -Path $FullPathPattern }
 }
-
 Write-Host "Automatic cleanup finished."
-# Add a small delay if needed before script exits, though usually not required for startup tasks
-# Start-Sleep -Seconds 5
 '@
 
 try {
     Write-Host "- Saving cleanup script to: $CleanupScriptPath" -ForegroundColor Gray
-    # Ensure the directory exists
     $CleanupScriptDir = Split-Path $CleanupScriptPath -Parent
     if (-not (Test-Path $CleanupScriptDir)) { New-Item -Path $CleanupScriptDir -ItemType Directory -Force | Out-Null }
-    # Save the script content
     Set-Content -Path $CleanupScriptPath -Value $cleanupScriptContent -Encoding UTF8 -Force -ErrorAction Stop
 
     Write-Host "- Registering Scheduled Task 'AutoCacheCleanup' to run at Startup as SYSTEM..." -ForegroundColor Gray
@@ -477,7 +424,6 @@ try {
     Write-Host "- SUCCESS: Startup cleanup task 'AutoCacheCleanup' created." -ForegroundColor Green
 } catch {
     Write-Warning "- ERROR creating Startup Cleanup Task: $($_.Exception.Message)"
-    # Attempt to clean up the script file if task creation failed
     if (Test-Path $CleanupScriptPath) { Remove-Item $CleanupScriptPath -Force -ErrorAction SilentlyContinue }
 }
 Start-Sleep -Seconds 1
@@ -488,14 +434,10 @@ Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 9/15: Se
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Setting Aggressive RAM Clearing Task (Experimental)..." -ForegroundColor Yellow
 try {
     Write-Host "- Creating Scheduled Task 'AggressiveRAMIdleTask' to run ProcessIdleTasks every 30 mins..." -ForegroundColor Gray
-    # Action to run the undocumented ProcessIdleTasks function
     $ramAction = New-ScheduledTaskAction -Execute "rundll32.exe" -Argument "advapi32.dll,ProcessIdleTasks"
-    # Trigger to run every 30 minutes, starting now
     $ramTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 30) -RepetitionDuration ([TimeSpan]::MaxValue)
-    # Principal: Run as SYSTEM
     $ramPrincipal = New-ScheduledTaskPrincipal -UserId "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-    # Settings: Allow running on battery, don't stop on battery, run ASAP if missed
-    $ramSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 5) # Limit execution time just in case
+    $ramSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
     Register-ScheduledTask -TaskName "AggressiveRAMIdleTask" -Action $ramAction -Trigger $ramTrigger -Principal $ramPrincipal -Settings $ramSettings -Force -ErrorAction Stop
     Write-Host "- SUCCESS: Experimental RAM clearing task created. Effect varies." -ForegroundColor Green
 } catch {
@@ -510,13 +452,11 @@ Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Attempting Windows Defender Dis
 if ($TP_Disable_Success) {
     Write-Host "- Tamper Protection was likely disabled via Registry. Proceeding with Defender disable steps..." -ForegroundColor Yellow
     try {
-        # Set Policy Key to Disable Defender (Primary method if TP is off)
         Write-Host "- Setting Registry Policy 'DisableAntiSpyware' to 1..." -ForegroundColor Gray
         $DefenderPolicyKey = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
         if (-not (Test-Path $DefenderPolicyKey)) { New-Item -Path $DefenderPolicyKey -Force | Out-Null }
         Set-ItemProperty -Path $DefenderPolicyKey -Name "DisableAntiSpyware" -Value 1 -Type DWord -Force -ErrorAction Stop
 
-        # Disable Real-time Protection components via Registry (Secondary, may be overridden by policy/TP)
         Write-Host "- Setting additional Defender registry keys (Real-Time Protection, etc.)..." -ForegroundColor Gray
         $RealTimeProtectKey = "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection"
         if (-not (Test-Path $RealTimeProtectKey)) { New-Item -Path $RealTimeProtectKey -Force | Out-Null }
@@ -524,14 +464,7 @@ if ($TP_Disable_Success) {
         Set-ItemProperty -Path $RealTimeProtectKey -Name "DisableOnAccessProtection" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path $RealTimeProtectKey -Name "DisableScanOnRealtimeEnable" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
 
-        # Attempt to Stop and Disable Defender Services
-        $DefenderServices = @(
-            "WinDefend",         # Microsoft Defender Antivirus Service
-            "Sense",             # Windows Defender Advanced Threat Protection Service
-            "WdNisSvc",          # Microsoft Defender Antivirus Network Inspection Service
-            "WdNisDrv",          # Microsoft Defender Antivirus Network Inspection Driver (?) - Might be driver, not service
-            "SecurityHealthService" # Windows Security Service
-        )
+        $DefenderServices = @( "WinDefend", "Sense", "WdNisSvc", "WdNisDrv", "SecurityHealthService" )
         Write-Host "- Attempting to Stop and Disable Defender-related services:" -ForegroundColor Gray
         Write-Host "  $($DefenderServices -join ', ')" -ForegroundColor Gray
         $DefenderSvcDisabledCount = 0
@@ -541,19 +474,20 @@ if ($TP_Disable_Success) {
                 $svc = Get-Service -Name $svcName -ErrorAction SilentlyContinue
                 if ($svc) {
                      Write-Host "- Processing Service: $svcName..." -ForegroundColor DarkGray
-                     if ($svc.Status -eq 'Running') { Stop-Service -Name $svcName -Force -ErrorAction SilentlyContinue | Out-Null } # Use SilentlyContinue as stopping might be blocked
+                     if ($svc.Status -eq 'Running') { Stop-Service -Name $svcName -Force -ErrorAction SilentlyContinue | Out-Null }
                      Set-Service -Name $svcName -StartupType Disabled -ErrorAction Stop
-                     Write-Host "- $svcName: Set to Disabled (Stop attempt made)." -ForegroundColor Gray
+                     # Use ${} for variable
+                     Write-Host "- ${svcName}: Set to Disabled (Stop attempt made)." -ForegroundColor Gray
                      $DefenderSvcDisabledCount++
-                } else {
-                    #Write-Host "- Service not found: $svcName (Skipping)" -ForegroundColor DarkGray
                 }
             } catch {
-                Write-Warning "- FAILED to disable service $svcName: $($_.Exception.Message) (Likely blocked by TP/System)"
+                # Use ${} for variable
+                Write-Warning "- FAILED to disable service ${svcName}: $($_.Exception.Message) (Likely blocked by TP/System)"
                 $DefenderSvcFailedCount++
             }
         }
-         Write-Host "- Defender Service Disabling: Set Disabled $DefenderSvcDisabledCount, Failed $DefenderSvcFailedCount." -ForegroundColor ($DefenderSvcFailedCount -eq 0 ? 'Green' : 'Yellow')
+         # Replace ternary operator with embedded if
+         Write-Host "- Defender Service Disabling: Set Disabled $DefenderSvcDisabledCount, Failed $DefenderSvcFailedCount." -ForegroundColor $(if ($DefenderSvcFailedCount -eq 0) { 'Green' } else { 'Yellow' })
         Write-Host "- SUCCESS (Potentially): Defender disable attempted via Registry and Services. FULL DISABLE NOT GUARANTEED. Requires Restart." -ForegroundColor Green
     } catch {
         Write-Warning "- ERROR attempting Defender Disable steps: $($_.Exception.Message)"
@@ -569,15 +503,12 @@ $CurrentPhase = 10
 Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 11/15: Installing Software via Winget..." -PhaseNumber $CurrentPhase
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Auto-Installing Software using Winget..." -ForegroundColor Cyan
 # --- !!! IMPORTANT: EDIT THIS LIST BEFORE RUNNING THE SCRIPT !!! ---
-# Add the Winget package IDs for the software you want to install.
-# Find IDs using 'winget search <AppName>' in Command Prompt or PowerShell.
 $EssentialSoftware = @(
     "Mozilla.Firefox",
     "Google.Chrome",
     "7zip.7zip",
     "VideoLAN.VLC",
     "Notepad++.Notepad++"
-    # Add more Winget IDs here, e.g., "Microsoft.PowerToys", "Microsoft.VisualStudioCode"
 )
 # --- !!! END OF EDITABLE LIST !!! ---
 
@@ -594,9 +525,7 @@ if ($EssentialSoftware.Count -eq 0) {
     foreach ($appId in $EssentialSoftware) {
         Write-Host "- Installing: $appId ..." -ForegroundColor Cyan
         try {
-            # Using -e for exact match, --silent for automation, --accept for agreements, --force to bypass potential issues
             winget install --id $appId -e --silent --accept-source-agreements --accept-package-agreements --force --disable-interactivity
-            # Check the exit code for success
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "- SUCCESS: Installed $appId" -ForegroundColor Green
                 $InstalledCount++
@@ -605,12 +534,14 @@ if ($EssentialSoftware.Count -eq 0) {
                  $FailedCount++
             }
         } catch {
-            Write-Warning "- ERROR during Winget install for $appId: $($_.Exception.Message)"
+            # --- FIX 8 (THE LATEST): Use ${} for variable ---
+            Write-Warning "- ERROR during Winget install for ${appId}: $($_.Exception.Message)"
             $FailedCount++
         }
-        Start-Sleep -Seconds 1 # Small delay between installs
+        Start-Sleep -Seconds 1
     }
-    Write-Host "- Software Installation Complete. Installed: $InstalledCount, Failed: $FailedCount." -ForegroundColor ($FailedCount -eq 0 ? 'Green' : 'Yellow')
+    # Replace ternary operator with embedded if
+    Write-Host "- Software Installation Complete. Installed: $InstalledCount, Failed: $FailedCount." -ForegroundColor $(if ($FailedCount -eq 0) { 'Green' } else { 'Yellow' })
 }
 Start-Sleep -Seconds 1
 
@@ -624,38 +555,24 @@ try {
     if ($gpus) {
         foreach ($gpu in $gpus){
             Write-Host "  - Found GPU: $($gpu.Name) (Driver: $($gpu.DriverVersion))"
-            if ($gpu.AdapterCompatibility -like "*NVIDIA*") {
-                Write-Warning "  -> NVIDIA GPU detected. Recommend checking NVIDIA.com/GeForce.com for the latest drivers after restart."
-            } elseif ($gpu.AdapterCompatibility -like "*AMD*" -or $gpu.AdapterCompatibility -like "*ATI*") {
-                Write-Warning "  -> AMD/ATI GPU detected. Recommend checking AMD.com for the latest Adrenalin drivers after restart."
-            } elseif ($gpu.AdapterCompatibility -like "*Intel*") {
-                 Write-Host "  -> Intel Integrated Graphics detected. Drivers usually updated via Windows Update or Intel Driver & Support Assistant." -ForegroundColor Gray
-            } else {
-                Write-Host "  -> Unknown GPU Manufacturer ($($gpu.AdapterCompatibility)). Check PC/Laptop manufacturer's site." -ForegroundColor Gray
-            }
+            if ($gpu.AdapterCompatibility -like "*NVIDIA*") { Write-Warning "  -> NVIDIA GPU detected. Recommend checking NVIDIA.com/GeForce.com for the latest drivers after restart." }
+            elseif ($gpu.AdapterCompatibility -like "*AMD*" -or $gpu.AdapterCompatibility -like "*ATI*") { Write-Warning "  -> AMD/ATI GPU detected. Recommend checking AMD.com for the latest Adrenalin drivers after restart." }
+            elseif ($gpu.AdapterCompatibility -like "*Intel*") { Write-Host "  -> Intel Integrated Graphics detected. Drivers usually updated via Windows Update or Intel Driver & Support Assistant." -ForegroundColor Gray }
+            else { Write-Host "  -> Unknown GPU Manufacturer ($($gpu.AdapterCompatibility)). Check PC/Laptop manufacturer's site." -ForegroundColor Gray }
         }
-    } else {
-        Write-Warning "- Could not detect Graphics Card details."
-    }
+    } else { Write-Warning "- Could not detect Graphics Card details." }
 
     Write-Host "- Checking Active Network Adapter(s)..." -ForegroundColor Gray
     $netAdapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'} | Select-Object -Property Name, InterfaceDescription, DriverVersion, Status
     if ($netAdapters) {
          foreach ($adapter in $netAdapters) {
              Write-Host "  - Active Adapter: $($adapter.Name) ($($adapter.InterfaceDescription)) (Driver: $($adapter.DriverVersion))"
-             if ($adapter.InterfaceDescription -like "*Intel*") {
-                 Write-Warning "  -> Intel Network Adapter detected. Recommend checking Intel Driver & Support Assistant or support site after restart."
-             } elseif ($adapter.InterfaceDescription -like "*Realtek*") {
-                 Write-Warning "  -> Realtek Network Adapter detected. Recommend checking PC/Motherboard manufacturer's site for latest drivers after restart."
-             } elseif ($adapter.InterfaceDescription -like "*Killer*") {
-                 Write-Warning "  -> Killer Network Adapter detected. Recommend checking Intel's site (Killer is owned by Intel) or manufacturer's site after restart."
-             } elseif ($adapter.InterfaceDescription -like "*Broadcom*") {
-                 Write-Warning "  -> Broadcom Network Adapter detected. Recommend checking PC/Laptop manufacturer's site after restart."
-             }
+             if ($adapter.InterfaceDescription -like "*Intel*") { Write-Warning "  -> Intel Network Adapter detected. Recommend checking Intel Driver & Support Assistant or support site after restart." }
+             elseif ($adapter.InterfaceDescription -like "*Realtek*") { Write-Warning "  -> Realtek Network Adapter detected. Recommend checking PC/Motherboard manufacturer's site for latest drivers after restart." }
+             elseif ($adapter.InterfaceDescription -like "*Killer*") { Write-Warning "  -> Killer Network Adapter detected. Recommend checking Intel's site (Killer is owned by Intel) or manufacturer's site after restart." }
+             elseif ($adapter.InterfaceDescription -like "*Broadcom*") { Write-Warning "  -> Broadcom Network Adapter detected. Recommend checking PC/Laptop manufacturer's site after restart." }
          }
-    } else {
-        Write-Warning "- Could not detect active Network Adapter details."
-    }
+    } else { Write-Warning "- Could not detect active Network Adapter details." }
      Write-Host "- Hardware check complete. Manual driver checks post-restart are recommended." -ForegroundColor Green
 } catch {
     Write-Warning "- ERROR during Hardware Check: $($_.Exception.Message)"
@@ -668,33 +585,20 @@ Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 13/15: R
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Running Windows Update (using PSWindowsUpdate)..." -ForegroundColor Magenta
 Write-Warning "- This step requires Internet and can take a VERY long time depending on needed updates."
 try {
-    # Check if module is installed, install if not
     Write-Host "- Checking/Installing PSWindowsUpdate module..." -ForegroundColor Gray
     if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
         Write-Host "  PSWindowsUpdate module not found. Attempting installation..." -ForegroundColor Yellow
-        # Set execution policy for the current process to allow installation script
         Set-ExecutionPolicy RemoteSigned -Scope Process -Force -ErrorAction SilentlyContinue
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -ErrorAction Stop | Out-Null
         Install-Module PSWindowsUpdate -Force -Scope CurrentUser -AcceptLicense -Confirm:$false -ErrorAction Stop
         Write-Host "  PSWindowsUpdate module installed." -ForegroundColor Green
-    } else {
-         Write-Host "  PSWindowsUpdate module already available." -ForegroundColor Gray
-    }
+    } else { Write-Host "  PSWindowsUpdate module already available." -ForegroundColor Gray }
 
-    # Import the module
     Write-Host "- Importing PSWindowsUpdate module..." -ForegroundColor Gray
     Import-Module PSWindowsUpdate -ErrorAction Stop
 
-    # Run Update Check & Install
     Write-Host "- Checking for and installing ALL available Windows Updates (OS, Drivers)..." -ForegroundColor Yellow
-    # Note: -AcceptAll -ForceDownload -ForceInstall are aggressive. Remove if only checking is desired initially.
     Get-WindowsUpdate -Install -AcceptAll -ForceDownload -ForceInstall -Verbose -ErrorAction Stop
-    # Add -AutoReboot parameter if you want PSWindowsUpdate to handle the reboot, but the script has its own final reboot.
-
-    # Check results (optional, Get-WindowsUpdate might throw error on failure)
-    # $UpdateHistory = Get-WUHistory -Last 10 # Check recent history
-    # Write-Host "Recent Update History:"
-    # $UpdateHistory | Format-Table -AutoSize
 
     Write-Host "- SUCCESS: Windows Update check and installation process completed." -ForegroundColor Green
 } catch {
@@ -708,38 +612,25 @@ $CurrentPhase = 13
 Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 14/15: Performing System Cleanup (Temp, DNS, DISM, fstrim)..." -PhaseNumber $CurrentPhase
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] Performing System Cleanup..." -ForegroundColor Cyan
 try {
-    # Clean Temp Folders (Excluding our startup script)
     Write-Host "- Cleaning Temporary Folders (%TEMP%, C:\Windows\Temp)..." -ForegroundColor Gray
-    $tempPathsToClean = @(
-        "$env:TEMP",
-        "$env:windir\Temp"
-    )
+    $tempPathsToClean = @( "$env:TEMP", "$env:windir\Temp" )
     foreach ($path in $tempPathsToClean) {
         if (Test-Path $path) {
             Write-Host "  Cleaning: $path" -ForegroundColor DarkGray
-            # Get items, filter out our cleanup script, then remove
             Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.FullName -ne $CleanupScriptPath } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-        } else {
-             Write-Host "  Path not found: $path" -ForegroundColor DarkGray
-        }
+        } else { Write-Host "  Path not found: $path" -ForegroundColor DarkGray }
     }
 
-    # Flush DNS Cache again (after potential updates/network changes)
     Write-Host "- Flushing DNS cache..." -ForegroundColor Gray
     ipconfig /flushdns | Out-Null
 
-    # Run DISM Component Store Cleanup
     Write-Host "- Running DISM /Online /Cleanup-Image /StartComponentCleanup (May take time)..." -ForegroundColor Gray
     $dismProcess = Start-Process Dism.exe -ArgumentList "/Online /Cleanup-Image /StartComponentCleanup /Quiet" -Wait -Passthru -ErrorAction SilentlyContinue
-    if ($dismProcess.ExitCode -ne 0) {
-        Write-Warning "- DISM Component Cleanup may have encountered an issue (Exit Code: $($dismProcess.ExitCode))."
-    } else {
-        Write-Host "- DISM Component Cleanup completed." -ForegroundColor Gray
-    }
+    if ($dismProcess.ExitCode -ne 0) { Write-Warning "- DISM Component Cleanup may have encountered an issue (Exit Code: $($dismProcess.ExitCode))." }
+    else { Write-Host "- DISM Component Cleanup completed." -ForegroundColor Gray }
 
-    # Run Optimize-Volume (fstrim) on C: Drive for SSDs
     Write-Host "- Running Optimize-Volume -ReTrim on C: drive (for SSDs)..." -ForegroundColor Gray
-    Optimize-Volume -DriveLetter C -ReTrim -Verbose -ErrorAction SilentlyContinue # Use SilentlyContinue as it might fail on non-SSDs or if locked
+    Optimize-Volume -DriveLetter C -ReTrim -Verbose -ErrorAction SilentlyContinue
 
     Write-Host "- SUCCESS: System Cleanup phase completed." -ForegroundColor Green
 } catch {
@@ -748,7 +639,7 @@ try {
 Start-Sleep -Seconds 1
 
 # --- Phase 14: Finalization and Automatic Restart ---
-$CurrentPhase = 14 # This is technically the start of the final phase before action
+$CurrentPhase = 14
 Update-Progress -StatusMessage "[Phase $CurrentPhase/$TotalPhases] STEP 15/15: Finalizing and Preparing for Auto-Restart..." -PhaseNumber $CurrentPhase
 Write-Host "`n[PHASE $CurrentPhase/$TotalPhases] FINALIZING SCRIPT EXECUTION..." -ForegroundColor Magenta
 Write-Host "[COMPLETE] AIO Script Execution Finished. All requested operations attempted." -ForegroundColor Green
@@ -771,6 +662,5 @@ Write-Host "[!!!] Initiating Forced System Restart NOW! [!!!]" -ForegroundColor 
 Restart-Computer -Force
 
 # --- SCRIPT END ---
-# Code below this line will not execute due to Restart-Computer -Force
 Write-Host "Script execution theoretically complete, but restart was initiated."
 Exit 0
