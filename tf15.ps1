@@ -18,6 +18,7 @@ Write-Host "  4. COMPLETELY DISABLE Windows Update (NO SECURITY PATCHES!)." -For
 Write-Host "     -> Your PC will become increasingly VULNERABLE over time." -ForegroundColor Red
 Write-Host "  5. Potentially cause SYSTEM INSTABILITY, CRASHES, or BOOT ISSUES." -ForegroundColor Red
 Write-Host "  6. Install software via winget (Check the list inside the script)." -ForegroundColor Yellow
+Write-Host "  7. Add standard desktop icons (This PC, Control Panel, Network)." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "*** BACK UP YOUR DATA NOW IF YOU HAVEN'T ALREADY. THIS IS YOUR LAST CHANCE. ***" -ForegroundColor Cyan
 Write-Host "*** YOU ARE 100% RESPONSIBLE FOR ANY NEGATIVE OUTCOME. ***" -ForegroundColor Red
@@ -264,7 +265,7 @@ $programsToInstall = @(
     "Microsoft.PowerToys",
     "Nvidia.GeForceExperience",
     "Valve.Steam",
-    "MSI.Afterburner",
+    "MSI.Afterburner"
 )
 
 Write-Host "Starting installations (Silent where possible)..."
@@ -290,7 +291,38 @@ foreach ($programId in $programsToInstall) {
 }
 Write-Host "Software installation section finished." -ForegroundColor Green
 
-Write-Host "`n===== Section 8: Final Cleanup & Optimization =====" -ForegroundColor Cyan
+Write-Host "`n===== Section 8: Add Standard Desktop Icons =====" -ForegroundColor Cyan
+
+try {
+    $desktopIconsRegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
+    If (!(Test-Path $desktopIconsRegPath)) {
+        New-Item -Path $desktopIconsRegPath -Force | Out-Null
+        Write-Host "  Created registry key: $desktopIconsRegPath" -ForegroundColor Gray
+    }
+
+    $iconsToShow = @(
+        "{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+        "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}",
+        "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}"
+    )
+
+    Write-Host "Ensuring standard desktop icons are visible..."
+    foreach ($iconGuid in $iconsToShow) {
+        try {
+            Remove-ItemProperty -Path $desktopIconsRegPath -Name $iconGuid -Force -ErrorAction SilentlyContinue
+            Write-Host "  Ensured icon $iconGuid is set to visible." -ForegroundColor Green
+        } catch {
+            Write-Warning "    Could not ensure visibility for icon $iconGuid: $($_.Exception.Message)"
+        }
+    }
+    Write-Host "  Desktop icon settings applied. Changes require reboot." -ForegroundColor Yellow
+
+} catch {
+    Write-Warning "  Failed to modify desktop icon registry settings: $($_.Exception.Message)"
+}
+
+
+Write-Host "`n===== Section 9: Final Cleanup & Optimization =====" -ForegroundColor Cyan
 
 Write-Host "Cleaning temporary files and Recycle Bin..."
 $tempPaths = @("$env:TEMP", "$env:SystemRoot\Temp")
@@ -336,6 +368,7 @@ Write-Host "  - Non-essential Services/Tasks disabled (Potential Stability Risk)
 Write-Host "  - Windows Defender FULLY DISABLED (!!! NO ANTIVIRUS !!!)." -ForegroundColor Red -BackgroundColor Black
 Write-Host "  - Windows Update FULLY DISABLED (!!! NO SECURITY PATCHES !!!)." -ForegroundColor Red -BackgroundColor Black
 Write-Host "  - Essential Software installed." -ForegroundColor White
+Write-Host "  - Standard Desktop Icons added." -ForegroundColor White
 Write-Host "  - System Cleanup & Drive Optimization performed." -ForegroundColor White
 Write-Host ""
 Write-Host "*** CRITICAL REMINDER: A REBOOT IS ABSOLUTELY REQUIRED NOW! ***" -ForegroundColor Magenta
