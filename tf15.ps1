@@ -312,7 +312,7 @@ try {
             Remove-ItemProperty -Path $desktopIconsRegPath -Name $iconGuid -Force -ErrorAction SilentlyContinue
             Write-Host "  Ensured icon $iconGuid is set to visible." -ForegroundColor Green
         } catch {
-            Write-Warning "    Could not ensure visibility for icon $iconGuid: $($_.Exception.Message)"
+            Write-Warning "Could not ensure visibility for"
         }
     }
     Write-Host "  Desktop icon settings applied. Changes require reboot." -ForegroundColor Yellow
