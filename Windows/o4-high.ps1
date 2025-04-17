@@ -1,236 +1,444 @@
-if (-not ([Security.Principal.WindowsPrincipal]
-        [Security.Principal.WindowsIdentity]::GetCurrent()
-     ).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+@echo off
+:: =============================================================
+::   Win11-AIO-Tools.bat  –  All-In-One Windows 11 Maintenance
+::   © 2025, Requires Administrator Privileges
+:: =============================================================
 
-    Write-Host "Requesting elevated rights..." -ForegroundColor Yellow
-    Start-Process pwsh -ArgumentList "-File `"$PSCommandPath`"" -Verb RunAs
-    exit
-}
-#endregion
+title Win11 AIO Maintenance & Tweaks
+color 0A
+setlocal EnableDelayedExpansion
 
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
-$PSDefaultParameterValues['*:ErrorAction'] = 'Stop'
+:: --- Administrator Check ---
+>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+if '%errorlevel%' NEQ '0' (
+    echo ==========================================
+    echo  Error: Administrator privileges required.
+    echo  Please run this script as Administrator.
+    echo ==========================================
+    pause >nul
+    goto :eof
+)
 
-#== LOGGING ====================================================================
-$LogFile = "$PSScriptRoot\Win11AIO-$(Get-Date -Format yyyyMMdd_HHmmss).log"
-Start-Transcript -Path $LogFile -Append | Out-Null
+:: --- Jump directly to the main menu ---
+goto :menu
 
-#== UTILITY FUNCTIONS ==========================================================
-function Write-Section ($Title) {
-    Write-Host "`n=== $Title ===" -ForegroundColor Cyan
-}
+:: =============================================================
+::                       FUNCTION DEFINITIONS
+::  (These are called from the menu, execution jumps here)
+:: =============================================================
 
-function Require-Module ($Name) {
-    if (-not (Get-Module -ListAvailable -Name $Name)) {
-        Write-Host "Installing module $Name..."
-        Install-Module -Name $Name -Force -Repository PSGallery -Scope AllUsers
-    }
-    Import-Module $Name -Force
-}
+:func_WindowsUpdate
+    cls
+    echo [Updating Windows...]
+    echo   Stopping Windows Update service (wuauserv)...
+    net stop wuauserv /y >nul
+    echo   Starting Update Scan (UsoClient)...
+    UsoClient StartScan
+    echo   Forcing Update Detection (wuauclt)...
+    wuauclt.exe /detectnow /updatenow
+    echo   Restarting Windows Update service (wuauserv)...
+    net start wuauserv >nul
+    echo.
+    echo Done. Windows Update check initiated.
+    pause >nul
+    goto :menu
 
-#== MAINTENANCE TASKS ==========================================================
-function Invoke-WindowsUpdate {
-    Write-Section "Windows Update"
-    Require-Module PSWindowsUpdate      # Modern replacement for UsoClient 0
-    Get-WindowsUpdate -AcceptAll -Install -MicrosoftUpdate `
-                      -IgnoreReboot | Out-Host
-    if (Get-WURebootStatus) { Restart-Computer -Force }
-}
+:func_DisableWU
+    cls
+    echo [Disabling Windows Update Service & Related Tasks...]
+    echo   Configuring wuauserv (Windows Update Service) to disabled...
+    sc config wuauserv start=disabled >nul
+    echo   Stopping wuauserv...
+    sc stop wuauserv >nul
+    echo   Configuring UsoSvc (Update Orchestrator Service) to disabled...
+    sc config UsoSvc start=disabled >nul
+    echo   Stopping UsoSvc...
+    sc stop UsoSvc >nul
+    echo   Setting Group Policy to prevent Automatic Updates...
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f >nul
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v AUOptions     /t REG_DWORD /d 1 /f >nul :: 1 = Never check for updates
+    echo.
+    echo Done. Windows Update Disabled.
+    pause >nul
+    goto :menu
 
-function Disable-WindowsUpdate {
-    Write-Section "Disable Windows Update"
-    Stop-Service wuauserv, usosvc -Force
-    Set-Service  wuauserv, usosvc -StartupType Disabled
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" `
-             -Force | Out-Null
-    Set-ItemProperty -Path $_ -Name NoAutoUpdate -Value 1 -Type DWord
-    Set-ItemProperty -Path $_ -Name AUOptions     -Value 2 -Type DWord
-}
+:func_EnableWU
+    cls
+    echo [Enabling Windows Update Service & Related Tasks...]
+    echo   Configuring wuauserv (Windows Update Service) to auto...
+    sc config wuauserv start=auto >nul
+    echo   Starting wuauserv...
+    sc start wuauserv >nul
+    echo   Configuring UsoSvc (Update Orchestrator Service) to auto...
+    sc config UsoSvc start=auto >nul
+    echo   Starting UsoSvc...
+    sc start UsoSvc >nul
+    echo   Removing Group Policy block for Automatic Updates...
+    reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /f >nul 2>nul
+    reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v AUOptions     /f >nul 2>nul
+    echo.
+    echo Done. Windows Update Enabled.
+    pause >nul
+    goto :menu
 
-function Enable-WindowsUpdate {
-    Write-Section "Enable Windows Update"
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" `
-                        -Name NoAutoUpdate, AUOptions -ErrorAction SilentlyContinue
-    Set-Service wuauserv, usosvc -StartupType Automatic
-    Start-Service wuauserv, usosvc
-}
+:func_Defender
+    cls
+    echo [Updating Defender Signatures & Performing Full Scan...]
+    echo   Updating Signatures...
+    "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
+    echo.
+    echo   Starting Full Scan (this may take a long time)...
+    "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 2
+    echo.
+    echo Done. Defender update and scan complete.
+    pause >nul
+    goto :menu
 
-function Update-DefenderAndScan {
-    Write-Section "Microsoft Defender (update + full scan)"
-    Update-MpSignature                       # Built‑in AV update
-    Start-MpScan -ScanType FullScan          # Full system scan 1
-}
+:func_DisableDefender
+    cls
+    echo [Disabling Defender Real-Time Protection...]
+    echo   Setting Registry Policy (may require reboot or GPUpdate)...
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f >nul
+    echo   Attempting to disable via PowerShell cmdlet...
+    powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true"
+    echo.
+    echo Done. Real-Time Protection should be disabled (check Security Center). Reboot may be needed.
+    pause >nul
+    goto :menu
 
-function Set-DefenderRealtime ($Enable) {
-    Write-Section "Defender Real‑Time Protection"
-    $state = -not $Enable
-    try {
-        Set-MpPreference -DisableRealtimeMonitoring $state
-        Write-Host "Real‑Time Protection set to $Enable"
-    } catch {
-        Write-Warning "Failed – Tamper Protection may be enabled."
-    }
-}
+:func_EnableDefender
+    cls
+    echo [Enabling Defender Real-Time Protection...]
+    echo   Removing Registry Policy...
+    reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /f >nul 2>nul
+    echo   Attempting to enable via PowerShell cmdlet...
+    powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false"
+    echo.
+    echo Done. Real-Time Protection should be enabled (check Security Center).
+    pause >nul
+    goto :menu
 
-function Update-AppsAndDrivers {
-    Write-Section "Winget / Chocolatey / Drivers"
-    if (Get-Command winget -ErrorAction SilentlyContinue) {
-        winget upgrade --all --silent --accept-source-agreements --accept-package-agreements
-    }
-    if (Get-Command choco  -ErrorAction SilentlyContinue) {
-        choco upgrade all -y --no-progress
-    }
-
-    if (Test-Path 'C:\Drivers') {
-        Get-ChildItem 'C:\Drivers' -Recurse -Filter *.inf |
-            ForEach-Object { pnputil /add-driver $_.FullName /install }
+:func_AppDriverUpdate
+    cls
+    echo [Updating Apps (winget + choco) and Drivers...]
+    echo   Updating apps via winget...
+    winget upgrade --all --accept-package-agreements --accept-source-agreements --silent
+    echo.
+    echo   Updating apps via Chocolatey...
+    choco upgrade all -y --accept-licenses
+    echo.
+    echo   Updating drivers found in C:\Drivers\...
+    if exist "C:\Drivers\" (
+        for /f "delims=" %%i in ('dir /b /s "C:\Drivers\*.inf"') do (
+            echo     Adding/Installing driver: "%%i"
+            pnputil /add-driver "%%i" /install
+        )
+        echo   Scanning for hardware changes...
         pnputil /scan-devices
-    } else {
-        Write-Verbose "C:\Drivers not found – driver phase skipped."
-    }
-}
+    ) else (
+        echo   Directory C:\Drivers\ not found. Skipping driver update.
+    )
+    echo.
+    echo Done. App and Driver update process finished.
+    pause >nul
+    goto :menu
 
-function Repair-WindowsImage {
-    Write-Section "DISM, SFC, CHKDSK"
-    Repair-WindowsImage -Online -RestoreHealth      # Alias for DISM /RestoreHealth
-    sfc  /scannow
-    chkdsk C: /F /R /X | Out-Host
-    Write-Host "CHKDSK completed (or scheduled)."
-}
+:func_ImageRepair
+    cls
+    echo [Running System File Checker, DISM RestoreHealth, and Check Disk...]
+    echo   Starting DISM /Online /Cleanup-Image /RestoreHealth...
+    DISM /Online /Cleanup-Image /RestoreHealth
+    echo.
+    echo   Starting SFC /scannow...
+    sfc /scannow
+    echo.
+    echo   Scheduling Check Disk (chkdsk) for C: on next reboot...
+    echo Y | chkdsk C: /F /R /X
+    echo.
+    echo Done. DISM and SFC completed. CHKDSK will run on the next reboot.
+    pause >nul
+    goto :menu
 
-function Cleanup-TempAndPrefetch {
-    Write-Section "Disk Cleanup & Temp"
+:func_Cleanup
+    cls
+    echo [Performing Disk Cleanup and Clearing Temp/Prefetch Folders...]
+    echo   Configuring Disk Cleanup presets (runs only once)...
+    cleanmgr /sageset:1 >nul
+    echo   Running Disk Cleanup with preset 1...
     cleanmgr /sagerun:1
-    'C:\Windows\Prefetch',
-    "$env:TEMP",
-    "$env:SystemRoot\Temp" |
-        ForEach-Object {
-            if (Test-Path $_) { Get-ChildItem $_ -Recurse -Force | Remove-Item -Force -Recurse -EA SilentlyContinue }
-        }
-}
+    echo   Clearing Prefetch folder...
+    rmdir /s /q C:\Windows\Prefetch 2>nul & mkdir C:\Windows\Prefetch >nul
+    echo   Clearing System Temp folder...
+    rmdir /s /q "%SystemRoot%\Temp" 2>nul & mkdir "%SystemRoot%\Temp" >nul
+    echo   Clearing User Temp folder...
+    rmdir /s /q "%USERPROFILE%\AppData\Local\Temp" 2>nul & mkdir "%USERPROFILE%\AppData\Local\Temp" >nul
+    echo.
+    echo Done. Cleanup finished.
+    pause >nul
+    goto :menu
 
-function Clear-EventLogs {
-    Write-Section "Clear ALL Event Logs – USE WITH CAUTION"
-    Get-WinEvent -ListLog * |
-        ForEach-Object { Clear-EventLog -LogName $_.LogName }   # Classic logs 2
-}
+:func_EventLogs
+    cls
+    echo [Clearing All Windows Event Logs...]
+    for /f "tokens=*" %%G in ('wevtutil el') do (
+        echo   Clearing log: %%G
+        wevtutil cl "%%G" /q:true
+    )
+    echo.
+    echo Done. Event Logs cleared.
+    pause >nul
+    goto :menu
 
-function Optimize-Disks {
-    Write-Section "Defrag / TRIM (all data volumes)"
-    Get-Volume | Where-Object DriveType -in 'Fixed','Removable' |
-        Optimize-Volume -Verbose -Analyze -Defrag -ReTrim        3
-}
+:func_OptimizeDisk
+    cls
+    echo [Optimizing Drive C: (Defrag for HDD / TRIM for SSD)...]
+    defrag C: /O /X
+    echo.
+    echo Done. Drive optimization complete.
+    pause >nul
+    goto :menu
 
-function Rebuild-SearchAndFontCache {
-    Write-Section "Rebuild Search & Font caches"
-    Stop-Service WSearch -Force
-    Remove-Item "$env:ProgramData\Microsoft\Search\Data\Applications\Windows\windows.edb" -EA SilentlyContinue
-    Start-Service WSearch
-    Stop-Service FontCache -Force
-    Remove-Item "$env:WinDir\ServiceProfiles\LocalService\AppData\Local\FontCache*" -Force -EA SilentlyContinue
-    Start-Service FontCache
-}
+:func_RebuildCaches
+    cls
+    echo [Rebuilding Windows Search Index and Font Cache...]
+    echo   Stopping Windows Search service...
+    net stop wsearch >nul
+    echo   Deleting Search Index database (will be rebuilt)...
+    del "%ProgramData%\Microsoft\Search\Data\Applications\Windows\windows.edb" /f /q /s 2>nul
+    echo   Starting Windows Search service...
+    net start wsearch >nul
+    echo   Stopping Font Cache service...
+    net stop FontCache >nul
+    echo   Deleting Font Cache files...
+    del /f /q "%WinDir%\ServiceProfiles\LocalService\AppData\Local\FontCache*" 2>nul
+    echo   Starting Font Cache service...
+    net start FontCache >nul
+    echo.
+    echo Done. Caches will be rebuilt. This might take some time in the background.
+    pause >nul
+    goto :menu
 
-function Set-HighPerformancePlan { powercfg /setactive SCHEME_MIN }   # SCHEME_MIN is the built‑in GUID
+:func_PowerPlan
+    cls
+    echo [Activating High-Performance Power Plan...]
+    powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+    powercfg /getactivescheme
+    echo.
+    echo Done. High-Performance plan activated.
+    pause >nul
+    goto :menu
 
-function Network-Tweaks {
-    Write-Section "Network Tweaks"
-    netsh interface tcp set global autotuninglevel=disabled
-    Clear-DnsClientCache
-}
+:func_NetworkTweaks
+    cls
+    echo [Applying Network Tweaks (Disabling TCP Auto-Tuning & Flushing DNS)...]
+    echo   Disabling TCP Auto-Tuning...
+    netsh int tcp set global autotuninglevel=disabled
+    echo   Flushing DNS Cache...
+    ipconfig /flushdns
+    echo.
+    echo Done. Network tweaks applied.
+    pause >nul
+    goto :menu
 
-function Windows-Debloat {
-    Write-Section "Debloat – external script"
-    $url = 'https://git.io/debloat11'
-    Read-Host "About to run $url – **RISK**. Press <Enter> to continue or ^C to abort."
-    irm $url | iex
-}
+:func_Debloat
+    cls
+    echo [Running External Windows 11 Debloater Script...]
+    echo   NOTE: This uses a third-party script. Review it first if desired:
+    echo   https://git.io/debloat11 redirects to https://github.com/ChrisTitusTech/winutil/blob/main/debloat-windows.ps1
+    echo.
+    echo   Downloading and executing script...
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://git.io/debloat11 | iex"
+    echo.
+    echo Done. Debloating script finished. Check its output for details.
+    pause >nul
+    goto :menu
 
-function ScheduledTask-Cleanup {
-    Write-Section "Scheduled Tasks Cleanup"
-    Get-ScheduledTask | Where-Object { $_.Author -notmatch '^Microsoft' } |
-        Unregister-ScheduledTask -Confirm:$false
-}
+:func_TaskCleanup
+    cls
+    :TaskCleanupLoop
+    cls
+    echo [Scheduled Tasks Cleanup Options...]
+    echo   1. Delete ALL non-Microsoft scheduled tasks (Use with caution!)
+    echo   2. Delete a specific scheduled task by name
+    echo   3. Back to main menu
+    echo.
+    set /p tchoice="Select option [1-3]: "
 
-function Apply-Tweaks {
-    Write-Section "Visual & System Tweaks"
-    # Visual tweaks
-    Set-ItemProperty 'HKCU:\Control Panel\Desktop\' -Name MenuShowDelay  -Value 100 -Type String
-    Set-ItemProperty 'HKCU:\Control Panel\Desktop\' -Name MinAnimate     -Value 0   -Type String
-    # Power & pagefile
+    if /i "%tchoice%"=="1" (
+        echo   WARNING: This will attempt to delete all non-Microsoft tasks.
+        set /p confirm="Are you sure? (Y/N): "
+        if /i "!confirm!"=="Y" (
+            echo   Deleting all non-Microsoft tasks...
+            for /f "tokens=1,* skip=2" %%a in ('schtasks /query /nh /fo csv') do (
+                set "taskname=%%~b"
+                :: Basic check to avoid deleting core Microsoft tasks
+                if /i not "!taskname:\Microsoft\=!" == "!taskname!" (
+                    echo     Skipping Microsoft task: !taskname!
+                ) else if /i not "!taskname:\Windows\=!" == "!taskname!" (
+                     echo     Skipping Windows task: !taskname!
+                ) else (
+                    echo     Deleting task: !taskname!
+                    schtasks /delete /tn "!taskname!" /f >nul
+                )
+            )
+            echo.
+            echo   Deletion attempt finished.
+            pause >nul
+        ) else (
+            echo   Operation cancelled.
+            pause >nul
+        )
+        goto :TaskCleanupLoop
+    )
+    if /i "%tchoice%"=="2" (
+        echo   Enter the EXACT Task Name including the path (e.g., \MyTasks\MyTask)
+        set /p tname="Task Name: "
+        if not "%tname%"=="" (
+            echo   Deleting task: %tname%
+            schtasks /delete /tn "%tname%" /f
+            pause >nul
+        ) else (
+            echo   No task name entered.
+            pause >nul
+        )
+        goto :TaskCleanupLoop
+    )
+    if /i "%tchoice%"=="3" (
+        goto :menu
+    )
+
+    echo   Invalid choice.
+    pause >nul
+    goto :TaskCleanupLoop
+
+:func_Tweaks
+    cls
+    echo [Applying Visual & System Performance Tweaks...]
+    echo   Applying Visual Effects for Best Performance...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f >nul
+    reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 0 /f >nul
+    echo   Setting Menu Show Delay to Faster (100ms)...
+    reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 100 /f >nul
+    echo   Disabling Transparency Effects...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f >nul
+    echo   Disabling Hibernation (saves disk space)...
     powercfg /hibernate off
-    Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' `
-                     -Name ClearPageFileAtShutdown -Value 1 -Type DWord
-    # Gaming
-    New-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers' `
-                     -Name HwSchMode -Value 2 -PropertyType DWord -Force | Out-Null
-    # Telemetry & SysMain
-    'DiagTrack','dmwappushservice','SysMain' | ForEach-Object {
-        Stop-Service $_ -Force -ErrorAction SilentlyContinue
-        Set-Service  $_ -StartupType Disabled
-    }
-}
+    echo   Enabling Clear Page File at Shutdown (Security/Performance)...
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 1 /f >nul
+    echo   Setting Page File to Automatic Management...
+    wmic computersystem where name="%computername%" set AutomaticManagedPagefile=True >nul
+    echo   Disabling Game DVR...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f >nul
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f >nul
+    echo   Enabling Hardware-accelerated GPU Scheduling (Requires Reboot)...
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f >nul
+    echo   Disabling Telemetry & Related Services...
+    sc config DiagTrack start=disabled >nul & sc stop DiagTrack >nul
+    sc config dmwappushservice start=disabled >nul & sc stop dmwappushservice >nul
+    echo   Disabling Superfetch/SysMain...
+    sc config SysMain start=disabled >nul & sc stop SysMain >nul
+    echo.
+    echo Done. Many changes require a REBOOT to take full effect.
+    pause >nul
+    goto :menu
 
-function Run-All {
-    Enable-WindowsUpdate
-    Invoke-WindowsUpdate
-    Set-DefenderRealtime $true
-    Update-DefenderAndScan
-    Update-AppsAndDrivers
-    Repair-WindowsImage
-    Cleanup-TempAndPrefetch
-    Clear-EventLogs
-    Optimize-Disks
-    Rebuild-SearchAndFontCache
-    Set-HighPerformancePlan
-    Network-Tweaks
-    # Windows-Debloat         # HIGH‑RISK – uncomment if desired
-    # ScheduledTask-Cleanup   # HIGH‑RISK – uncomment if desired
-    Apply-Tweaks
-    Write-Host "`n=== ALL DONE – reboot recommended. ===" -ForegroundColor Green
-}
+:func_RunAll
+    cls
+    echo ===== Starting All Maintenance Functions =====
+    echo.
+    call :func_DisableWU
+    call :func_EnableWU
+    call :func_WindowsUpdate
+    call :func_DisableDefender
+    call :func_EnableDefender
+    call :func_Defender
+    call :func_AppDriverUpdate
+    call :func_ImageRepair
+    call :func_Cleanup
+    call :func_EventLogs
+    call :func_OptimizeDisk
+    call :func_RebuildCaches
+    call :func_PowerPlan
+    call :func_NetworkTweaks
+    call :func_Debloat
+    echo.
+    echo   [Skipping Scheduled Task Cleanup in 'Run All' - Run manually if needed]
+    echo.
+    call :func_Tweaks
+    echo ==================================================
+    echo  All functions executed. Please REBOOT your system
+    echo  for all changes (like chkdsk, HwSchMode, etc.)
+    echo  to take full effect.
+    echo ==================================================
+    pause >nul
+    goto :eof
 
-#== INTERACTIVE MENU ===========================================================
-while ($true) {
-    Write-Host @'
-╔══════════════════════════════════════════════════════════════╗
-║           Windows 11 AIO Maintenance  (PowerShell)           ║
-╠══════════════════════════════════════════════════════════════╣
-║ 1  Windows Update                  11 Rebuild Search & Font  ║
-║ 2  Disable Windows Update          12 Set High‑Perf Power    ║
-║ 3  Enable  Windows Update          13 Network Tweaks         ║
-║ 4  Defender Update + Full Scan     14 Debloat (High Risk)    ║
-║ 5  Disable Defender Real‑Time      15 Scheduled‑Task Cleanup ║
-║ 6  Enable  Defender Real‑Time      16 Apply System Tweaks    ║
-║ 7  Update Apps & Drivers           17 **RUN ALL**            ║
-║ 8  DISM / SFC / CHKDSK             0  Exit                   ║
-║ 9  Disk Cleanup + Temp                                             ║
-║10 Clear ALL Event Logs                                         ║
-╚══════════════════════════════════════════════════════════════╝
-'@
-    $choice = Read-Host "Select option"
-    switch ($choice) {
-        '1'  { Invoke-WindowsUpdate }
-        '2'  { Disable-WindowsUpdate }
-        '3'  { Enable-WindowsUpdate  }
-        '4'  { Update-DefenderAndScan }
-        '5'  { Set-DefenderRealtime $false }
-        '6'  { Set-DefenderRealtime $true  }
-        '7'  { Update-AppsAndDrivers }
-        '8'  { Repair-WindowsImage }
-        '9'  { Cleanup-TempAndPrefetch }
-        '10' { Clear-EventLogs }
-        '11' { Optimize-Disks }
-        '12' { Rebuild-SearchAndFontCache }
-        '13' { Set-HighPerformancePlan }
-        '14' { Windows-Debloat }
-        '15' { ScheduledTask-Cleanup }
-        '16' { Apply-Tweaks }
-        '17' { Run-All }
-        '0'  { break }
-        default { Write-Warning "Invalid choice." }
-    }
-}
+:: =============================================================
+::                       MAIN MENU LOOP
+:: =============================================================
+:menu
+    cls
+    echo ==============================================
+    echo      Windows 11 AIO Maintenance & Tweaks
+    echo ==============================================
+    echo [System Maintenance]
+    echo  1. Run Windows Update (Check & Initiate)
+    echo  4. Update Defender & Full Scan
+    echo  7. Update Apps (winget/choco) & Drivers (C:\Drivers)
+    echo  8. System File Repair (DISM, SFC, CHKDSK)
+    echo  9. Disk & Temp File Cleanup
+    echo 10. Clear All Event Logs
+    echo 11. Optimize Drive C: (Defrag/TRIM)
+    echo 12. Rebuild Search Index & Font Cache
+    echo.
+    echo [Service Toggles]
+    echo  2. Disable Windows Update Service
+    echo  3. Enable Windows Update Service
+    echo  5. Disable Defender Real-Time Protection
+    echo  6. Enable Defender Real-Time Protection
+    echo.
+    echo [System Tweaks]
+    echo 13. Activate High-Performance Power Plan
+    echo 14. Apply Network Tweaks (TCP/DNS)
+    echo 15. Run External Debloater Script (Chris Titus Tech)
+    echo 16. Scheduled Tasks Cleanup (Manual Options)
+    echo 17. Apply Visual & Performance Tweaks (Reboot Recommended)
+    echo.
+    echo [Bulk Operations]
+    echo 18. Run ALL Maintenance & Tweaks (Reboot Required)
+    echo.
+    echo  0. Exit Script
+    echo ==============================================
+    set /p choice="Select option [0-18]: "
 
-Stop-Transcript
+    :: --- Menu Choices ---
+    if /i "%choice%" == "1"  goto :func_WindowsUpdate
+    if /i "%choice%" == "2"  goto :func_DisableWU
+    if /i "%choice%" == "3"  goto :func_EnableWU
+    if /i "%choice%" == "4"  goto :func_Defender
+    if /i "%choice%" == "5"  goto :func_DisableDefender
+    if /i "%choice%" == "6"  goto :func_EnableDefender
+    if /i "%choice%" == "7"  goto :func_AppDriverUpdate
+    if /i "%choice%" == "8"  goto :func_ImageRepair
+    if /i "%choice%" == "9"  goto :func_Cleanup
+    if /i "%choice%" == "10" goto :func_EventLogs
+    if /i "%choice%" == "11" goto :func_OptimizeDisk
+    if /i "%choice%" == "12" goto :func_RebuildCaches
+    if /i "%choice%" == "13" goto :func_PowerPlan
+    if /i "%choice%" == "14" goto :func_NetworkTweaks
+    if /i "%choice%" == "15" goto :func_Debloat
+    if /i "%choice%" == "16" goto :func_TaskCleanup
+    if /i "%choice%" == "17" goto :func_Tweaks
+    if /i "%choice%" == "18" goto :func_RunAll
+    if /i "%choice%" == "0"  goto :eof
+
+    :: --- Invalid Choice Handling ---
+    echo.
+    echo Invalid choice '%choice%'. Please try again.
+    pause >nul
+    goto :menu
+
+:: --- End of Script ---
+:eof
+echo Exiting script.
+endlocal
