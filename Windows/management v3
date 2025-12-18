@@ -1,0 +1,488 @@
+@echo off
+setlocal enabledelayedexpansion
+title Windows Master Optimizer v6.0 (All-in-One Edition)
+color 0b
+
+:: ==================================================
+:: 0. AUTO-ELEVATE (ADMIN CHECK)
+:: ==================================================
+:check_admin
+fltmc >nul 2>&1 || (
+    echo.
+    echo [Requesting Administrator Privileges...]
+    echo Please click "Yes" in the UAC window.
+    powershell -Command "Start-Process '%~dpnx0' -Verb RunAs"
+    exit /b
+)
+
+:: ==================================================
+:: MAIN MENU
+:: ==================================================
+:menu
+cls
+echo ==========================================================================
+echo   WINDOWS MASTER OPTIMIZER v6.0 (All-in-One Edition)
+echo ==========================================================================
+echo   [ PERFORMANCE & SYSTEM ]
+echo    1. Optimize CPU & Power Plan (Ultimate Mode)
+echo    2. Gaming Mode Boost (GPU Priority & Game Bar)
+echo    3. Refresh System RAM & Explorer
+echo    4. Manage Startup Programs
+echo    5. Manage Windows Services (Start/Stop/Disable)
+echo.
+echo   [ CLEANUP & MAINTENANCE ]
+echo    6. Deep Disk Cleanup (Junk/Temp/Update Cache)
+echo    7. Disk Defrag & Trim (SSD Optimization)
+echo    8. Check & Repair System Files (SFC + DISM)
+echo    9. Manage Windows Updates (Enable/Disable/Winget)
+echo.
+echo   [ NETWORK & INTERNET ]
+echo   10. Network Optimization (TCP/DNS/Reset Stack)
+echo.
+echo   [ SECURITY & PRIVACY ]
+echo   11. Windows Defender Manager
+echo   12. Privacy & Telemetry Blocker
+echo   13. Create System Restore Point (Backup)
+echo.
+echo   [ TOOLS & UTILITIES ]
+echo   14. Windows Activation Hub (GitHub MAS)
+echo   15. Disk Partition Manager (Diskpart GUI/CMD)
+echo   16. Auto-Login Configuration
+echo   17. Theme Switcher (Dark/Light Mode)
+echo   18. Display & Visual Effects Tweaks
+echo   19. View System Information
+echo.
+echo   [ AUTOMATION ]
+echo   99. RUN AUTO-PILOT (One-Click Optimization)
+echo    0. Exit
+echo ==========================================================================
+set /p choice=Enter your choice [0-99]: 
+
+:: Navigation Logic
+if "%choice%"=="1" goto optimize_cpu
+if "%choice%"=="2" goto gaming_mode
+if "%choice%"=="3" goto refresh_system
+if "%choice%"=="4" goto manage_startup
+if "%choice%"=="5" goto manage_services
+if "%choice%"=="6" goto deep_cleanup
+if "%choice%"=="7" goto optimize_disk
+if "%choice%"=="8" goto system_repair
+if "%choice%"=="9" goto windows_update_menu
+if "%choice%"=="10" goto optimize_network
+if "%choice%"=="11" goto defender_menu
+if "%choice%"=="12" goto privacy_tweaks
+if "%choice%"=="13" goto create_restore
+if "%choice%"=="14" goto activation_menu
+if "%choice%"=="15" goto partition_manager
+if "%choice%"=="16" goto auto_login
+if "%choice%"=="17" goto theme_switcher
+if "%choice%"=="18" goto visual_tweaks
+if "%choice%"=="19" goto system_info
+if "%choice%"=="99" goto auto_pilot
+if "%choice%"=="0" exit
+
+echo Invalid choice.
+pause
+goto menu
+
+:: ==================================================
+:: 1. CPU & POWER
+:: ==================================================
+:optimize_cpu
+cls
+echo [CPU & Power Optimization]
+echo.
+echo 1. Enable Ultimate Performance Plan
+echo 2. Disable CPU Throttling
+echo 3. Optimize Processor Scheduling (Programs)
+echo 4. Back
+set /p cpu_choice=Choice: 
+
+if "%cpu_choice%"=="1" (
+    powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 >nul 2>&1
+    powercfg -setactive e9a42b02-d5df-448d-aa00-03f14749eb61 >nul 2>&1
+    if %errorlevel% neq 0 powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+    echo Power plan set.
+    pause & goto optimize_cpu
+)
+if "%cpu_choice%"=="2" (
+    powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
+    powercfg -setacvalueindex scheme_current sub_processor PROCTHROTTLEMIN 100
+    powercfg -setactive scheme_current
+    echo Throttling disabled.
+    pause & goto optimize_cpu
+)
+if "%cpu_choice%"=="3" (
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+    echo Priority set to Programs.
+    pause & goto optimize_cpu
+)
+if "%cpu_choice%"=="4" goto menu
+goto optimize_cpu
+
+:: ==================================================
+:: 2. GAMING MODE
+:: ==================================================
+:gaming_mode
+cls
+echo [Gaming Mode Optimization]
+echo.
+echo 1. Force Enable Game Mode
+echo 2. Set GPU Priority to High
+echo 3. Disable Sticky Keys
+echo 4. Back
+set /p game_choice=Choice: 
+
+if "%game_choice%"=="1" (
+    reg add "HKCU\Software\Microsoft\GameBar" /v "AllowAutoGameMode" /t REG_DWORD /d 1 /f
+    reg add "HKCU\Software\Microsoft\GameBar" /v "AutoGameModeEnabled" /t REG_DWORD /d 1 /f
+    echo Game Mode Enabled.
+    pause & goto gaming_mode
+)
+if "%game_choice%"=="2" (
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "GPU Priority" /t REG_DWORD /d 8 /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Priority" /t REG_DWORD /d 6 /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Scheduling Category" /t REG_SZ /d "High" /f
+    echo GPU Priority Optimized.
+    pause & goto gaming_mode
+)
+if "%game_choice%"=="3" (
+    reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v "Flags" /t REG_SZ /d "506" /f
+    echo Sticky Keys Disabled.
+    pause & goto gaming_mode
+)
+if "%game_choice%"=="4" goto menu
+goto gaming_mode
+
+:: ==================================================
+:: 3. REFRESH SYSTEM
+:: ==================================================
+:refresh_system
+echo.
+echo Clearing Temp...
+del /q /f /s %TEMP%\* >nul 2>&1
+del /q /f /s C:\Windows\Temp\* >nul 2>&1
+echo Restarting Explorer...
+taskkill /f /im explorer.exe
+start explorer.exe
+echo Flushing DNS...
+ipconfig /flushdns
+echo [OK] System Refreshed.
+pause
+goto menu
+
+:: ==================================================
+:: 4. STARTUP
+:: ==================================================
+:manage_startup
+echo Opening Task Manager Startup Tab...
+taskmgr /0 /startup
+pause
+goto menu
+
+:: ==================================================
+:: 5. SERVICES MANAGER (Detailed)
+:: ==================================================
+:manage_services
+cls
+echo [Windows Services Manager]
+echo.
+echo 1. List Running Services
+echo 2. Start a Service
+echo 3. Stop a Service
+echo 4. Disable a Service (Prevent startup)
+echo 5. Enable a Service (Auto startup)
+echo 6. Search Service by Name
+echo 7. Back
+set /p svc_choice=Choice: 
+
+if "%svc_choice%"=="1" sc query type= service state= running | more & pause & goto manage_services
+if "%svc_choice%"=="2" set /p s=Name: & sc start "!s!" & pause & goto manage_services
+if "%svc_choice%"=="3" set /p s=Name: & sc stop "!s!" & pause & goto manage_services
+if "%svc_choice%"=="4" set /p s=Name: & sc config "!s!" start= disabled & pause & goto manage_services
+if "%svc_choice%"=="5" set /p s=Name: & sc config "!s!" start= auto & pause & goto manage_services
+if "%svc_choice%"=="6" set /p s=Term: & sc query state= all | findstr /i "!s!" & pause & goto manage_services
+if "%svc_choice%"=="7" goto menu
+goto manage_services
+
+:: ==================================================
+:: 6. DEEP CLEANUP
+:: ==================================================
+:deep_cleanup
+cls
+echo [Deep Disk Cleanup]
+echo 1. Standard Disk Cleanup (Auto)
+echo 2. Clean Windows Update Cache (Fix Update Errors)
+echo 3. Back
+set /p cln_choice=Choice: 
+
+if "%cln_choice%"=="1" (
+    reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Temporary Files" /v StateFlags0001 /t REG_DWORD /d 2 /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Update Cleanup" /v StateFlags0001 /t REG_DWORD /d 2 /f
+    cleanmgr /sagerun:0001
+    pause & goto deep_cleanup
+)
+if "%cln_choice%"=="2" (
+    net stop wuauserv
+    net stop bits
+    rmdir /s /q C:\Windows\SoftwareDistribution\Download
+    mkdir C:\Windows\SoftwareDistribution\Download
+    net start wuauserv
+    net start bits
+    echo Update Cache Cleared.
+    pause & goto deep_cleanup
+)
+if "%cln_choice%"=="3" goto menu
+goto deep_cleanup
+
+:: ==================================================
+:: 7. DISK OPTIMIZE
+:: ==================================================
+:optimize_disk
+echo.
+echo Optimizing Drive C: ...
+defrag C: /O /U /V
+echo Done.
+pause
+goto menu
+
+:: ==================================================
+:: 8. SYSTEM REPAIR
+:: ==================================================
+:system_repair
+echo.
+echo 1. DISM RestoreHealth (Fix System Image)
+echo 2. SFC Scannow (Fix System Files)
+echo 3. Back
+set /p rep_choice=Choice: 
+if "%rep_choice%"=="1" dism /online /cleanup-image /restorehealth & pause & goto system_repair
+if "%rep_choice%"=="2" sfc /scannow & pause & goto system_repair
+if "%rep_choice%"=="3" goto menu
+goto system_repair
+
+:: ==================================================
+:: 9. WINDOWS UPDATE & SOFTWARE
+:: ==================================================
+:windows_update_menu
+cls
+echo [Update Management]
+echo 1. Update All Installed Software (Winget)
+echo 2. Enable Windows Update Service
+echo 3. Disable Windows Update Service
+echo 4. Force Check Updates
+echo 5. Back
+set /p up_choice=Choice: 
+
+if "%up_choice%"=="1" (
+    winget upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements
+    pause & goto windows_update_menu
+)
+if "%up_choice%"=="2" sc config wuauserv start= auto & net start wuauserv & pause & goto windows_update_menu
+if "%up_choice%"=="3" sc config wuauserv start= disabled & net stop wuauserv & pause & goto windows_update_menu
+if "%up_choice%"=="4" usoclient StartScan & echo Checking... & pause & goto windows_update_menu
+if "%up_choice%"=="5" goto menu
+goto windows_update_menu
+
+:: ==================================================
+:: 10. NETWORK
+:: ==================================================
+:optimize_network
+cls
+echo [Network Optimization]
+echo 1. Optimize TCP/IP Global Settings
+echo 2. Set DNS to Cloudflare (1.1.1.1)
+echo 3. Set DNS to Google (8.8.8.8)
+echo 4. Reset Network Stack (Fix Issues)
+echo 5. Back
+set /p net_choice=Choice: 
+
+if "%net_choice%"=="1" (
+    netsh int tcp set global autotuninglevel=normal
+    netsh int tcp set global congestionprovider=ctcp
+    netsh int tcp set global ecncapability=enabled
+    echo TCP Optimized.
+    pause & goto optimize_network
+)
+if "%net_choice%"=="2" (
+    for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr "Connected"') do (
+        netsh interface ip set dns "%%j" static 1.1.1.1 primary
+        netsh interface ip add dns "%%j" 1.0.0.1 index=2
+    )
+    echo Cloudflare DNS Set.
+    pause & goto optimize_network
+)
+if "%net_choice%"=="3" (
+    for /f "tokens=3*" %%i in ('netsh int show interface ^| findstr "Connected"') do (
+        netsh interface ip set dns "%%j" static 8.8.8.8 primary
+        netsh interface ip add dns "%%j" 8.8.4.4 index=2
+    )
+    echo Google DNS Set.
+    pause & goto optimize_network
+)
+if "%net_choice%"=="4" (
+    netsh winsock reset
+    netsh int ip reset
+    ipconfig /flushdns
+    echo Network Reset. Reboot required.
+    pause & goto optimize_network
+)
+if "%net_choice%"=="5" goto menu
+goto optimize_network
+
+:: ==================================================
+:: 11. DEFENDER
+:: ==================================================
+:defender_menu
+cls
+echo [Windows Defender]
+echo 1. Enable Real-Time Protection
+echo 2. Disable Real-Time Protection
+echo 3. Quick Scan
+echo 4. Back
+set /p def_choice=Choice: 
+if "%def_choice%"=="1" powershell "Set-MpPreference -DisableRealtimeMonitoring $false" & echo On & pause & goto defender_menu
+if "%def_choice%"=="2" powershell "Set-MpPreference -DisableRealtimeMonitoring $true" & echo Off & pause & goto defender_menu
+if "%def_choice%"=="3" start "" "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1 & goto defender_menu
+if "%def_choice%"=="4" goto menu
+goto defender_menu
+
+:: ==================================================
+:: 12. PRIVACY
+:: ==================================================
+:privacy_tweaks
+echo.
+echo Blocking Telemetry...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v DisabledByGroupPolicy /t REG_DWORD /d 1 /f
+echo Disabling Activity History...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableActivityFeed /t REG_DWORD /d 0 /f
+echo Done.
+pause
+goto menu
+
+:: ==================================================
+:: 13. RESTORE POINT
+:: ==================================================
+:create_restore
+wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "Manual_Backup", 100, 7
+if %errorlevel%==0 echo Success.
+if %errorlevel% neq 0 echo Failed. Check System Protection settings.
+pause
+goto menu
+
+:: ==================================================
+:: 14. ACTIVATION
+:: ==================================================
+:activation_menu
+cls
+echo [Windows Activation Hub]
+echo 1. Open GitHub MAS (Auto-Activation)
+echo 2. Check Expiration Status
+echo 3. Install Key Manually
+echo 4. Back
+set /p act_choice=Choice: 
+if "%act_choice%"=="1" powershell "irm https://get.activated.win | iex" & goto activation_menu
+if "%act_choice%"=="2" slmgr /xpr & goto activation_menu
+if "%act_choice%"=="3" set /p k=Key: & slmgr /ipk !k! & slmgr /ato & pause & goto activation_menu
+if "%act_choice%"=="4" goto menu
+goto activation_menu
+
+:: ==================================================
+:: 15. PARTITIONS (Detailed)
+:: ==================================================
+:partition_manager
+cls
+echo [Partition Manager]
+echo 1. Open Windows Disk Management (GUI - Recommended)
+echo 2. List Disks (CMD)
+echo 3. List Volumes (CMD)
+echo 4. Launch Diskpart Interactive
+echo 5. Back
+set /p part_choice=Choice: 
+
+if "%part_choice%"=="1" start diskmgmt.msc & goto partition_manager
+if "%part_choice%"=="2" (echo list disk > temp.txt & diskpart /s temp.txt & del temp.txt & pause & goto partition_manager)
+if "%part_choice%"=="3" (echo list volume > temp.txt & diskpart /s temp.txt & del temp.txt & pause & goto partition_manager)
+if "%part_choice%"=="4" diskpart
+if "%part_choice%"=="5" goto menu
+goto partition_manager
+
+:: ==================================================
+:: 16. AUTO LOGIN
+:: ==================================================
+:auto_login
+echo Opening User Accounts (netplwiz)...
+echo Uncheck 'Users must enter a user name...' to enable auto-login.
+start netplwiz
+pause
+goto menu
+
+:: ==================================================
+:: 17. THEME SWITCHER
+:: ==================================================
+:theme_switcher
+cls
+echo 1. Dark Mode
+echo 2. Light Mode
+echo 3. Back
+set /p th_choice=Choice: 
+if "%th_choice%"=="1" (
+    reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+    reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+    echo Dark Mode Set.
+    goto theme_switcher
+)
+if "%th_choice%"=="2" (
+    reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 1 /f
+    reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 1 /f
+    echo Light Mode Set.
+    goto theme_switcher
+)
+if "%th_choice%"=="3" goto menu
+goto theme_switcher
+
+:: ==================================================
+:: 18. VISUAL TWEAKS
+:: ==================================================
+:visual_tweaks
+echo.
+echo Removing Menu Delays...
+reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f
+echo Disabling Window Animations...
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d "0" /f
+echo Done. Restart required.
+pause
+goto menu
+
+:: ==================================================
+:: 19. SYSTEM INFO
+:: ==================================================
+:system_info
+systeminfo | more
+pause
+goto menu
+
+:: ==================================================
+:: 99. AUTO PILOT
+:: ==================================================
+:auto_pilot
+cls
+echo [Auto-Pilot] Running Safe Optimizations...
+echo.
+echo 1. Creating Restore Point...
+wmic.exe /Namespace:\\root\default Path SystemRestore Call CreateRestorePoint "AutoPilot_Backup", 100, 7 >nul
+echo 2. Performance Tweaks...
+powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f
+echo 3. Cleaning Junk...
+del /q /f /s %TEMP%\* >nul 2>&1
+echo 4. Network Reset...
+ipconfig /flushdns >nul
+echo 5. Privacy...
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
+
+echo.
+echo [COMPLETE] Please restart your PC.
+pause
+goto menu
+
