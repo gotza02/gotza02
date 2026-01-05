@@ -165,7 +165,7 @@ run_agent "RESEARCH" "$TMP_DIR/research.txt" "ROLE: RESEARCH AGENT. Focus: Searc
 run_agent "ANALYSIS" "$TMP_DIR/analysis.txt" "ROLE: ANALYSIS AGENT. Focus: Logic, Risks, Trade-offs."
 run_agent "PREDICT" "$TMP_DIR/predict.txt" "ROLE: PREDICTION AGENT. Focus: Future trends, Estimation."
 
-wait
+#wait
 
 log "  ✓ Agents finished. Synthesizing..."
 
