@@ -1,392 +1,323 @@
-cat > ~/.gemini/setup-multiagent.sh << 'SCRIPT_EOF'
-#!/usr/bin/env bash
+cat > ~/.gemini/setup-full-multiagent.sh << 'SETUP_EOF'
+#!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
-umask 077
+umask 022
 
-# ---------------------------
-# Config (ปรับได้)
-# ---------------------------
-DEFAULT_MODEL="gemini-3-flash-preview"
-SUBAGENT_TIMEOUT_SEC="90"
-CACHE_TTL_SEC="600"
-NUM_SUBAGENTS="4"
+# ═══════════════════════════════════════════════════════════════════
+#  🚀 FULL SETUP: Gemini Multi-Agent Orchestrator (Termux)
+#  Model: gemini-3-flash-preview | Fixes: Tools, Env, Logging
+# ═══════════════════════════════════════════════════════════════════
 
-# ---------------------------
-# Paths (Global)
-# ---------------------------
-GEMINI_DIR="${HOME}/.gemini"
-HOOKS_DIR="${GEMINI_DIR}/hooks"
-CACHE_DIR="${GEMINI_DIR}/.multiagent_cache"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  📦 กำลังตรวจสอบและติดตั้ง Dependencies..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-SETTINGS_JSON="${GEMINI_DIR}/settings.json"
-SETTINGS_BAK_DIR="${GEMINI_DIR}/backup_settings"
-GLOBAL_CONTEXT="${GEMINI_DIR}/GEMINI.md"
+# 1. Install System Dependencies
+pkg update -y >/dev/null 2>&1 || true
+for pkg in python nodejs termux-api git; do
+    if ! command -v $pkg &> /dev/null; then
+        echo "  - Installing $pkg..."
+        pkg install -y $pkg >/dev/null 2>&1
+    fi
+done
 
-ORCH="${HOOKS_DIR}/multiagent-orchestrator.sh"
+# 2. Setup Directories
+GEMINI_DIR="$HOME/.gemini"
+HOOKS_DIR="$GEMINI_DIR/hooks"
+CACHE_DIR="$GEMINI_DIR/.multiagent_cache"
+SETTINGS_JSON="$GEMINI_DIR/settings.json"
+SETTINGS_BAK="$GEMINI_DIR/backup_settings"
+GLOBAL_CONTEXT="$GEMINI_DIR/GEMINI.md"
+ORCH="$HOOKS_DIR/multiagent-orchestrator.sh"
+SANDBOX_DIR="/storage/emulated/0/sandbox"
 
-# ---------------------------
-# Helpers
-# ---------------------------
-have() { command -v "$1" >/dev/null 2>&1; }
-timestamp() { date +"%Y%m%d-%H%M%S"; }
+mkdir -p "$GEMINI_DIR" "$HOOKS_DIR" "$CACHE_DIR" "$SETTINGS_BAK"
 
-backup_file() {
-  local f="$1"
-  [[ -f "$f" ]] || return 0
-  mkdir -p "${SETTINGS_BAK_DIR}"
-  cp -f "$f" "${SETTINGS_BAK_DIR}/$(basename "$f").$(timestamp).bak"
-}
+# 3. Setup Storage for Filesystem MCP
+if [ ! -d "/storage/emulated/0" ]; then
+    echo "  ⚠️  กรุณากด 'Allow' ในหน้าต่างที่เด้งขึ้นมาเพื่อให้สิทธิ์เข้าถึงไฟล์"
+    termux-setup-storage
+    sleep 3
+fi
+mkdir -p "$SANDBOX_DIR" 2>/dev/null || true
 
-write_global_context() {
-  cat > "${GLOBAL_CONTEXT}" <<'EOF'
+# -------------------------------------------------------------------
+#  SCRIPT GENERATION
+# -------------------------------------------------------------------
+
+# 1. Global Context (GEMINI.md)
+echo "  📝 สร้าง Global Context..."
+cat > "$GLOBAL_CONTEXT" << 'CONTEXT_EOF'
 # Global Instructions (GEMINI.md)
 
 คุณคือ Agent กลางของฉันใน Gemini CLI
 
-## Multi-Agent Orchestration (Injected)
-ถ้ามีบล็อกชื่อ "MULTI_AGENT_PACKET" ถูกฉีดเข้ามาในบริบท:
-- ต้องอ่านทุกส่วน (CODE / RESEARCH / ANALYSIS / PREDICTION / JUDGE)
-- สังเคราะห์คำตอบที่ "ดีที่สุด" ให้ผู้ใช้ โดย:
-  - ถ้างานเป็นโค้ด: ให้คำตอบแบบใช้งานได้จริง, มีคำสั่งรัน/ไฟล์/แพตช์, และข้อควรระวัง
-  - ถ้างานเป็นวิจัย/ค้นหา: สรุปเชิงโครงสร้าง, ระบุสมมติฐาน/ข้อจำกัด, และให้รายการแหล่งข้อมูลที่ควรตรวจสอบ
-  - ถ้างานเป็นวิเคราะห์: ให้เหตุผล/ขั้นตอนคิดแบบตรวจสอบได้, แยกข้อเท็จจริง vs สมมติฐาน
-  - ถ้างานเป็นทำนายผล: ให้สมมติฐาน, ตัวแปรสำคัญ, ช่วงความเป็นไปได้, และระดับความเชื่อมั่น
-
-## MCP Tools Available
-- **exa**: ค้นหาข้อมูลจาก web แบบ semantic search
-- **context7**: จัดการ context และ memory
-- **brave-search**: ค้นหาจาก Brave Search API
-- **filesystem**: อ่าน/เขียนไฟล์ใน sandbox directories
+## Multi-Agent Orchestration
+เมื่อได้รับบล็อก "MULTI_AGENT_PACKET" ในบริบท:
+1. อ่านข้อมูลจากทุก Agent (Code, Research, Analysis, Predict)
+2. สังเคราะห์คำตอบที่ดีที่สุดจากส่วน Judge
+3. นำเสนอข้อมูลต่อผู้ใช้ในรูปแบบที่เข้าใจง่ายและนำไปใช้ได้จริง
 
 ## Output Style
-- ตอบเป็นภาษาไทยเป็นหลัก
-- เน้นขั้นตอนทำจริง (commands / config / file paths)
-- ถ้าไม่มั่นใจ ให้ระบุชัดเจนว่าไม่มั่นใจส่วนไหนและต้องตรวจอะไรเพิ่ม
-- ใช้ MCP tools เมื่อต้องการข้อมูลจริงจาก web หรือจัดการไฟล์
-EOF
-  echo "[✓] Global context: ${GLOBAL_CONTEXT}"
-}
+- ตอบภาษาไทย
+- เน้น Code ที่ใช้งานได้จริง (ถ้ามี)
+- อ้างอิงแหล่งข้อมูล (ถ้ามี)
+CONTEXT_EOF
 
-write_orchestrator() {
-  cat > "${ORCH}" <<'EOF'
-#!/usr/bin/env bash
+# 2. Orchestrator Hook (หัวใจหลัก)
+echo "  🧠 สร้าง Orchestrator Script (Fixed Tools)..."
+cat > "$ORCH" << 'HOOK_EOF'
+#!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-# Prevent recursion
+# Prevent Recursion
 if [[ "${GEMINI_MULTIAGENT_CHILD:-}" == "1" ]]; then
   printf '%s' '{}'
   exit 0
 fi
 
+# Configuration
 DEFAULT_MODEL="${GEMINI_MULTIAGENT_MODEL:-gemini-3-flash-preview}"
-TIMEOUT_SEC="${GEMINI_MULTIAGENT_TIMEOUT_SEC:-90}"
+TIMEOUT_SEC="${GEMINI_MULTIAGENT_TIMEOUT_SEC:-120}"
 CACHE_TTL_SEC="${GEMINI_MULTIAGENT_CACHE_TTL_SEC:-600}"
+GEMINI_DIR="$HOME/.gemini"
+CACHE_DIR="$GEMINI_DIR/.multiagent_cache"
+LOG_FILE="$GEMINI_DIR/multiagent.log"
 
-GEMINI_DIR="${HOME}/.gemini"
-CACHE_DIR="${GEMINI_DIR}/.multiagent_cache"
-mkdir -p "${CACHE_DIR}"
+# Logging function
+log() { echo "[$(date '+%H:%M:%S')] $*" >> "$LOG_FILE"; }
 
-have() { command -v "$1" >/dev/null 2>&1; }
+# Read Input
+EVENT_JSON="$(cat 2>/dev/null || echo '{}')"
+log "▶ INPUT received (len: ${#EVENT_JSON})"
 
-timeout_cmd() {
-  if have timeout; then
-    timeout "$@"
-  elif have gtimeout; then
-    gtimeout "$@"
-  else
-    shift; "$@"
-  fi
-}
-
-EVENT_JSON="$(cat || true)"
-if [[ -z "${EVENT_JSON}" ]]; then
-  printf '%s' '{}'
-  exit 0
-fi
-
-if ! have python3; then
-  printf '%s' '{}'
-  exit 0
-fi
-
-PROMPT="$(python3 - <<'PY' <<<"${EVENT_JSON}"
-import json, sys
-raw = sys.stdin.read()
+# Extract Prompt safely (Avoid Python quotes crash)
+export EVENT_JSON_ENV="$EVENT_JSON"
+PROMPT="$(python3 -c '
+import json, os, sys
+raw = os.environ.get("EVENT_JSON_ENV", "")
 try:
     data = json.loads(raw) if raw.strip() else {}
 except:
     data = {}
-def get_str(x):
-    return x.strip() if isinstance(x, str) else ""
-for k in ["prompt", "input", "text", "userPrompt", "userMessage", "query"]:
-    v = get_str(data.get(k))
-    if v:
-        print(v)
-        raise SystemExit(0)
-msgs = data.get("messages")
-if isinstance(msgs, list) and msgs:
-    last = msgs[-1]
-    if isinstance(last, dict):
-        v = get_str(last.get("content")) or get_str(last.get("text"))
-        if v:
-            print(v)
-            raise SystemExit(0)
-print("")
-PY
-)"
 
-if [[ -z "${PROMPT}" ]]; then
+def find_prompt(obj, depth=0):
+    if depth > 3: return ""
+    if isinstance(obj, str) and obj.strip(): return obj.strip()
+    if isinstance(obj, dict):
+        for key in ["prompt", "input", "text", "userPrompt", "message"]:
+            val = obj.get(key)
+            if isinstance(val, str) and val.strip(): return val.strip()
+        for val in obj.values():
+            res = find_prompt(val, depth+1)
+            if res: return res
+    if isinstance(obj, list):
+        for item in reversed(obj):
+            res = find_prompt(item, depth+1)
+            if res: return res
+    return ""
+print(find_prompt(data))
+')"
+
+if [[ -z "$PROMPT" ]]; then
   printf '%s' '{}'
   exit 0
 fi
 
-CACHE_KEY="$(python3 -c "import hashlib,sys; print(hashlib.sha256(sys.argv[1].encode()).hexdigest())" "${PROMPT}")"
-CACHE_FILE="${CACHE_DIR}/${CACHE_KEY}.json"
+log "  Prompt: ${PROMPT:0:50}..."
 
-if [[ -f "${CACHE_FILE}" ]]; then
-  if python3 - "${CACHE_FILE}" "${CACHE_TTL_SEC}" 2>/dev/null <<'PY'
-import sys, time, os
-age = int(time.time()) - int(os.stat(sys.argv[1]).st_mtime)
-sys.exit(0 if age <= int(sys.argv[2]) else 1)
-PY
-  then
-    cat "${CACHE_FILE}"
+# Cache Check
+CACHE_KEY="$(echo -n "$PROMPT" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.read().encode()).hexdigest())')"
+CACHE_FILE="$CACHE_DIR/$CACHE_KEY.json"
+
+if [[ -f "$CACHE_FILE" ]]; then
+  FILE_AGE=$(( $(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0) ))
+  if [[ $FILE_AGE -le $CACHE_TTL_SEC ]]; then
+    log "  ✓ Cache Hit"
+    cat "$CACHE_FILE"
     exit 0
   fi
 fi
 
-if ! have gemini; then
-  printf '%s' '{}'
-  exit 0
-fi
-
+# Sub-agent Execution
 TMP_DIR="$(mktemp -d)"
-trap "rm -rf '${TMP_DIR}'" EXIT
+trap "rm -rf '$TMP_DIR'" EXIT
+
+log "  ⚡ Starting Agents..."
+echo "[Multi-Agent] ⏳ กำลังระดมสมอง 4 ด้าน (Research/Code/Analysis/Predict)..." >&2
 
 run_agent() {
-  local outfile="$1" sys_prompt="$2"
+  local name="$1"
+  local outfile="$2"
+  local role="$3"
   (
-    GEMINI_MULTIAGENT_CHILD=1 \
-    timeout_cmd "${TIMEOUT_SEC}" \
-    gemini -m "${DEFAULT_MODEL}" --sandbox=false --approval-mode=yolo -p "${sys_prompt}
+    export GEMINI_MULTIAGENT_CHILD=1
+    # FIX: ใช้ yes | เพื่อ Auto-approve Tool usage
+    yes | timeout "$TIMEOUT_SEC" gemini -m "$DEFAULT_MODEL" --sandbox=false --approval-mode=yolo -p "$role
 
 USER REQUEST:
-${PROMPT}
-" >"${outfile}" 2>&1 || true
+$PROMPT" > "$outfile" 2>&1 || echo "Error: Timeout" > "$outfile"
   ) &
 }
 
-echo "[Multi-Agent] กำลังประมวลผล 4 agents..." >&2
+run_agent "CODE" "$TMP_DIR/code.txt" "ROLE: CODE AGENT. Focus: Implementation, Commands, Syntax."
+run_agent "RESEARCH" "$TMP_DIR/research.txt" "ROLE: RESEARCH AGENT. Focus: Search Web, Facts, Docs."
+run_agent "ANALYSIS" "$TMP_DIR/analysis.txt" "ROLE: ANALYSIS AGENT. Focus: Logic, Risks, Trade-offs."
+run_agent "PREDICT" "$TMP_DIR/predict.txt" "ROLE: PREDICTION AGENT. Focus: Future trends, Estimation."
 
-run_agent "${TMP_DIR}/code.txt" "ROLE: CODE (subagent)
-เป้าหมาย: ให้คำตอบด้านโค้ดที่ใช้งานได้จริงที่สุด
-- ถ้าต้องเขียนโค้ด ให้ใส่โค้ด/คำสั่งรัน/โครงสร้างไฟล์ชัดเจน
-- ถ้าต้องแก้บั๊ก ให้ระบุสาเหตุ + แพตช์
-- ห้ามรัน shell tool หรือแก้ไฟล์จริง
-เอาท์พุต: สรุปแนวทาง, โค้ด/คำสั่ง, ข้อควรระวัง"
+wait
 
-run_agent "${TMP_DIR}/research.txt" "ROLE: RESEARCH (subagent)
-เป้าหมาย: ค้นคว้า/สรุปข้อมูลให้พร้อมใช้งาน
-- ถ้าต้องอ้างอิง ให้ใส่ชื่อแหล่งข้อมูล/หัวข้อ/คำค้นที่แนะนำ
-- ห้ามรัน shell tool หรือแก้ไฟล์จริง
-เอาท์พุต: สรุป bullet, รายการคำค้น/แหล่งข้อมูล, ข้อจำกัด"
+log "  ✓ Agents finished. Synthesizing..."
 
-run_agent "${TMP_DIR}/analysis.txt" "ROLE: ANALYSIS (subagent)
-เป้าหมาย: วิเคราะห์เชิงลึกและโครงสร้างการตัดสินใจ
-- แยก Fact / Assumption / Risk
-- ถ้าเป็นงานออกแบบระบบ ให้ trade-offs
-- ห้ามรัน shell tool หรือแก้ไฟล์จริง
-เอาท์พุต: กรอบวิเคราะห์, ข้อเสนอแนะ, ความเสี่ยง"
-
-run_agent "${TMP_DIR}/predict.txt" "ROLE: PREDICTION (subagent)
-เป้าหมาย: ประเมินแนวโน้ม/ทำนายผล/ประมาณการ
-- ระบุสมมติฐานชัดเจน
-- ให้ range และความเชื่อมั่น
-- ห้ามรัน shell tool หรือแก้ไฟล์จริง
-เอาท์พุต: สมมติฐาน, ผลลัพธ์คาดการณ์, ความเชื่อมั่น"
-
-wait || true
-echo "[Multi-Agent] agents เสร็จ กำลังสังเคราะห์..." >&2
-
-truncate_file() {
-  python3 -c "
-import sys
-try:
-    s = open(sys.argv[1]).read()[-12000:]
-except:
-    s = ''
-print(s)
-" "$1"
+# Safe File Reading
+read_file() {
+    export FPATH="$1"
+    python3 -c "import os; print(open(os.environ['FPATH'], errors='replace').read()[-15000:])" 2>/dev/null
 }
 
-CODE_TXT="$(truncate_file "${TMP_DIR}/code.txt")"
-RES_TXT="$(truncate_file "${TMP_DIR}/research.txt")"
-ANL_TXT="$(truncate_file "${TMP_DIR}/analysis.txt")"
-PRD_TXT="$(truncate_file "${TMP_DIR}/predict.txt")"
+CODE="$(read_file "$TMP_DIR/code.txt")"
+RES="$(read_file "$TMP_DIR/research.txt")"
+ANL="$(read_file "$TMP_DIR/analysis.txt")"
+PRD="$(read_file "$TMP_DIR/predict.txt")"
 
-JUDGE_PROMPT="ROLE: JUDGE/SYNTHESIZER
-คุณได้รับผลจาก 4 subagents: CODE/RESEARCH/ANALYSIS/PREDICT
-งาน: สังเคราะห์คำตอบที่ดีที่สุดพร้อมใช้งานจริง
-- ถ้างานโค้ด: มีคำสั่ง/โค้ดชัดเจน
-- ถ้างานวิจัย: มีขั้นตอนและสิ่งที่ต้องตรวจสอบ
-- ถ้างานทำนาย: มีสมมติฐาน + range + ความเชื่อมั่น
-ห้ามรัน shell หรือแก้ไฟล์จริง
+# Judge Agent
+export GEMINI_MULTIAGENT_CHILD=1
+yes | timeout "$TIMEOUT_SEC" gemini -m "$DEFAULT_MODEL" --sandbox=false --approval-mode=yolo -p "ROLE: JUDGE
+Synthesize the final answer from these agents:
+[CODE]: $CODE
+[RESEARCH]: $RES
+[ANALYSIS]: $ANL
+[PREDICT]: $PRD
+" > "$TMP_DIR/judge.txt" 2>&1
 
-[CODE]
-${CODE_TXT}
+JDG="$(read_file "$TMP_DIR/judge.txt")"
 
-[RESEARCH]
-${RES_TXT}
+# Packet Construction
+PACKET="════════════════════════════════════════════════════════════════
+MULTI_AGENT_PACKET (Model: $DEFAULT_MODEL)
+════════════════════════════════════════════════════════════════
+▶ CODE:
+$CODE
+────────────────────────────────────────────────────────────────
+▶ RESEARCH:
+$RES
+────────────────────────────────────────────────────────────────
+▶ ANALYSIS:
+$ANL
+────────────────────────────────────────────────────────────────
+▶ PREDICT:
+$PRD
+────────────────────────────────────────────────────────────────
+▶ JUDGE (FINAL):
+$JDG
+════════════════════════════════════════════════════════════════"
 
-[ANALYSIS]
-${ANL_TXT}
-
-[PREDICT]
-${PRD_TXT}
-
-OUTPUT: FINAL (คำตอบสุดท้าย), CHECKLIST (สิ่งที่ต้องทำ), RISKS (ถ้ามี)"
-
-GEMINI_MULTIAGENT_CHILD=1 \
-  timeout_cmd "${TIMEOUT_SEC}" \
-  gemini -m "${DEFAULT_MODEL}" --sandbox=false --approval-mode=yolo -p "${JUDGE_PROMPT}" >"${TMP_DIR}/judge.txt" 2>&1 || true
-
-JDG_TXT="$(truncate_file "${TMP_DIR}/judge.txt")"
-
-export CODE_TXT RES_TXT ANL_TXT PRD_TXT JDG_TXT DEFAULT_MODEL
-PACKET="$(python3 -c '
-import os
-print(f"""MULTI_AGENT_PACKET
-MODEL={os.environ.get("DEFAULT_MODEL","")}
-
-[CODE]
-{os.environ.get("CODE_TXT","")}
-
-[RESEARCH]
-{os.environ.get("RES_TXT","")}
-
-[ANALYSIS]
-{os.environ.get("ANL_TXT","")}
-
-[PREDICTION]
-{os.environ.get("PRD_TXT","")}
-
-[JUDGE]
-{os.environ.get("JDG_TXT","")}
-""")')"
-
-OUT_JSON="$(python3 -c "import json,sys; print(json.dumps({'hookSpecificOutput':{'additionalContext':sys.stdin.read()}}))" <<<"${PACKET}")"
-
-printf '%s' "${OUT_JSON}" > "${CACHE_FILE}" 2>/dev/null || true
-printf '%s' "${OUT_JSON}"
-EOF
-
-  chmod +x "${ORCH}"
-  echo "[✓] Orchestrator hook: ${ORCH}"
-}
-
-update_settings_json() {
-  backup_file "${SETTINGS_JSON}"
-  
-  python3 - <<PY
+# Create Output JSON
+export PACKET_ENV="$PACKET"
+OUT_JSON="$(python3 -c '
 import json, os
+packet = os.environ.get("PACKET_ENV", "")
+output = {"hookSpecificOutput": {"additionalContext": packet}}
+print(json.dumps(output, ensure_ascii=False))
+')"
 
-path = "${SETTINGS_JSON}"
-orch = "${ORCH}"
+echo "$OUT_JSON" > "$CACHE_FILE" 2>/dev/null || true
+printf '%s' "$OUT_JSON"
+HOOK_EOF
+chmod +x "$ORCH"
 
+# 3. Settings JSON
+echo "  ⚙️ อัปเดต Settings JSON..."
+backup_file() { cp -f "$1" "$SETTINGS_BAK/" 2>/dev/null || true; }
+backup_file "$SETTINGS_JSON"
+
+python3 << PYEOF
+import json, os
+path = "$SETTINGS_JSON"
 data = {}
 if os.path.exists(path):
-    try:
-        data = json.load(open(path))
-    except:
-        data = {}
+    try: data = json.load(open(path))
+    except: pass
 
-# Context
+# Basic Config
 data.setdefault("context", {})["fileName"] = ["GEMINI.md"]
-
-# Tools
-tools = data.setdefault("tools", {})
-tools["enableHooks"] = True
-tools["sandbox"] = False
-
-# Experimental
+data.setdefault("tools", {})["enableHooks"] = True
+data.setdefault("tools", {})["sandbox"] = False # Disable built-in sandbox to use MCP
 data.setdefault("experimental", {})["enableAgents"] = True
 
 # Hooks
 hooks = data.setdefault("hooks", {})
-before = [e for e in hooks.get("BeforeModel", []) 
-          if e.get("hooks", [{}])[0].get("command") != orch]
-before.append({"matcher": "*", "hooks": [{"type": "command", "command": orch}]})
+before = hooks.get("BeforeModel", [])
+# Remove old hook entry if exists
+before = [h for h in before if not (isinstance(h,dict) and "$ORCH" in str(h))]
+# Add new hook
+before.append({
+    "matcher": "*",
+    "hooks": [{"type": "command", "command": "$ORCH"}]
+})
 hooks["BeforeModel"] = before
 
-# MCP Servers
+# MCP Servers (Env vars inherited from shell)
 data["mcpServers"] = {
-    "exa": {
-        "command": "npx",
-        "args": ["-y", "exa-mcp-server"],
-        "env": {
-            "EXA_API_KEY": "\$EXA_API_KEY"
-        }
-    },
-    "context7": {
-        "command": "npx",
-        "args": ["-y", "@upstash/context7-mcp"],
-        "env": {
-            "CONTEXT7_API_KEY": "\$CONTEXT7_API_KEY"
-        }
-    },
-    "brave-search": {
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-        "env": {
-            "BRAVE_API_KEY": "\$BRAVE_API_KEY"
-        }
-    },
-    "filesystem": {
-        "command": "npx",
-        "args": [
-            "-y",
-            "@modelcontextprotocol/server-filesystem",
-            "/storage/emulated/0/sandbox",
-            "/data/data/com.termux/files/home/.gemini"
-        ]
+    "exa": { "command": "npx", "args": ["-y", "exa-mcp-server"] },
+    "brave-search": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-brave-search"] },
+    "context7": { "command": "npx", "args": ["-y", "@upstash/context7-mcp"] },
+    "filesystem": { 
+        "command": "npx", 
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "$SANDBOX_DIR", "$GEMINI_DIR"] 
     }
 }
 
-with open(path, "w") as f:
-    json.dump(data, f, indent=2, ensure_ascii=False)
-    f.write("\n")
-PY
-  echo "[✓] Settings + MCP Servers: ${SETTINGS_JSON}"
-}
+with open(path, 'w') as f: json.dump(data, f, indent=2, ensure_ascii=False)
+PYEOF
 
-main() {
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo "  Multi-Agent + MCP Servers Setup"
-  echo "  Model: gemini-3-flash-preview"
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  mkdir -p "${GEMINI_DIR}" "${HOOKS_DIR}" "${CACHE_DIR}"
-  write_global_context
-  write_orchestrator
-  update_settings_json
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo ""
-  echo "📦 MCP Servers ที่ติดตั้ง:"
-  echo "   • exa (semantic search)"
-  echo "   • context7 (memory)"
-  echo "   • brave-search"
-  echo "   • filesystem"
-  echo ""
-  echo "🔑 ตั้ง API Keys (ถ้าต้องการใช้ search):"
-  echo "   export EXA_API_KEY='your-key'"
-  echo "   export BRAVE_API_KEY='your-key'"
-  echo "   export CONTEXT7_API_KEY='your-key'"
-  echo ""
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo "[✓] เสร็จสมบูรณ์! พิมพ์ 'gemini' เพื่อใช้งาน"
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-}
+# 4. Helper Scripts & Aliases
+echo "  🛠️ สร้าง Helper Scripts..."
+cat > "$GEMINI_DIR/multiagent-toggle.sh" << 'EOF'
+#!/bin/bash
+S="$HOME/.gemini/settings.json"
+curr=$(python3 -c "import json; print(json.load(open('$S'))['tools'].get('enableHooks',False))")
+new=$([ "$curr" == "True" ] && echo "False" || echo "True")
+python3 -c "import json; d=json.load(open('$S')); d['tools']['enableHooks']=$new; json.dump(d,open('$S','w'),indent=2)"
+echo "Multi-Agent: $new"
+EOF
+chmod +x "$GEMINI_DIR/multiagent-toggle.sh"
 
-main
-SCRIPT_EOF
+cat > "$GEMINI_DIR/multiagent-clear.sh" << 'EOF'
+#!/bin/bash
+rm -rf ~/.gemini/.multiagent_cache/* ~/.gemini/multiagent.log
+echo "Cache cleared."
+EOF
+chmod +x "$GEMINI_DIR/multiagent-clear.sh"
 
-chmod +x ~/.gemini/setup-multiagent.sh && ~/.gemini/setup-multiagent.sh
+# Add Aliases
+RC="$HOME/.bashrc"
+[[ -f "$HOME/.zshrc" ]] && RC="$HOME/.zshrc"
+sed -i '/# Gemini-MA/d' "$RC" 2>/dev/null || true
+sed -i '/alias ma-/d' "$RC" 2>/dev/null || true
+
+cat >> "$RC" << 'EOF'
+
+# Gemini-MA Aliases
+alias ma-on='~/.gemini/multiagent-toggle.sh'
+alias ma-off='~/.gemini/multiagent-toggle.sh'
+alias ma-log='tail -f ~/.gemini/multiagent.log'
+alias ma-clear='~/.gemini/multiagent-clear.sh'
+EOF
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  ✅ ติดตั้งเสร็จสมบูรณ์! (Full Setup)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  1. พิมพ์คำสั่งนี้เพื่อโหลดการตั้งค่าใหม่:"
+echo "     source ~/.bashrc"
+echo ""
+echo "  2. เริ่มใช้งานได้เลย:"
+echo "     gemini \"ข่าวด่วน Bitcoin วันนี้ และผลกระทบต่อตลาด\""
+echo ""
+echo "  3. ดูการทำงานของ Agent:"
+echo "     ma-log"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+SETUP_EOF
+
+chmod +x ~/.gemini/setup-full-multiagent.sh && ~/.gemini/setup-full-multiagent.sh
