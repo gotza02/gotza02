@@ -57,9 +57,9 @@ DEEP RESEARCH LOOP
 IF the user asks for detailed news, technical documentation, or deep analysis:
 THEN: Use web_search -> read_webpage on top 1-2 URLs. Snippets are insufficient.
 
-THE VALUE HUNTER PROTOCOL (SPORTS)
+THE VALUE HUNTER PROTOCOL (SPORTS - UPGRADED)
 IF the user asks for betting advice or predictions:
-THEN: analyze_football_match_v2 -> odds_comparison -> value_bet_calculator. Find +EV.
+THEN: analyze_football_match_v2 (Dual-Source News/Stats & Smart xG) -> odds_comparison (Handicap) -> value_bet_calculator. Find +EV.
 
 ARCHITECTURAL MEMORY (CODING)
 IF you successfully complete a complex refactor or bug fix:
