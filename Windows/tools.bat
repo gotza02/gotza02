@@ -679,6 +679,340 @@ if not "%disable%"=="" (
     if !ERRORLEVEL! EQU 0 (
         reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%disable%" /f >nul 2>&1
         if !ERRORLEVEL! EQU 0 (
+            echo Successfully disabled: %disnSize%"=="" set "minSize=100"
+
+:: Validate path exists
+if not exist "%searchPath%" (
+    echo Error: Path does not exist.
+    call :LogMessage "Large files search failed: Path does not exist" "ERROR"
+    pause
+    exit /b
+)
+
+echo.
+echo Finding files larger than %minSize% MB in "%searchPath%"...
+call :LogMessage "Finding large files in %searchPath% with minimum size %minSize% MB" "INFO"
+
+:: Escape single quotes in path for PowerShell
+set "escapedPath=!searchPath:'=''!"
+powershell -NoProfile -Command "Get-ChildItem -LiteralPath '!escapedPath!' -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Length / 1MB -ge %minSize% } | Sort-Object Length -Descending | Select-Object -First 50 | ForEach-Object { Write-Host ('{0} - {1:N2} MB' -f $_.FullName, ($_.Length / 1MB)) }"
+
+echo.
+echo Search completed.
+call :LogMessage "Large files search completed" "SUCCESS"
+pause
+exit /b
+
+:FileCompare
+cls
+echo === FILE COMPARISON TOOL ===
+call :LogMessage "File comparison tool started" "INFO"
+
+echo Enter paths to two files to compare:
+set /p "file1=First file path: "
+set /p "file2=Second file path: "
+
+if not exist "%file1%" (
+    echo Error: First file does not exist.
+    call :LogMessage "File comparison failed: First file does not exist" "ERROR"
+    pause
+    exit /b
+)
+
+if not exist "%file2%" (
+    echo Error: Second file does not exist.
+    call :LogMessage "File comparison failed: Second file does not exist" "ERROR"
+    pause
+    exit /b
+)
+
+echo.
+echo Comparing files...
+call :LogMessage "Comparing files: %file1% and %file2%" "INFO"
+
+fc "%file1%" "%file2%" >nul 2>&1
+set "fcResult=!ERRORLEVEL!"
+if !fcResult! EQU 0 (
+    echo Files are identical.
+    call :LogMessage "Files are identical" "SUCCESS"
+) else (
+    echo Files are different.
+    call :LogMessage "Files are different" "WARNING"
+    echo.
+    echo Differences (first 50 lines):
+    :: Bug #20 Fix: Limit output with more or head
+    fc "%file1%" "%file2%" | more /E
+)
+
+pause
+exit /b
+
+:BatchRename
+cls
+echo === BATCH FILE RENAME UTILITY ===
+call :LogMessage "Batch rename utility started" "INFO"
+
+set /p "folderPath=Enter folder path containing files to rename: "
+if not exist "%folderPath%" (
+    echo Error: Folder does not exist.
+    call :LogMessage "Batch rename failed: Folder does not exist" "ERROR"
+    pause
+    exit /b
+)
+
+set /p "prefix=Enter prefix for files (leave empty to skip): "
+set /p "suffix=Enter suffix for files (leave empty to skip): "
+set /p "extension=Enter new extension (leave empty to keep original, include dot e.g. .txt): "
+
+:: Preview mode
+echo.
+echo === PREVIEW MODE ===
+echo.
+echo The following files will be renamed:
+echo.
+
+pushd "%folderPath%" 2>nul
+if !ERRORLEVEL! NEQ 0 (
+    echo Error: Failed to access folder.
+    call :LogMessage "Failed to access folder: %folderPath%" "ERROR"
+    pause
+    exit /b
+)
+
+set "previewCount=0"
+for %%F in (*.*) do (
+    set "originalName=%%F"
+    set "baseName=%%~nF"
+    set "originalExt=%%~xF"
+    
+    if "!extension!"=="" (
+        set "newExt=!originalExt!"
+    ) else (
+        set "newExt=%extension%"
+    )
+    
+    set "newName=%prefix%!baseName!%suffix%!newExt!"
+    
+    if not "!originalName!"=="!newName!" (
+        if not exist "!newName!" (
+            echo !originalName! --^> !newName!
+            set /a previewCount+=1
+        ) else (
+            echo !originalName! --^> !newName! [SKIP: Target exists]
+        )
+    )
+    
+    if !previewCount! GEQ 20 (
+        echo ... [More files not shown]
+        goto EndPreview
+    )
+)
+:EndPreview
+
+echo.
+echo Total files to rename: !previewCount!
+echo.
+set /p "confirmRename=Proceed with rename? (Y/N): "
+
+if /i not "!confirmRename!"=="Y" (
+    echo Rename cancelled.
+    call :LogMessage "Batch rename cancelled by user" "INFO"
+    popd
+    pause
+    exit /b
+)
+
+echo.
+echo Renaming files in "%folderPath%"...
+call :LogMessage "Renaming files in %folderPath% with prefix: '%prefix%', suffix: '%suffix%', extension: '%extension%'" "INFO"
+
+set "renameCount=0"
+for %%F in (*.*) do (
+    set "originalName=%%F"
+    set "baseName=%%~nF"
+    set "originalExt=%%~xF"
+    
+    if "!extension!"=="" (
+        set "newExt=!originalExt!"
+    ) else (
+        set "newExt=%extension%"
+    )
+    
+    set "newName=%prefix%!baseName!%suffix%!newExt!"
+    
+    if not exist "!newName!" (
+        if not "!originalName!"=="!newName!" (
+            ren "!originalName!" "!newName!" 2>nul
+            set "renResult=!ERRORLEVEL!"
+            if !renResult! EQU 0 (
+                echo Renamed: !originalName! -^> !newName!
+                set /a renameCount+=1
+            ) else (
+                echo Failed to rename: !originalName!
+            )
+        )
+    ) else (
+        echo Skipped: !originalName! (target name already exists)
+    )
+)
+popd
+
+echo.
+echo Batch rename completed. Files renamed: !renameCount!
+call :LogMessage "Batch rename completed. Files renamed: !renameCount!" "SUCCESS"
+pause
+exit /b
+
+:: ==========================================
+:: SYSTEM MAINTENANCE FUNCTIONS
+:: ==========================================
+
+:CheckDiskSpace
+cls
+echo === DISK SPACE ANALYZER ===
+call :LogMessage "Disk space analyzer started" "INFO"
+
+echo Analyzing disk space...
+call :LogMessage "Analyzing disk space" "INFO"
+
+powershell -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null } | Select-Object Name, @{n='Used(GB)';e={[math]::Round($_.Used/1GB,2)}}, @{n='Free(GB)';e={[math]::Round($_.Free/1GB,2)}}, @{n='Total(GB)';e={[math]::Round(($_.Used+$_.Free)/1GB,2)}}, @{n='PercentFree';e={[math]::Round($_.Free/($_.Used+$_.Free)*100,2)}} | Format-Table -AutoSize"
+
+call :LogMessage "Disk space analysis completed" "SUCCESS"
+pause
+exit /b
+
+:ClearSystemCache
+cls
+echo === SYSTEM CACHE CLEANER ===
+call :LogMessage "System cache cleaner started" "INFO"
+
+echo Clearing system cache...
+call :LogMessage "Clearing system cache" "INFO"
+
+ipconfig /flushdns >nul 2>&1
+set "dnsResult=!ERRORLEVEL!"
+if !dnsResult! EQU 0 (
+    echo DNS cache cleared.
+    call :LogMessage "DNS cache cleared" "INFO"
+) else (
+    echo Failed to clear DNS cache.
+    call :LogMessage "Failed to clear DNS cache" "ERROR"
+)
+
+:: Check if running as admin before clearing system folders
+net session >nul 2>&1
+if !ERRORLEVEL! EQU 0 (
+    if exist "C:\Windows\SoftwareDistribution\Download" (
+        del /q/f/s "C:\Windows\SoftwareDistribution\Download\*.*" >nul 2>&1
+        echo Windows Update cache cleared.
+        call :LogMessage "Windows Update cache cleared" "INFO"
+    )
+) else (
+    echo Note: Some caches require admin privileges to clear.
+    call :LogMessage "Skipped admin-only cache cleaning" "WARNING"
+)
+
+if exist "%LOCALAPPDATA%\Microsoft\Windows\Explorer" (
+    del /q/f "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
+    echo Thumbnail cache cleared.
+    call :LogMessage "Thumbnail cache cleared" "INFO"
+)
+
+:: Bug #16 Fix: Check existence before deleting icon cache
+if exist "%LOCALAPPDATA%\IconCache.db" (
+    del /q/f "%LOCALAPPDATA%\IconCache.db" >nul 2>&1
+    echo Icon cache cleared.
+    call :LogMessage "Icon cache cleared" "INFO"
+) else (
+    echo Icon cache not found (may not exist in this Windows version).
+)
+
+echo.
+echo System cache cleaning completed.
+call :LogMessage "System cache cleaning completed" "SUCCESS"
+pause
+exit /b
+
+:UpdateWindows
+cls
+echo === WINDOWS UPDATE UTILITY ===
+call :LogMessage "Windows Update utility started" "INFO"
+
+echo Checking for Windows updates...
+call :LogMessage "Checking for Windows updates" "INFO"
+
+start ms-settings:windowsupdate-action
+echo Windows Update settings opened.
+call :LogMessage "Windows Update settings opened" "INFO"
+
+pause
+exit /b
+
+:SystemFileChecker
+cls
+echo === SYSTEM FILE CHECKER ===
+call :LogMessage "System File Checker started" "INFO"
+
+echo Running System File Checker...
+echo This may take several minutes. Please wait...
+call :LogMessage "Running System File Checker" "INFO"
+
+sfc /scannow
+set "sfcResult=!ERRORLEVEL!"
+if !sfcResult! EQU 0 (
+    echo System File Checker completed successfully.
+    call :LogMessage "System File Checker completed successfully" "SUCCESS"
+) else (
+    echo System File Checker encountered errors (Exit code: !sfcResult!).
+    call :LogMessage "System File Checker encountered errors (Exit code: !sfcResult!)" "ERROR"
+)
+
+pause
+exit /b
+
+:ManageStartup
+cls
+echo === STARTUP PROGRAMS MANAGER ===
+call :LogMessage "Startup Programs Manager started" "INFO"
+
+echo Listing startup programs...
+call :LogMessage "Listing startup programs" "INFO"
+
+echo === Current User Startup Programs ===
+reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" 2>nul
+set "hkcuQuery=!ERRORLEVEL!"
+if !hkcuQuery! NEQ 0 echo No startup programs found for current user.
+
+echo.
+echo === System Wide Startup Programs ===
+reg query "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" 2>nul
+set "hklmQuery=!ERRORLEVEL!"
+if !hklmQuery! NEQ 0 echo No system-wide startup programs found.
+
+echo.
+echo === Startup Folder (Current User) ===
+dir "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup" 2>nul
+set "startupDir=!ERRORLEVEL!"
+if !startupDir! NEQ 0 echo Startup folder is empty.
+
+echo.
+set /p "disable=Enter program name to disable from registry (leave empty to skip): "
+if not "%disable%"=="" (
+    set "foundProgram=0"
+    reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "%disable%" >nul 2>&1
+    if !ERRORLEVEL! EQU 0 (
+        reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "%disable%" /f >nul 2>&1
+        if !ERRORLEVEL! EQU 0 (
+            echo Successfully disabled: %disable% (Current User)
+            call :LogMessage "Disabled startup program (HKCU): %disable%" "INFO"
+            set "foundProgram=1"
+        )
+    )
+    
+    reg query "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%disable%" >nul 2>&1
+    if !ERRORLEVEL! EQU 0 (
+        reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%disable%" /f >nul 2>&1
+        if !ERRORLEVEL! EQU 0 (
             echo Successfully disabled: %disable% (System Wide)
             call :LogMessage "Disabled startup program (HKLM): %disable%" "INFO"
             set "foundProgram=1"
